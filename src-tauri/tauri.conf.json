@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "nggspice",
+    "productName": "Next Geneneration Graphic Spice",
     "version": "0.0.0"
   },
   "tauri": {
@@ -19,9 +19,11 @@
     },
     "windows": [
       {
-        "title": "nggspice",
+        "title": "Next Geneneration Graphic Spice",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "maximized": true,
+        "resizable": true
       }
     ],
     "security": {
