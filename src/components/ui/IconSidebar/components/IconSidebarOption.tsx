@@ -41,26 +41,29 @@ const IconSidebarOption: FC<IconSidebarOptionProps> = ({
       )}
       <TooltipTrigger className="w-full">
         <Button
-          className={clsx("p-0 w-full flex flex-col items-center justify-center", {
-            "h-16": !!title,
-            "h-12": !title
-          })}
-          variant="ghost"
+          className={clsx(
+            "p-0 w-full max-w-full overflow-hidden flex flex-col items-center justify-center",
+            {
+              "h-16": !!title,
+              "h-12": !title
+            }
+          )}
+          variant={!!onClick ? "ghost" : "inactive"}
           key={ariaLabel}
           aria-label={ariaLabel}
           onClick={onClick}
         >
           {node || (
             <motion.div
-              animate={{ height: "auto", width: "auto" }}
               className={clsx(
-                "flex flex-col items-center w-full h-full p-2 overflow-hidden"
+                "flex flex-col items-center justify-center w-full h-full p-2 overflow-hidden"
               )}
             >
               {Icon && <Icon className="w-5 h-5" />}
               <AnimatePresence initial={false}>
                 {title && !minimized && (
                   <AnimatedTypography
+                    className="overflow-hidden text-ellipsis w-full"
                     initial={{
                       opacity: 0,
                       fontSize: "0px",

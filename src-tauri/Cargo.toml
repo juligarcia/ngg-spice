@@ -7,6 +7,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "paprika"
+path = "src/ng/lib.rs"
+
 [build-dependencies]
 tauri-build = { version = "1", features = [] }
 
@@ -14,6 +18,10 @@ tauri-build = { version = "1", features = [] }
 tauri = { version = "1", features = ["shell-open"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+libloading = "0.7"
+libc = "0.2"
+colored = "2.0"
+num-complex = "0.4"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

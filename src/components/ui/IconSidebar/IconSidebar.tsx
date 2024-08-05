@@ -4,18 +4,29 @@ import { motion } from "framer-motion";
 import IconSidebarOption, {
   IconSidebarOptionProps as Option
 } from "./components/IconSidebarOption";
+import clsx from "clsx";
 
 interface IconSidebarProps {
   top: Option[];
   bottom?: Option[];
   minimized?: boolean;
+  className?: string;
 }
 
-const IconSidebar: FC<IconSidebarProps> = ({ top, bottom, minimized }) => {
+const IconSidebar: FC<IconSidebarProps> = ({
+  top,
+  bottom,
+  minimized,
+  className
+}) => {
   return (
     <motion.div
-      animate={{ width: "auto" }}
-      className="h-full px-2 py-4 border-r-2 flex flex-col gap-2 justify-between max-w-fit"
+      initial={false}
+      animate={{ width: minimized ? 50 : 90 }}
+      className={clsx(
+        "h-full p-2 flex flex-col gap-2 justify-between",
+        className
+      )}
     >
       <div className="flex flex-col gap-2">
         {top.map((option) => (

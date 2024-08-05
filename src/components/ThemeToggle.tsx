@@ -49,7 +49,7 @@ const ThemeToggle: FC<ThemeToggleProps> = ({ minimized }) => {
               />
             )}
           </AnimatePresence>
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {!minimized && (
               <AnimatedTypography
                 initial={{
