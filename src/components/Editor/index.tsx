@@ -90,8 +90,6 @@ const Editor: FC = () => {
       let centerY = Math.round((centerYSource + centerYTarget) / 2);
       centerY = centerY - (centerY % 10);
 
-      console.log(centerX, centerY);
-
       const offsetX = centerXSource - centerXTarget;
       const offsetY = centerYSource - centerYTarget;
 
@@ -149,15 +147,10 @@ const Editor: FC = () => {
     }
   };
 
-  /*
-  
-  - Puedo usar Paneles para mostrar las especifidades de cada cosa, o también puedo hacerlo con toolbars...
-  - Deberia usar toolbars en base al tipo de nodo
-  
-  */
-
-  // TODO: Limitar self connections, permitir cambiar de lado la conexíon en un nodo, o hacer que sea automatico
-  // TODO: autocompensar el nodo de conexión?
+  // TODO: Limitar self connections
+  // TODO: permitir cambiar la conexíon de un nodo
+  // TODO: habrá algún layout que me re ordene las cosas optimas para un circuito?
+  // TODO: Componente general: .yaml
 
   return (
     <div className="w-full h-full grow">
@@ -177,7 +170,7 @@ const Editor: FC = () => {
         edgeTypes={edgeTypes}
       >
         <Controls />
-        <Background variant={BackgroundVariant.Dots} gap={20} size={0.5} />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
       </ReactFlow>
     </div>
   );

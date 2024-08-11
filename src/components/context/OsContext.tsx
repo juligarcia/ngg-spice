@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { OsType, type } from "@tauri-apps/api/os";
+import { OsType, type } from "@tauri-apps/plugin-os";
 import { FC, ReactNode, createContext, useContext, useEffect } from "react";
 
 interface OsContextType {

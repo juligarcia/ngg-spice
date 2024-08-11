@@ -8,7 +8,7 @@
     React Flow variables
     */
 
-    --xy-background-pattern-color: hsl(var(--foreground)) !important;
+    --xy-background-pattern-color: hsl(var(--muted-foreground)) !important;
     --xy-background-color: hsl(var(--background)) !important;
     --xy-edge-stroke-width: 2px !important;
     --xy-edge-stroke: hsl(var(--foreground)) !important;

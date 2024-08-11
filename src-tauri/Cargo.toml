@@ -2,7 +2,7 @@
 name = "nggspice"
 version = "0.0.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["julian garcia"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -10,18 +10,23 @@ edition = "2021"
 [lib]
 name = "paprika"
 path = "src/ng/lib.rs"
+crate-type = ["lib", "staticlib", "cdylib"]
 
 [build-dependencies]
-tauri-build = { version = "1", features = [] }
+tauri-build = { version = "2.0.0-rc", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "os-all", "shell-open"] }
+tauri = { version = "2.0.0-rc", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 libloading = "0.7"
 libc = "0.2"
 colored = "2.0"
 num-complex = "0.4"
+tauri-plugin-os = "2.0.0-rc.0"
+tauri-plugin-shell = "2.0.0-rc.0"
+tauri-plugin-decorum = "1.0.0"
+tao = "0.28.1"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

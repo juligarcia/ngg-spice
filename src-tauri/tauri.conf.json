@@ -2,47 +2,39 @@
   "build": {
     "beforeDevCommand": "yarn dev",
     "beforeBuildCommand": "yarn build",
-    "devPath": "http://localhost:1420",
-    "distDir": "../dist"
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420"
   },
-  "package": {
-    "productName": "Next Geneneration Graphic Spice",
-    "version": "0.0.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "os": {
-        "all": true
-      },
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      }
-    },
-    "windows": [
-      {
-        "title": "Next Geneneration Graphic Spice",
-        "width": 800,
-        "height": 600,
-        "maximized": true,
-        "resizable": true
-      }
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
     ],
+    "createUpdaterArtifacts": "v1Compatible"
+  },
+  "productName": "Next Geneneration Graphic Spice",
+  "version": "0.0.0",
+  "identifier": "com.tauri.dev",
+  "plugins": {},
+  "app": {
     "security": {
       "csp": null
     },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.tauri.dev",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
-    }
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "Next Geneneration Graphic Spice",
+        "width": 1920,
+        "height": 1080,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      }
+    ]
   }
 }

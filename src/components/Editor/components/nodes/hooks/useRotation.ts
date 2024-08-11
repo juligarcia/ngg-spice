@@ -48,7 +48,7 @@ export const useRotation = ({
     });
   }, []);
 
-  useHotkeys(osHotkeys({ Darwin: "Meta+r" }, os), () => {
+  useHotkeys(osHotkeys({ macos: "Meta+r" }, os), () => {
     if (selected) {
       const newPositions = arrayRotate(rotatedPositions) as RotatedPositions;
       const [top, right, bottom, left] = newPositions;

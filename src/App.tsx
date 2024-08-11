@@ -22,6 +22,8 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { HotkeysProvider } from "react-hotkeys-hook";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { OsContextProvider } from "./components/context/OsContext";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+const appWindow = getCurrentWebviewWindow();
 
 function App() {
   const [minimizedSidebar, setMinimizedSidebar] = useLocalStorage(
@@ -48,41 +50,44 @@ function App() {
             <TooltipProvider>
               <ThemeProvider>
                 <Layout>
-                  <div className="h-full w-full flex">
-                    <IconSidebar
-                      top={[
-                        {
-                          ariaLabel: "Next Generation Graphic Spice Logo",
-                          node: <img className="w-6 h-6" src="logo.png" />
-                        },
-                        {
-                          ariaLabel: "Schematic 1",
-                          Icon: CircuitBoard,
-                          onClick: () => {},
-                          title: "Schematic 1"
-                        },
-                        {
-                          ariaLabel: "Schematic 2",
-                          Icon: CircuitBoard,
-                          onClick: () => {},
-                          title: "Schematic 2"
-                        },
-                        {
-                          ariaLabel: "Schematic 3",
-                          Icon: CircuitBoard,
-                          onClick: () => {},
-                          title: "Schematic 3"
-                        }
-                      ]}
-                      bottom={[
-                        {
-                          ariaLabel: "Theme toggle",
-                          node: <ThemeToggle />,
-                          title: "Theme"
-                        }
-                      ]}
-                    />
-                    <div className="h-full w-full p-2 bg-gradient-to-br from-primary to-secondary">
+                  <div className="h-full w-full flex bg-gradient-to-br from-primary to-secondary">
+                    <div className="h-full flex flex-col items-center pt-8">
+                      <IconSidebar
+                        className="bg-background mt-4 mb-2 rounded-r-xl"
+                        top={[
+                          {
+                            ariaLabel: "Next Generation Graphic Spice Logo",
+                            node: <img className="w-6 h-6" src="logo.png" />
+                          },
+                          {
+                            ariaLabel: "Schematic 1",
+                            Icon: CircuitBoard,
+                            onClick: () => {},
+                            title: "Schematic 1"
+                          },
+                          {
+                            ariaLabel: "Schematic 2",
+                            Icon: CircuitBoard,
+                            onClick: () => {},
+                            title: "Schematic 2"
+                          },
+                          {
+                            ariaLabel: "Schematic 3",
+                            Icon: CircuitBoard,
+                            onClick: () => {},
+                            title: "Schematic 3"
+                          }
+                        ]}
+                        bottom={[
+                          {
+                            ariaLabel: "Theme toggle",
+                            node: <ThemeToggle />,
+                            title: "Theme"
+                          }
+                        ]}
+                      />
+                    </div>
+                    <div className="h-full w-full p-2">
                       <div className="h-full w-full overflow-hidden rounded-xl shadow-2xl border flex">
                         <IconSidebar
                           className="bg-background"

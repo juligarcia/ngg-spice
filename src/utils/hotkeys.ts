@@ -1,4 +1,4 @@
-import { OsType } from "@tauri-apps/api/os";
+import { OsType } from "@tauri-apps/plugin-os";
 
 export type OsHotkeys = Partial<{
   [key in OsType]: string | string[];
