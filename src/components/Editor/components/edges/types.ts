@@ -1,8 +1,8 @@
 import { Edge } from "@xyflow/react";
-import { EditablePathEdgeType } from "./EditablePathEdge/types";
+import { SingleEndedFloatingEdgeType } from "./SingleEndedFloatingEdge/types";
 
 export enum EdgeType {
-  EditablePath = "editable-path"
+  Floating = "floating"
 }
 
-export type AppEdge = EditablePathEdgeType | Edge;
+export type AppEdge = SingleEndedFloatingEdgeType | Edge;

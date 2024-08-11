@@ -4,6 +4,18 @@
 
 @layer base {
   :root {
+    /*
+    React Flow variables
+    */
+
+    --xy-background-pattern-color: hsl(var(--foreground)) !important;
+    --xy-background-color: hsl(var(--background)) !important;
+    --xy-edge-stroke-width: 2px !important;
+    --xy-edge-stroke: hsl(var(--foreground)) !important;
+    /*
+    ---------------------------------------
+    */
+
     --background: 263.4 100% 95%;
     --foreground: 263.4 5% 0%;
     --card: 263.4 50% 90%;
@@ -24,13 +36,6 @@
     --input: 263.4 30% 18%;
     --ring: 263.4 70% 50.4%;
     --radius: 0.5rem;
-
-    /*
-    React Flow variables
-*/
-
-    --xy-background-pattern-color: hsl(var(--foreground)) !important;
-    --xy-background-color: hsl(var(--background)) !important;
   }
   .dark {
     --background: 263.4 50% 5%;
@@ -53,13 +58,6 @@
     --input: 263.4 30% 18%;
     --ring: 263.4 70% 50.4%;
     --radius: 0.5rem;
-
-    /*
-    React Flow variables
-*/
-
-    --xy-background-pattern-color: hsl(var(--foreground)) !important;
-    ----xy-background-color: hsl(var(--background)) !important;
   }
 }
 

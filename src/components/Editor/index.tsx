@@ -30,9 +30,9 @@ import { AppNode, NodeType } from "./components/nodes/types";
 import { edgeTypes } from "./components/edges";
 import { AppEdge, EdgeType } from "./components/edges/types";
 import { SortAsc } from "lucide-react";
-import { ConnectionNodeType } from "./components/nodes/ConnectionNode/types";
 import { uniqueId } from "lodash";
 import { calculateNodeCenter, findNode } from "./components/nodes/utils";
+import { ConnectionNodeType } from "./components/nodes/ConnectionNode/types";
 
 const Editor: FC = () => {
   const { theme } = useTheme();
@@ -84,9 +84,13 @@ const Editor: FC = () => {
       const [centerXSource, centerYSource] = calculateNodeCenter(sourceNode);
       const [centerXTarget, centerYTarget] = calculateNodeCenter(targetNode);
 
-      const centerX = (centerXSource + centerXTarget) / 2;
+      let centerX = Math.round((centerXSource + centerXTarget) / 2);
+      centerX = centerX - (centerX % 10);
 
-      const centerY = (centerYSource + centerYTarget) / 2;
+      let centerY = Math.round((centerYSource + centerYTarget) / 2);
+      centerY = centerY - (centerY % 10);
+
+      console.log(centerX, centerY);
 
       const offsetX = centerXSource - centerXTarget;
       const offsetY = centerYSource - centerYTarget;
@@ -94,15 +98,17 @@ const Editor: FC = () => {
       const absOffsetX = Math.abs(offsetX);
       const absOffsetY = Math.abs(offsetY);
 
+      const newConnectionNodeId = `connection-node-${uuid}`;
+
       const newConnectionNode: ConnectionNodeType = {
         type: NodeType.Connection,
         data: {},
-        id: `connection-node-${uuid}`,
+        id: newConnectionNodeId,
         position: { x: centerX, y: centerY }
       };
 
       const newEdge1: AppEdge = {
-        type: "smoothstep",
+        type: "floating",
         id: `e2e-${uuid}-1st`,
         source,
         target: newConnectionNode.id,
@@ -110,15 +116,15 @@ const Editor: FC = () => {
         targetHandle:
           absOffsetX > absOffsetY
             ? offsetX > 0
-              ? "right"
-              : "left"
+              ? `handle-${newConnectionNodeId}-right`
+              : `handle-${newConnectionNodeId}-left`
             : offsetY > 0
-            ? "bottom"
-            : "top"
+            ? `handle-${newConnectionNodeId}-bottom`
+            : `handle-${newConnectionNodeId}-top`
       };
 
       const newEdge2: AppEdge = {
-        type: "smoothstep",
+        type: "floating",
         id: `e2e-${uuid}-2nd`,
         source: target,
         sourceHandle: targetHandle,
@@ -126,11 +132,11 @@ const Editor: FC = () => {
         targetHandle:
           absOffsetX > absOffsetY
             ? offsetX > 0
-              ? "left"
-              : "right"
+              ? `handle-${newConnectionNodeId}-left`
+              : `handle-${newConnectionNodeId}-right`
             : offsetY > 0
-            ? "top"
-            : "bottom"
+            ? `handle-${newConnectionNodeId}-top`
+            : `handle-${newConnectionNodeId}-bottom`
       };
 
       setEdges((eds: AppEdge[]) => addEdge(newEdge1, eds));
@@ -138,7 +144,7 @@ const Editor: FC = () => {
       setNodes((nodes: AppNode[]) => [...nodes, newConnectionNode]);
     } else {
       setEdges((eds: AppEdge[]) =>
-        addEdge({ ...params, type: "smoothstep" }, eds)
+        addEdge({ ...params, type: "floating" }, eds)
       );
     }
   };
@@ -156,10 +162,10 @@ const Editor: FC = () => {
   return (
     <div className="w-full h-full grow">
       <ReactFlow
+        snapToGrid
+        snapGrid={[10, 10]}
         nodeOrigin={[0.5, 0.5]}
         connectionMode={ConnectionMode.Loose}
-        // snapGrid={[20, 20]}
-        // snapToGrid
         colorMode={theme}
         fitView
         nodes={nodes}

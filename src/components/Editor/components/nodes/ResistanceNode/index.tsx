@@ -22,25 +22,25 @@ const ResistanceNode: FC<ResistanceNodeProps> = forwardRef<
     <div
       ref={ref}
       style={{ transform: `rotate(${rotation}deg)` }}
-      className={clsx("w-[120px] h-[120px] relative")}
+      className={clsx("w-[120px] h-[120px] relative p-2")}
     >
       <LimitedConnectionsHandle
         className={fixedLeftClass}
-        id="left"
+        id={`handle-${id}-left`}
         type="source"
         position={LEFT}
       />
-      <div
-        className={clsx("p-2 rounded-xl border border-foreground", {
-          "bg-card": !selected,
-          "bg-accent": selected
-        })}
-      >
-        <ResistanceLogo className="fill-foreground" />
+      <div className={clsx("rounded-lg")}>
+        <ResistanceLogo
+          className={clsx("rounded-lg", {
+            "fill-foreground": !selected,
+            "fill-primary bg-accent": selected
+          })}
+        />
       </div>
       <LimitedConnectionsHandle
         className={fixedRightClass}
-        id="right"
+        id={`handle-${id}-right`}
         type="source"
         position={RIGHT}
       />

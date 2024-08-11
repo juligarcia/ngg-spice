@@ -1,9 +1,8 @@
-import { Handle, NodeProps } from "@xyflow/react";
+import { Handle, NodeProps, Position } from "@xyflow/react";
 import { FC } from "react";
 import { ConnectionNodeType } from "@/components/Editor/components/nodes/ConnectionNode/types";
 import { Hexagon } from "lucide-react";
 import clsx from "clsx";
-import { useRotation } from "../hooks/useRotation";
 import {
   fixedBottomClass,
   fixedLeftClass,
@@ -13,28 +12,31 @@ import {
 
 export type ConnectionNodeProps = NodeProps<ConnectionNodeType>;
 
+const uniformClassname =
+  "!top-0 !left-0 !right-[unset] !bottom-[unset] !w-full !h-full !opacity-0 !transform-none z-[-1]";
+
 const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id }) => {
-  // TODO: hacer que se conecte al handle mas cercano
-
-  const [rotation, [TOP, RIGHT, BOTTOM, LEFT]] = useRotation({ selected, id });
-
   return (
     <div
-      style={{
-        transform: `rotate(${rotation}deg) scale(${selected ? 1.25 : 1})`
-      }}
-      className={clsx("relative shadow-none")}
+      className={clsx("relative shadow-none", {
+        "scale-125": selected
+      })}
     >
       <Handle
-        className={fixedLeftClass}
+        className={uniformClassname}
         type="source"
-        id="left"
-        position={LEFT}
+        id={`handle-${id}-left`}
+        position={Position.Left}
       />
-      <Handle className={fixedTopClass} type="source" id="top" position={TOP} />
+      <Handle
+        className={uniformClassname}
+        type="source"
+        id={`handle-${id}-top`}
+        position={Position.Top}
+      />
       <div
         className={clsx(
-          "bg-card rounded-full border border-foreground w-4 h-4 flex flex-col items-center justify-center"
+          "bg-card rounded-full border border-foreground w-[20px] h-[20px] flex flex-col items-center justify-center"
         )}
       >
         <Hexagon
@@ -45,17 +47,17 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id }) => {
         />
       </div>
       <Handle
-        className={fixedBottomClass}
+        className={uniformClassname}
         type="source"
-        id="bottom"
-        position={BOTTOM}
+        id={`handle-${id}-bottom`}
+        position={Position.Bottom}
       />
 
       <Handle
-        className={fixedRightClass}
+        className={uniformClassname}
         type="source"
-        id="right"
-        position={RIGHT}
+        id={`handle-${id}-right`}
+        position={Position.Right}
       />
     </div>
   );
