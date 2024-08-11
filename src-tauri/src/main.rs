@@ -60,7 +60,8 @@ fn main() {
             main_window.create_overlay_titlebar().unwrap();
 
             #[cfg(target_os = "macos")]
-            main_window.set_traffic_lights_inset(18.0, 25.0).unwrap();
+            main_window.set_traffic_lights_inset(18.0, 27.0).unwrap();
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![greet])

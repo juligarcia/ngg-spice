@@ -1,4 +1,4 @@
-import { Node } from "@xyflow/react";
+import { Node, Position } from "@xyflow/react";
 import { NodeCategory } from "./types";
 
 // Given that nodeOrigin = [0.5, 0.5] we only need it's position here
@@ -12,8 +12,6 @@ export const calculateNodeCenter = <T extends Node>(
   return [x, y];
 };
 
-// export const findNode = <T extends Node>(nodes: Array<T>, match:string, with:string | number ): T | undefined => {}
-
 export const findNode = <K extends keyof Node>(
   nodes: Node[],
   match: K,
@@ -23,9 +21,27 @@ export const findNode = <K extends keyof Node>(
 };
 
 export const isOfCategory = <T extends Node>(
-  node: T,
+  node: T | string,
   category: NodeCategory
 ): boolean => {
-  // TODO: implement
-  return true;
+  return typeof node === "string"
+    ? node.indexOf(category) >= 0
+    : node.id.indexOf(category) >= 0;
 };
+
+export const tagPort = (
+  nodeId: string,
+  position: Position,
+  index: number = 0
+) => {
+  return `port-[${nodeId}]-${position}-${index}`;
+};
+
+const Nodes = {
+  calculateNodeCenter,
+  findNode,
+  isOfCategory,
+  tagPort
+};
+
+export default Nodes;

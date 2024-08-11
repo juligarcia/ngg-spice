@@ -4,10 +4,16 @@ import { useReactFlow, useUpdateNodeInternals } from "@xyflow/react";
 import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Position } from "@xyflow/react";
+import Nodes from "../utils";
+
+export type AvailableHandles = {
+  [key in Position]: number;
+};
 
 interface UseRoatationParams {
   selected?: boolean;
   id: string;
+  availableHandles?: AvailableHandles;
 }
 
 function arrayRotate<T>(arr: Array<T>, reverse?: boolean) {
@@ -20,7 +26,8 @@ type RotatedPositions = [Position, Position, Position, Position];
 
 export const useRotation = ({
   selected,
-  id
+  id,
+  availableHandles = { top: 1, bottom: 1, left: 1, right: 1 }
 }: UseRoatationParams): [number, Position[]] => {
   const [rotation, setRotation] = useState(0);
   const [rotatedPositions, setRotatedPositions] = useState<RotatedPositions>([
@@ -40,10 +47,34 @@ export const useRotation = ({
 
     updateNodeData(id, {
       withRotation: {
-        [`handle-${id}-top`]: top,
-        [`handle-${id}-right`]: right,
-        [`handle-${id}-bottom`]: bottom,
-        [`handle-${id}-left`]: left
+        ...Array.from({ length: availableHandles.top }).reduce<{
+          [key: string]: Position;
+        }>((rots, _, index) => {
+          rots[Nodes.tagPort(id, Position.Top, index)] = top;
+
+          return rots;
+        }, {}),
+        ...Array.from({ length: availableHandles.right }).reduce<{
+          [key: string]: Position;
+        }>((rots, _, index) => {
+          rots[Nodes.tagPort(id, Position.Right, index)] = right;
+
+          return rots;
+        }, {}),
+        ...Array.from({ length: availableHandles.bottom }).reduce<{
+          [key: string]: Position;
+        }>((rots, _, index) => {
+          rots[Nodes.tagPort(id, Position.Bottom, index)] = bottom;
+
+          return rots;
+        }, {}),
+        ...Array.from({ length: availableHandles.left }).reduce<{
+          [key: string]: Position;
+        }>((rots, _, index) => {
+          rots[Nodes.tagPort(id, Position.Left, index)] = left;
+
+          return rots;
+        }, {})
       }
     });
   }, []);
@@ -58,10 +89,34 @@ export const useRotation = ({
       updateNodeInternals(id);
       updateNodeData(id, {
         withRotation: {
-          [`handle-${id}-top`]: top,
-          [`handle-${id}-right`]: right,
-          [`handle-${id}-bottom`]: bottom,
-          [`handle-${id}-left`]: left
+          ...Array.from({ length: availableHandles.top }).reduce<{
+            [key: string]: Position;
+          }>((rots, _, index) => {
+            rots[Nodes.tagPort(id, Position.Top, index)] = top;
+
+            return rots;
+          }, {}),
+          ...Array.from({ length: availableHandles.right }).reduce<{
+            [key: string]: Position;
+          }>((rots, _, index) => {
+            rots[Nodes.tagPort(id, Position.Right, index)] = right;
+
+            return rots;
+          }, {}),
+          ...Array.from({ length: availableHandles.bottom }).reduce<{
+            [key: string]: Position;
+          }>((rots, _, index) => {
+            rots[Nodes.tagPort(id, Position.Bottom, index)] = bottom;
+
+            return rots;
+          }, {}),
+          ...Array.from({ length: availableHandles.left }).reduce<{
+            [key: string]: Position;
+          }>((rots, _, index) => {
+            rots[Nodes.tagPort(id, Position.Left, index)] = left;
+
+            return rots;
+          }, {})
         }
       });
     }

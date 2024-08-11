@@ -1,4 +1,4 @@
-import { NodeProps } from "@xyflow/react";
+import { NodeProps, Position } from "@xyflow/react";
 import { FC, forwardRef } from "react";
 import { ResistanceNodeType } from "@/components/Editor/components/nodes/ResistanceNode/types";
 import LimitedConnectionsHandle from "../../handles/LimitedConnectionsHandle";
@@ -6,6 +6,7 @@ import ResistanceLogo from "../../../../../../public/nodes/resistor.svg?react";
 import clsx from "clsx";
 import { useRotation } from "../hooks/useRotation";
 import { fixedLeftClass, fixedRightClass } from "../../handles/classes";
+import { tagPort } from "../utils";
 
 export type ResistanceNodeProps = NodeProps<ResistanceNodeType>;
 
@@ -17,6 +18,7 @@ const ResistanceNode: FC<ResistanceNodeProps> = forwardRef<
     id,
     selected
   });
+  
 
   return (
     <div
@@ -26,7 +28,7 @@ const ResistanceNode: FC<ResistanceNodeProps> = forwardRef<
     >
       <LimitedConnectionsHandle
         className={fixedLeftClass}
-        id={`handle-${id}-left`}
+        id={tagPort(id, Position.Left)}
         type="source"
         position={LEFT}
       />
@@ -40,7 +42,7 @@ const ResistanceNode: FC<ResistanceNodeProps> = forwardRef<
       </div>
       <LimitedConnectionsHandle
         className={fixedRightClass}
-        id={`handle-${id}-right`}
+        id={tagPort(id, Position.Right)}
         type="source"
         position={RIGHT}
       />

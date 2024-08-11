@@ -3,12 +3,7 @@ import { FC } from "react";
 import { ConnectionNodeType } from "@/components/Editor/components/nodes/ConnectionNode/types";
 import { Hexagon } from "lucide-react";
 import clsx from "clsx";
-import {
-  fixedBottomClass,
-  fixedLeftClass,
-  fixedRightClass,
-  fixedTopClass
-} from "../../handles/classes";
+import { tagPort } from "../utils";
 
 export type ConnectionNodeProps = NodeProps<ConnectionNodeType>;
 
@@ -19,19 +14,19 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id }) => {
   return (
     <div
       className={clsx("relative shadow-none", {
-        "scale-125": selected
+        "scale-150": selected
       })}
     >
       <Handle
         className={uniformClassname}
         type="source"
-        id={`handle-${id}-left`}
+        id={tagPort(id, Position.Left)}
         position={Position.Left}
       />
       <Handle
         className={uniformClassname}
         type="source"
-        id={`handle-${id}-top`}
+        id={tagPort(id, Position.Top)}
         position={Position.Top}
       />
       <div
@@ -49,14 +44,14 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id }) => {
       <Handle
         className={uniformClassname}
         type="source"
-        id={`handle-${id}-bottom`}
+        id={tagPort(id, Position.Bottom)}
         position={Position.Bottom}
       />
 
       <Handle
         className={uniformClassname}
         type="source"
-        id={`handle-${id}-right`}
+        id={tagPort(id, Position.Right)}
         position={Position.Right}
       />
     </div>

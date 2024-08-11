@@ -26,12 +26,12 @@ import {
 import { ComponentType, FC, useCallback } from "react";
 import { useTheme } from "../ThemeProvider";
 import { nodeTypes } from "@/components/Editor/components/nodes";
-import { AppNode, NodeType } from "./components/nodes/types";
+import { AppNode, NodeCategory, NodeType } from "./components/nodes/types";
 import { edgeTypes } from "./components/edges";
 import { AppEdge, EdgeType } from "./components/edges/types";
 import { SortAsc } from "lucide-react";
 import { uniqueId } from "lodash";
-import { calculateNodeCenter, findNode } from "./components/nodes/utils";
+import Nodes from "./components/nodes/utils";
 import { ConnectionNodeType } from "./components/nodes/ConnectionNode/types";
 
 const Editor: FC = () => {
@@ -39,25 +39,25 @@ const Editor: FC = () => {
 
   const initialNodes: AppNode[] = [
     {
-      id: "element-resistance-1",
+      id: "element-1",
       data: { value: 1000, unit: "k" },
       type: NodeType.Resistance,
       position: { x: 0, y: 0 }
     },
     {
-      id: "element-resistance-2",
+      id: "element-2",
       data: { value: 1000, unit: "k" },
       type: NodeType.Resistance,
       position: { x: 200, y: 200 }
     },
     {
-      id: "element-resistance-3",
+      id: "element-3",
       data: { value: 1000, unit: "k" },
       type: NodeType.Resistance,
       position: { x: -200, y: -200 }
     },
     {
-      id: "element-resistance-4",
+      id: "element-4",
       data: { value: 1000, unit: "k" },
       type: NodeType.Resistance,
       position: { x: -300, y: 400 }
@@ -70,25 +70,28 @@ const Editor: FC = () => {
   const onConnect: OnConnect = ({ ...params }) => {
     const { source, target, sourceHandle, targetHandle } = params;
 
-    const sourceNode = findNode(nodes, "id", source);
-    const targetNode = findNode(nodes, "id", target);
+    const sourceNode = Nodes.findNode(nodes, "id", source);
+    const targetNode = Nodes.findNode(nodes, "id", target);
 
-    const isSourceElement = source.includes("element-");
-    const isTargetElement = target.includes("element-");
-
-    // TODO: emprolijar esta logica
+    const isSourceElement = Nodes.isOfCategory(source, NodeCategory.Element);
+    const isTargetElement = Nodes.isOfCategory(target, NodeCategory.Element);
 
     const uuid = uniqueId();
 
     if (sourceNode && targetNode && isSourceElement && isTargetElement) {
-      const [centerXSource, centerYSource] = calculateNodeCenter(sourceNode);
-      const [centerXTarget, centerYTarget] = calculateNodeCenter(targetNode);
+      const [centerXSource, centerYSource] =
+        Nodes.calculateNodeCenter(sourceNode);
+
+      const [centerXTarget, centerYTarget] =
+        Nodes.calculateNodeCenter(targetNode);
 
       let centerX = Math.round((centerXSource + centerXTarget) / 2);
       centerX = centerX - (centerX % 10);
 
       let centerY = Math.round((centerYSource + centerYTarget) / 2);
       centerY = centerY - (centerY % 10);
+
+      console.log(centerX, centerY);
 
       const offsetX = centerXSource - centerXTarget;
       const offsetY = centerYSource - centerYTarget;
@@ -114,11 +117,11 @@ const Editor: FC = () => {
         targetHandle:
           absOffsetX > absOffsetY
             ? offsetX > 0
-              ? `handle-${newConnectionNodeId}-right`
-              : `handle-${newConnectionNodeId}-left`
+              ? Nodes.tagPort(newConnectionNodeId, Position.Right)
+              : Nodes.tagPort(newConnectionNodeId, Position.Left)
             : offsetY > 0
-            ? `handle-${newConnectionNodeId}-bottom`
-            : `handle-${newConnectionNodeId}-top`
+            ? Nodes.tagPort(newConnectionNodeId, Position.Bottom)
+            : Nodes.tagPort(newConnectionNodeId, Position.Top)
       };
 
       const newEdge2: AppEdge = {
@@ -130,11 +133,11 @@ const Editor: FC = () => {
         targetHandle:
           absOffsetX > absOffsetY
             ? offsetX > 0
-              ? `handle-${newConnectionNodeId}-left`
-              : `handle-${newConnectionNodeId}-right`
+              ? Nodes.tagPort(newConnectionNodeId, Position.Left)
+              : Nodes.tagPort(newConnectionNodeId, Position.Right)
             : offsetY > 0
-            ? `handle-${newConnectionNodeId}-top`
-            : `handle-${newConnectionNodeId}-bottom`
+            ? Nodes.tagPort(newConnectionNodeId, Position.Top)
+            : Nodes.tagPort(newConnectionNodeId, Position.Bottom)
       };
 
       setEdges((eds: AppEdge[]) => addEdge(newEdge1, eds));
@@ -146,6 +149,8 @@ const Editor: FC = () => {
       );
     }
   };
+
+  console.log(nodes);
 
   // TODO: Limitar self connections
   // TODO: permitir cambiar la conexíon de un nodo
@@ -170,7 +175,7 @@ const Editor: FC = () => {
         edgeTypes={edgeTypes}
       >
         <Controls />
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={2} />
       </ReactFlow>
     </div>
   );
