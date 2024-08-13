@@ -1,9 +1,10 @@
 import { Handle, NodeProps, Position } from "@xyflow/react";
 import { FC } from "react";
 import { ConnectionNodeType } from "@/components/Editor/components/nodes/ConnectionNode/types";
-import { Hexagon } from "lucide-react";
+import { Hexagon, Waypoints } from "lucide-react";
 import clsx from "clsx";
 import { tagPort } from "../utils";
+import usePointerProximity from "@/hooks/usePointerProximity";
 
 export type ConnectionNodeProps = NodeProps<ConnectionNodeType>;
 
@@ -11,11 +12,12 @@ const uniformClassname =
   "!top-0 !left-0 !right-[unset] !bottom-[unset] !w-full !h-full !opacity-0 !transform-none z-[-1]";
 
 const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id }) => {
+  const proximity = usePointerProximity({ id });
+
   return (
     <div
-      className={clsx("relative shadow-none", {
-        "scale-150": selected
-      })}
+      id={id}
+      className={clsx("relative animate-transform duration-100 ease-in-out")}
     >
       <Handle
         className={uniformClassname}
@@ -30,15 +32,19 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id }) => {
         position={Position.Top}
       />
       <div
+        style={{ transform: `scale(${Math.max((proximity + 50) / 100, 1)})` }}
         className={clsx(
-          "bg-card rounded-full border border-foreground w-[20px] h-[20px] flex flex-col items-center justify-center"
+          "transition-[border-color] duration-150 ease-in-out bg-card border hover:border-muted-foreground [&:hover_svg]:stroke-muted-foreground border-foreground rounded-sm w-[25px] h-[25px] p-1 flex flex-col items-center justify-center",
+          {
+            "!scale-150 !border-muted-foreground [&_svg]:stroke-muted-foreground":
+              selected
+          }
         )}
       >
-        <Hexagon
-          className={clsx("h-2 w-2", {
-            "stroke-primary fill-primary": selected,
-            "stroke-foreground fill-card": !selected
-          })}
+        <Waypoints
+          className={clsx(
+            "h-full w-full transition-[stroke] duration-150 ease-in-out stroke-foreground"
+          )}
         />
       </div>
       <Handle

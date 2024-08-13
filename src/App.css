@@ -10,7 +10,7 @@
 
     --xy-background-pattern-color: hsl(var(--muted)) !important;
     --xy-background-color: hsl(var(--background)) !important;
-    --xy-edge-stroke-width: 2px !important;
+    --xy-edge-stroke-width: 3px !important;
     --xy-edge-stroke: hsl(var(--foreground)) !important;
     /*
     ---------------------------------------
@@ -68,4 +68,20 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.react-flow__controls-button {
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--accent)) !important;
+  border-color: hsl(var(--muted-foreground)) !important;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.react-flow__controls-button:first-child {
+  border-radius: 10px 10px 0 0;
+}
+
+.react-flow__controls-button:last-child {
+  border-radius: 0 0 10px 10px;
 }

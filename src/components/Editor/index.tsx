@@ -21,9 +21,10 @@ import {
   getNodesBounds,
   useNodesInitialized,
   useStore,
-  useInternalNode
+  useInternalNode,
+  ControlButton
 } from "@xyflow/react";
-import { ComponentType, FC, useCallback } from "react";
+import { ComponentType, FC, useCallback, useState } from "react";
 import { useTheme } from "../ThemeProvider";
 import { nodeTypes } from "@/components/Editor/components/nodes";
 import { AppNode, NodeCategory, NodeType } from "./components/nodes/types";
@@ -33,39 +34,32 @@ import { SortAsc } from "lucide-react";
 import { uniqueId } from "lodash";
 import Nodes from "./components/nodes/utils";
 import { ConnectionNodeType } from "./components/nodes/ConnectionNode/types";
+import { Button } from "../ui/Button";
+import { SpiceNodeType } from "./components/nodes/SpiceNode/types";
+import { useSpice } from "../context/SpiceContext";
+import { useHotkeys } from "react-hotkeys-hook";
+import { osHotkeys } from "@/utils/hotkeys";
+import { useOs } from "../context/OsContext";
 
 const Editor: FC = () => {
   const { theme } = useTheme();
 
-  const initialNodes: AppNode[] = [
-    {
-      id: "element-1",
-      data: { value: 1000, unit: "k" },
-      type: NodeType.Resistance,
-      position: { x: 0, y: 0 }
-    },
-    {
-      id: "element-2",
-      data: { value: 1000, unit: "k" },
-      type: NodeType.Resistance,
-      position: { x: 200, y: 200 }
-    },
-    {
-      id: "element-3",
-      data: { value: 1000, unit: "k" },
-      type: NodeType.Resistance,
-      position: { x: -200, y: -200 }
-    },
-    {
-      id: "element-4",
-      data: { value: 1000, unit: "k" },
-      type: NodeType.Resistance,
-      position: { x: -300, y: 400 }
-    }
-  ];
+  const [snapToGrid, setSnapToGrid] = useState(false);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<AppEdge>([]);
+
+  const { components } = useSpice();
+
+  const { os } = useOs();
+
+  useHotkeys(
+    osHotkeys({ macos: "shift" }, os),
+    () => {
+      setSnapToGrid(!snapToGrid);
+    },
+    { keyup: true, keydown: true }
+  );
 
   const onConnect: OnConnect = ({ ...params }) => {
     const { source, target, sourceHandle, targetHandle } = params;
@@ -90,8 +84,6 @@ const Editor: FC = () => {
 
       let centerY = Math.round((centerYSource + centerYTarget) / 2);
       centerY = centerY - (centerY % 10);
-
-      console.log(centerX, centerY);
 
       const offsetX = centerXSource - centerXTarget;
       const offsetY = centerYSource - centerYTarget;
@@ -150,8 +142,6 @@ const Editor: FC = () => {
     }
   };
 
-  console.log(nodes);
-
   // TODO: Limitar self connections
   // TODO: permitir cambiar la conexíon de un nodo
   // TODO: habrá algún layout que me re ordene las cosas optimas para un circuito?
@@ -160,7 +150,7 @@ const Editor: FC = () => {
   return (
     <div className="w-full h-full grow">
       <ReactFlow
-        snapToGrid
+        snapToGrid={snapToGrid}
         snapGrid={[10, 10]}
         nodeOrigin={[0.5, 0.5]}
         connectionMode={ConnectionMode.Loose}
@@ -174,7 +164,24 @@ const Editor: FC = () => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
       >
-        <Controls />
+        <Controls showZoom={false} showInteractive={false}>
+          {components.map((component) => (
+            <ControlButton
+              onClick={() => {
+                const newComponentNode: SpiceNodeType = {
+                  type: NodeType.Spice,
+                  id: Nodes.tagElement(uniqueId()),
+                  position: { x: 0, y: 0 },
+                  data: { ...component }
+                };
+
+                setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
+              }}
+            >
+              {component.name[0]}
+            </ControlButton>
+          ))}
+        </Controls>
         <Background variant={BackgroundVariant.Dots} gap={20} size={2} />
       </ReactFlow>
     </div>

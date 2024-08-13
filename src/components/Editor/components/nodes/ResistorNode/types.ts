@@ -1,12 +1,9 @@
 import { Node } from "@xyflow/react";
 import { NodeType, WithRotation } from "../types";
 
-export type ResistanceNodeValues = {
+export type ResistorNodeValues = {
   value: number;
   unit: string;
 } & WithRotation;
 
-export type ResistanceNodeType = Node<
-  ResistanceNodeValues,
-  NodeType.Resistance
->;
+export type ResistorNodeType = Node<ResistorNodeValues, NodeType.Resistor>;

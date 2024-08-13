@@ -1,6 +1,7 @@
 import { Position } from "@xyflow/react";
 import { ConnectionNodeType } from "./ConnectionNode/types";
-import { ResistanceNodeType } from "./ResistanceNode/types";
+import { ResistorNodeType } from "./ResistorNode/types";
+import { SpiceNodeType } from "./SpiceNode/types";
 
 export type WithRotation = {
   withRotation?: {
@@ -9,13 +10,14 @@ export type WithRotation = {
 };
 
 export enum NodeCategory {
-  Element = "element-",
-  Connection = "connection-"
-}
-
-export enum NodeType {
-  Resistance = "resistance",
+  Element = "element",
   Connection = "connection"
 }
 
-export type AppNode = ResistanceNodeType | ConnectionNodeType;
+export enum NodeType {
+  Resistor = "resistor",
+  Connection = "connection",
+  Spice = "spice"
+}
+
+export type AppNode = ResistorNodeType | ConnectionNodeType | SpiceNodeType;

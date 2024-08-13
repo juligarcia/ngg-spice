@@ -1,5 +1,6 @@
 export const fixedLeftClass =
-  "!left-0 !top-[50%] !-translate-y-2/4 !-translate-x-2/4 !right-[unset] !bottom-[unset]";
+  "!left-0 !top-[50%] !right-[unset] !bottom-[unset]";
+export const fixedLeftTransforms = "translate(-50%, -50%)";
 
 export const fixedRightClass =
   "!right-0 !top-[50%] !-translate-y-2/4 !translate-x-2/4 !left-[unset] !bottom-[unset]";

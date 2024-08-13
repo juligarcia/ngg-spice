@@ -49,14 +49,7 @@ const SingleEndedFloatingEdge: FC<SingleEndedFloatingEdgeProps> = ({
     targetY: ty
   });
 
-  return (
-    <path
-      id={id}
-      className="react-flow__edge-path"
-      d={edgePath}
-      strokeWidth={5}
-    />
-  );
+  return <path id={id} className="react-flow__edge-path" d={edgePath} />;
 };
 
 export default SingleEndedFloatingEdge;

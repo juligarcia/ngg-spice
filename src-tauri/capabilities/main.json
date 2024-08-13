@@ -31,6 +31,9 @@
     "core:window:allow-set-focus",
     "core:window:allow-start-dragging",
     "core:window:allow-toggle-maximize",
-    "decorum:allow-show-snap-overlay"
+    "decorum:allow-show-snap-overlay",
+    "fs:default",
+    "fs:allow-read-text-file",
+    "fs:allow-resource-read-recursive"
   ]
 }

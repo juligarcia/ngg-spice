@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { OsType, type } from "@tauri-apps/plugin-os";
-import { FC, ReactNode, createContext, useContext, useEffect } from "react";
+import { FC, ReactNode, createContext, useContext } from "react";
 
 interface OsContextType {
   os?: OsType;
@@ -14,19 +14,11 @@ interface OsContextProviderProps {
 }
 
 export const OsContextProvider: FC<OsContextProviderProps> = ({ children }) => {
-  const {
-    data: os,
-    isPending: isLoadingOs,
-    refetch
-  } = useQuery({
+  const { data: os, isPending: isLoadingOs } = useQuery({
     queryKey: ["os-type"],
     queryFn: type,
     refetchOnMount: true
   });
-
-  useEffect(() => {
-    refetch();
-  }, []);
 
   const isLoading = isLoadingOs;
 

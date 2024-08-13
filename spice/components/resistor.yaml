@@ -1,0 +1,21 @@
+---
+name: Resistor
+asset: "resistor.svg"
+
+dimensions:
+  width: 120
+  height: 60
+
+top_ports: []
+
+bottom_ports: []
+
+right_ports: # Array of ports
+  - label: "right"
+
+left_ports:
+  - label: "left"
+
+values: # Dict of dicts
+  - type: string
+    name: value

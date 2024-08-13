@@ -37,11 +37,21 @@ export const tagPort = (
   return `port-[${nodeId}]-${position}-${index}`;
 };
 
+export const tagConnection = (uuid: string) => {
+  return `${NodeCategory.Connection}-${uuid}`;
+};
+
+export const tagElement = (uuid: string) => {
+  return `${NodeCategory.Element}-${uuid}`;
+};
+
 const Nodes = {
   calculateNodeCenter,
   findNode,
   isOfCategory,
-  tagPort
+  tagPort,
+  tagConnection,
+  tagElement
 };
 
 export default Nodes;

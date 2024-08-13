@@ -1,0 +1,23 @@
+---
+name: string
+asset: string # Path to svg (Optional), defaults to a box
+
+dimensions:
+  width: number
+  height: number
+
+top-ports: # Array of ports
+  - label: string # Port label (Optional)
+    spice_id: string # Name to which it needs to be mapped for simulation
+
+right-ports: []
+
+bottom-ports: []
+
+left-ports: []
+
+values: # Dict of dicts
+  - type: string # number | string | select
+    validation: string # regexp for value validation (Optional)
+    options: [] # Array of strings if type == select
+    name: string # Name of the field
