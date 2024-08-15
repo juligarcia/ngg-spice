@@ -11,16 +11,16 @@ import { Settings2 } from "lucide-react";
 interface SpiceAttributesProps {
   isVisible?: boolean;
   position: Position;
-  name: string;
-  values: SpiceNode["values"];
+  component_type: string;
+  fields: SpiceNode["fields"];
   id: string;
 }
 
 const SpiceAttributes: FC<SpiceAttributesProps> = ({
   isVisible,
   position,
-  name,
-  values,
+  component_type,
+  fields,
   id
 }) => {
   return (
@@ -34,7 +34,7 @@ const SpiceAttributes: FC<SpiceAttributesProps> = ({
         })}
       >
         <TabsList
-          className={clsx("flex w-fit m-auto", {
+          className={clsx("flex w-fit m-auto shadow-xl", {
             "flex-row":
               position === Position.Top || position === Position.Bottom,
             "flex-col":
@@ -53,9 +53,9 @@ const SpiceAttributes: FC<SpiceAttributesProps> = ({
               "p-4 bg-accent backdrop-blur-md rounded-lg w-[350px] shadow-xl"
             )}
           >
-            <Typography variant="h4">{name}</Typography>
+            <Typography variant="h4">{component_type}</Typography>
             <div className="w-full mt-6">
-              {values.map(({ name: fieldName }) => (
+              {fields.map(({ name: fieldName }) => (
                 <div key={fieldName}>
                   <Input
                     className="mt-2 border-accent"

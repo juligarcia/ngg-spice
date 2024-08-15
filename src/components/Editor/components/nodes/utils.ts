@@ -37,8 +37,8 @@ export const tagPort = (
   return `port-[${nodeId}]-${position}-${index}`;
 };
 
-export const tagConnection = (uuid: string) => {
-  return `${NodeCategory.Connection}-${uuid}`;
+export const tagNode = (uuid: string) => {
+  return `${NodeCategory.Node}-${uuid}`;
 };
 
 export const tagElement = (uuid: string) => {
@@ -50,7 +50,7 @@ const Nodes = {
   findNode,
   isOfCategory,
   tagPort,
-  tagConnection,
+  tagNode,
   tagElement
 };
 

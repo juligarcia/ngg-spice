@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { useRotation } from "../hooks/useRotation";
 import SpiceAttributes from "./components/SpiceAttributes";
 import SpiceHandles from "./components/SpiceHandles";
+import { isEmpty } from "lodash";
 
 export type SpiceNodeProps = NodeProps<SpiceNodeType>;
 
@@ -22,17 +23,24 @@ const SpiceNode: FC<SpiceNodeProps> = forwardRef<
     right_ports,
     bottom_ports,
     left_ports,
-    name,
-    asset,
+    component_type,
+    symbol,
     dimensions,
-    values
+    fields
   } = data;
 
   return (
     <div
       ref={ref}
       style={{ transform: `rotate(${rotation}deg)`, ...dimensions }}
-      className="p-2 !relative"
+      className={clsx(
+        "p-2 !relative",
+        "transition-[filter] duration-300 ease-in-out",
+        {
+          "drop-shadow-xl": selected,
+          "shadow-transparent": !selected
+        }
+      )}
     >
       <SpiceHandles
         id={id}
@@ -46,23 +54,26 @@ const SpiceNode: FC<SpiceNodeProps> = forwardRef<
         LEFT={LEFT}
       />
       <div className="w-full h-full">
-        {asset && (
+        {symbol && (
           <div
             className={clsx(
               "w-full h-full fill-foreground [&_svg]:w-full [&_svg]:h-full",
-              "transition-all duration-150 ease-in-out hover:fill-muted-foreground"
+              "transition-[fill] duration-150 ease-in-out hover:fill-muted-foreground",
+              { "!fill-accent": selected }
             )}
-            dangerouslySetInnerHTML={{ __html: asset }}
+            dangerouslySetInnerHTML={{ __html: symbol }}
           />
         )}
 
-        <SpiceAttributes
-          id={id}
-          values={values}
-          name={name}
-          isVisible={selected}
-          position={TOP}
-        />
+        {!isEmpty(fields) && (
+          <SpiceAttributes
+            id={id}
+            fields={fields}
+            component_type={component_type}
+            isVisible={selected}
+            position={TOP}
+          />
+        )}
       </div>
     </div>
   );

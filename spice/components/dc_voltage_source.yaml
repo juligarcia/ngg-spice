@@ -1,0 +1,22 @@
+---
+component_type: voltage_source
+instance_name: V
+symbol: dc_voltage_source.svg
+
+dimensions:
+  width: 100
+  height: 100
+
+top_ports:
+  - label: "vcc+"
+
+right_ports: []
+
+bottom_ports:
+  - label: "vcc-"
+
+left_ports: []
+
+fields:
+  - type: number
+    name: Vcc

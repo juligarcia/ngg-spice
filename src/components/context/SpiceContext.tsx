@@ -16,21 +16,32 @@ type WithOptions =
   | { type: "string"; options?: never }
   | { type: "select"; options: Array<string> };
 
-export type Value = {
-  type: "number" | "string" | "select";
+export type Field = {
+  type: "number" | "string";
   validation?: string;
   name: string;
 } & WithOptions;
 
+export enum BaseComponentType {
+  Resistor = "resistor",
+  Capacitor = "capacitor",
+  Inductor = "inductor",
+  Ground = "ground",
+  VoltageSource = "voltage_source"
+}
+
 export type SpiceNode = {
-  name: string;
-  asset?: string;
-  values: Array<Value>;
+  instance_name: string;
+  component_type: string;
+  symbol?: string;
+  fields: Array<Field>;
   top_ports: Array<Port>;
   right_ports: Array<Port>;
   bottom_ports: Array<Port>;
   left_ports: Array<Port>;
   dimensions: { width: number; height: number };
+  name: string;
+  data: Map<string, string>;
 };
 
 interface SpiceContextType {
@@ -71,14 +82,14 @@ export const SpiceContextProvider: FC<SpiceContextProviderProps> = ({
 
           const spiceNode = yaml.load(content) as SpiceNode;
 
-          if (spiceNode.asset) {
-            const assetPath = await resolveResource(
-              `spice/components/${spiceNode.asset}`
+          if (spiceNode.symbol) {
+            const symbolPath = await resolveResource(
+              `spice/components/${spiceNode.symbol}`
             );
 
-            const assetContent = await readTextFile(assetPath);
+            const symbolSVG = await readTextFile(symbolPath);
 
-            return { ...spiceNode, asset: assetContent };
+            return { ...spiceNode, symbol: symbolSVG };
           }
 
           return spiceNode;

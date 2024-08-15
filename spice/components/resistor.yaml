@@ -1,6 +1,7 @@
 ---
-name: Resistor
-asset: "resistor.svg"
+component_type: resistor
+instance_name: R
+symbol: "resistor.svg"
 
 dimensions:
   width: 120
@@ -16,6 +17,6 @@ right_ports: # Array of ports
 left_ports:
   - label: "left"
 
-values: # Dict of dicts
+fields: # Dict of dicts
   - type: string
     name: value

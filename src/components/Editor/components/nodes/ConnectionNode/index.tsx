@@ -1,7 +1,7 @@
 import { Handle, NodeProps, Position } from "@xyflow/react";
 import { FC } from "react";
 import { ConnectionNodeType } from "@/components/Editor/components/nodes/ConnectionNode/types";
-import { Hexagon, Waypoints } from "lucide-react";
+import { Waypoints } from "lucide-react";
 import clsx from "clsx";
 import { tagPort } from "../utils";
 import usePointerProximity from "@/hooks/usePointerProximity";
@@ -34,7 +34,8 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id }) => {
       <div
         style={{ transform: `scale(${Math.max((proximity + 50) / 100, 1)})` }}
         className={clsx(
-          "transition-[border-color] duration-150 ease-in-out bg-card border hover:border-muted-foreground [&:hover_svg]:stroke-muted-foreground border-foreground rounded-sm w-[25px] h-[25px] p-1 flex flex-col items-center justify-center",
+          "transition-[border-color,_transform] duration-75 ease-linear",
+          "bg-card border hover:border-muted-foreground [&:hover_svg]:stroke-muted-foreground border-foreground rounded-sm w-[20px] h-[20px] p-1 flex flex-col items-center justify-center",
           {
             "!scale-150 !border-muted-foreground [&_svg]:stroke-muted-foreground":
               selected

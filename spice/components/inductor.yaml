@@ -1,11 +1,11 @@
 ---
-component_type: capacitor
-instance_name: C
-symbol: capacitor.svg
+component_type: inductor
+instance_name: L
+symbol: inductor.svg
 
 dimensions:
-  width: 100
-  height: 100
+  width: 120
+  height: 120
 
 top_ports: []
 

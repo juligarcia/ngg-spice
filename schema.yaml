@@ -1,6 +1,7 @@
 ---
-name: string
-asset: string # Path to svg (Optional), defaults to a box
+component_type: string
+instance_name: A - Z # Read Spice doc
+symbol: string # Path to svg (Optional), defaults to a box
 
 dimensions:
   width: number
@@ -16,7 +17,7 @@ bottom-ports: []
 
 left-ports: []
 
-values: # Dict of dicts
+fields: # Dict of dicts
   - type: string # number | string | select
     validation: string # regexp for value validation (Optional)
     options: [] # Array of strings if type == select

@@ -27,12 +27,12 @@ fn main() {
     let manager = Arc::new(Manager::new(buf));
 
     // Initialize Spice with it's manager
-    // spice.init(Some(manager));
-    // spice.command("source tran.cir");
-    // spice.command("tran 10u 10m");
+    spice.init(Some(manager));
+    spice.command("source test.cir");
+    spice.command("tran 10u 10m");
 
-    // spice.init(None);
-    // spice.command("echo echo command");
+    spice.init(None);
+    spice.command("echo echo command");
 
     /*
         Preguntas y problemas para ir resolviendo:
