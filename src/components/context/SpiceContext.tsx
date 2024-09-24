@@ -11,28 +11,44 @@ export interface Port {
   spice_id?: string;
 }
 
-type WithOptions =
-  | { type: "number"; options?: never }
-  | { type: "string"; options?: never }
-  | { type: "select"; options: Array<string> };
-
 export type Field = {
   type: "number" | "string";
   validation?: string;
   name: string;
-} & WithOptions;
+  required?: boolean;
+};
 
-export enum BaseComponentType {
-  Resistor = "resistor",
-  Capacitor = "capacitor",
-  Inductor = "inductor",
-  Ground = "ground",
-  VoltageSource = "voltage_source"
+export enum SpiceInstanceName {
+  Resistor = "R",
+  Inductor = "L",
+  Capacitor = "C",
+  VoltageSource = "V",
+  Ground = "Gnd"
 }
 
+export interface SingleValuedElement {
+  value: string;
+}
+
+export interface ResistorData extends SingleValuedElement {}
+
+export interface CapacitorData extends SingleValuedElement {}
+
+export interface InductorData extends SingleValuedElement {}
+
+export interface VoltageSourceData extends SingleValuedElement {}
+
+export type SpiceData =
+  | { instance_name: SpiceInstanceName.Resistor; data: Partial<ResistorData> }
+  | { instance_name: SpiceInstanceName.Capacitor; data: Partial<CapacitorData> }
+  | { instance_name: SpiceInstanceName.Inductor; data: Partial<InductorData> }
+  | {
+      instance_name: SpiceInstanceName.VoltageSource;
+      data: Partial<VoltageSourceData>;
+    }
+  | { instance_name: SpiceInstanceName.Ground; data: { value?: never } };
+
 export type SpiceNode = {
-  instance_name: string;
-  component_type: string;
   symbol?: string;
   fields: Array<Field>;
   top_ports: Array<Port>;
@@ -41,7 +57,14 @@ export type SpiceNode = {
   left_ports: Array<Port>;
   dimensions: { width: number; height: number };
   name: string;
-  data: Map<string, string>;
+} & SpiceData;
+
+export const SpiceNodeDisplayName: { [key in SpiceInstanceName]: string } = {
+  [SpiceInstanceName.Resistor]: "Resistor",
+  [SpiceInstanceName.Capacitor]: "Capacitor",
+  [SpiceInstanceName.Inductor]: "Inductor",
+  [SpiceInstanceName.Ground]: "Ground",
+  [SpiceInstanceName.VoltageSource]: "Voltage Source"
 };
 
 interface SpiceContextType {

@@ -1,5 +1,4 @@
 ---
-component_type: resistor
 instance_name: R
 symbol: "resistor.svg"
 
@@ -20,3 +19,4 @@ left_ports:
 fields: # Dict of dicts
   - type: string
     name: value
+    required: true

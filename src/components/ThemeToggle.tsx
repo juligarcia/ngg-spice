@@ -1,6 +1,5 @@
 import { Moon, Sun } from "lucide-react";
 
-import { Button } from "@/components/ui/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,11 +25,7 @@ const ThemeToggle: FC<ThemeToggleProps> = ({ minimized }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          className="w-full h-fit flex flex-col items-center p-2"
-          variant="ghost"
-          size="icon"
-        >
+        <div className="w-full h-fit flex flex-col items-center p-2">
           <AnimatePresence mode="wait" initial={false}>
             {!isDark && (
               <MotionSun
@@ -78,7 +73,7 @@ const ThemeToggle: FC<ThemeToggleProps> = ({ minimized }) => {
               </AnimatedTypography>
             )}
           </AnimatePresence>
-        </Button>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="right" align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>

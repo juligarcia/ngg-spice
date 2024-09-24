@@ -8,7 +8,8 @@ import {
   useNodesState,
   OnConnect,
   Position,
-  ConnectionMode
+  ConnectionMode,
+  ControlButton
 } from "@xyflow/react";
 import { FC, useMemo, useRef, useState } from "react";
 import { useTheme } from "../ThemeProvider";
@@ -21,15 +22,15 @@ import Nodes, { tagNode } from "./components/nodes/utils";
 import { ConnectionNodeType } from "./components/nodes/ConnectionNode/types";
 import { SpiceNodeType } from "./components/nodes/SpiceNode/types";
 import {
-  BaseComponentType,
+  SpiceInstanceName,
   SpiceNode,
   useSpice
 } from "../context/SpiceContext";
 import { useHotkeys } from "react-hotkeys-hook";
 import { osHotkeys } from "@/utils/hotkeys";
 import { useOs } from "../context/OsContext";
-import { Button } from "../ui/Button";
-import { Spice } from "@/spice";
+import { invoke } from "@tauri-apps/api/core";
+import { match } from "ts-pattern";
 
 const Editor: FC = () => {
   const { theme } = useTheme();
@@ -45,23 +46,23 @@ const Editor: FC = () => {
 
   const [resistor, capacitor, inductor, ground, vcc] = useMemo(() => {
     const R = components.find(
-      ({ component_type }) => component_type === BaseComponentType.Resistor
+      ({ instance_name }) => instance_name === SpiceInstanceName.Resistor
     );
 
     const C = components.find(
-      ({ component_type }) => component_type === BaseComponentType.Capacitor
+      ({ instance_name }) => instance_name === SpiceInstanceName.Capacitor
     );
 
     const L = components.find(
-      ({ component_type }) => component_type === BaseComponentType.Inductor
+      ({ instance_name }) => instance_name === SpiceInstanceName.Inductor
     );
 
     const G = components.find(
-      ({ component_type }) => component_type === BaseComponentType.Ground
+      ({ instance_name }) => instance_name === SpiceInstanceName.Ground
     );
 
     const V = components.find(
-      ({ component_type }) => component_type === BaseComponentType.VoltageSource
+      ({ instance_name }) => instance_name === SpiceInstanceName.VoltageSource
     );
 
     return [R, C, L, G, V];
@@ -84,20 +85,22 @@ const Editor: FC = () => {
     data: {
       ...node,
       name: `${node.instance_name}${refCounter.current.get(
-        node.component_type
+        node.instance_name
       )}`,
-      data: new Map()
+      data: Object.fromEntries(
+        node.fields.map((field) => [field.name, undefined])
+      )
     }
   });
 
   useHotkeys(osHotkeys({ macos: "r", windows: "r", linux: "r" }, os), () => {
     if (!resistor) return;
 
-    const counter = refCounter.current.get(BaseComponentType.Resistor);
+    const counter = refCounter.current.get(SpiceInstanceName.Resistor);
 
     if (counter === undefined)
-      refCounter.current.set(BaseComponentType.Resistor, 1);
-    else refCounter.current.set(BaseComponentType.Resistor, counter + 1);
+      refCounter.current.set(SpiceInstanceName.Resistor, 1);
+    else refCounter.current.set(SpiceInstanceName.Resistor, counter + 1);
 
     const newComponentNode = createNewSpiceNode(resistor);
 
@@ -107,11 +110,11 @@ const Editor: FC = () => {
   useHotkeys(osHotkeys({ macos: "c", windows: "c", linux: "c" }, os), () => {
     if (!capacitor) return;
 
-    const counter = refCounter.current.get(BaseComponentType.Capacitor);
+    const counter = refCounter.current.get(SpiceInstanceName.Capacitor);
 
     if (counter === undefined)
-      refCounter.current.set(BaseComponentType.Capacitor, 1);
-    else refCounter.current.set(BaseComponentType.Capacitor, counter + 1);
+      refCounter.current.set(SpiceInstanceName.Capacitor, 1);
+    else refCounter.current.set(SpiceInstanceName.Capacitor, counter + 1);
 
     const newComponentNode = createNewSpiceNode(capacitor);
 
@@ -121,11 +124,11 @@ const Editor: FC = () => {
   useHotkeys(osHotkeys({ macos: "l", windows: "l", linux: "l" }, os), () => {
     if (!inductor) return;
 
-    const counter = refCounter.current.get(BaseComponentType.Inductor);
+    const counter = refCounter.current.get(SpiceInstanceName.Inductor);
 
     if (counter === undefined)
-      refCounter.current.set(BaseComponentType.Inductor, 1);
-    else refCounter.current.set(BaseComponentType.Inductor, counter + 1);
+      refCounter.current.set(SpiceInstanceName.Inductor, 1);
+    else refCounter.current.set(SpiceInstanceName.Inductor, counter + 1);
 
     const newComponentNode = createNewSpiceNode(inductor);
 
@@ -143,11 +146,11 @@ const Editor: FC = () => {
   useHotkeys(osHotkeys({ macos: "v", windows: "v", linux: "v" }, os), () => {
     if (!vcc) return;
 
-    const counter = refCounter.current.get(BaseComponentType.VoltageSource);
+    const counter = refCounter.current.get(SpiceInstanceName.VoltageSource);
 
     if (counter === undefined)
-      refCounter.current.set(BaseComponentType.VoltageSource, 1);
-    else refCounter.current.set(BaseComponentType.VoltageSource, counter + 1);
+      refCounter.current.set(SpiceInstanceName.VoltageSource, 1);
+    else refCounter.current.set(SpiceInstanceName.VoltageSource, counter + 1);
 
     const newComponentNode = createNewSpiceNode(vcc);
 
@@ -242,20 +245,10 @@ const Editor: FC = () => {
   // TODO: Elementos que le falta conexiones
   // TODO: Elementos que no están totalmente configurados
 
-  console.log(refCounter.current);
-
   return (
     <div className="w-full h-full grow">
-      <Button
-        onClick={() => {
-          const newSpice = new Spice(nodes, edges);
-
-          console.log(newSpice.buildTopology());
-        }}
-      >
-        Get topology
-      </Button>
       <ReactFlow
+        selectNodesOnDrag={false}
         snapToGrid={true}
         snapGrid={[10, 10]}
         nodeOrigin={[0.5, 0.5]}

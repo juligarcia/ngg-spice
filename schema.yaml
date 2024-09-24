@@ -1,5 +1,4 @@
 ---
-component_type: string
 instance_name: A - Z # Read Spice doc
 symbol: string # Path to svg (Optional), defaults to a box
 

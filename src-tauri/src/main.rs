@@ -1,39 +1,16 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use paprika::{Manager, PkSpice};
-use std::{
-    collections::VecDeque,
-    sync::{Arc, RwLock},
-};
-use tauri::Manager as TauriManager;
+mod simulator;
+
+use cinnamon::spice::{manager::SpiceManager, spice::Spice};
+use std::ffi::OsStr;
+use tauri::{Listener, Manager as TauriManager};
 use tauri_plugin_decorum::WebviewWindowExt;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+use simulator::commands::simulate;
 
 fn main() {
-    // Create Spice instance
-    let mut spice = PkSpice::<Manager>::new(std::ffi::OsStr::new(
-        "/opt/homebrew/opt/libngspice/lib/libngspice.dylib",
-    ))
-    .unwrap();
-
-    // Create manager with a shared buffer memory
-    let buf = Arc::new(RwLock::new(VecDeque::<String>::with_capacity(10)));
-    let manager = Arc::new(Manager::new(buf));
-
-    // Initialize Spice with it's manager
-    spice.init(Some(manager));
-    spice.command("source test.cir");
-    spice.command("tran 10u 10m");
-
-    spice.init(None);
-    spice.command("echo echo command");
-
     /*
         Preguntas y problemas para ir resolviendo:
 
@@ -49,6 +26,7 @@ fn main() {
     */
 
     tauri::Builder::default()
+        // .plugin(tauri_plugin_log::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
@@ -63,9 +41,29 @@ fn main() {
             #[cfg(target_os = "macos")]
             main_window.set_traffic_lights_inset(18.0, 27.0).unwrap();
 
+            // ---------------------------------
+
+            // Init state management
+
+            let handle = app.handle();
+
+            // tauri::async_runtime::spawn(async move {
+            //     handle.listen_any("app-event", |event| {
+            //         if let Some(payload) = event.payload() {
+            //             match serde_json::from_str::<AppEvent>(payload) {
+            //                 Ok(AppEvent::EventA) => handle_event_a(),
+            //                 Ok(AppEvent::EventB) => handle_event_b(),
+            //                 Err(_) => eprintln!("Unknown event"),
+            //             }
+            //         }
+            //     });
+            // });
+
+            // app.manage(AppState::new());
+
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![simulate])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

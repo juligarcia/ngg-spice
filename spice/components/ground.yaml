@@ -1,6 +1,5 @@
 ---
-component_type: ground
-instance_name: gnd
+instance_name: Gnd
 symbol: ground.svg
 
 dimensions:

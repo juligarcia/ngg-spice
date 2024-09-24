@@ -1,0 +1,5 @@
+TEMP TITLE
+RR1 gnd node-4 10K
+VV1 node-4 gnd 10
+.op
+.end

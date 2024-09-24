@@ -1,18 +1,17 @@
-import { NodeProps } from "@xyflow/react";
-import { FC, forwardRef } from "react";
+import { NodeProps, NodeToolbar } from "@xyflow/react";
+import { FC } from "react";
 import { SpiceNodeType } from "./types";
 import clsx from "clsx";
 import { useRotation } from "../hooks/useRotation";
 import SpiceAttributes from "./components/SpiceAttributes";
 import SpiceHandles from "./components/SpiceHandles";
 import { isEmpty } from "lodash";
+import SpiceAlert from "./components/SpiceAlert";
+import { Typography } from "@/components/ui/Typography";
 
 export type SpiceNodeProps = NodeProps<SpiceNodeType>;
 
-const SpiceNode: FC<SpiceNodeProps> = forwardRef<
-  HTMLDivElement,
-  SpiceNodeProps
->(({ id, selected, data }, ref) => {
+const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data }) => {
   const [rotation, [TOP, RIGHT, BOTTOM, LEFT]] = useRotation({
     id,
     selected
@@ -23,23 +22,19 @@ const SpiceNode: FC<SpiceNodeProps> = forwardRef<
     right_ports,
     bottom_ports,
     left_ports,
-    component_type,
+    instance_name,
     symbol,
     dimensions,
-    fields
+    fields,
+    data: fieldsData
   } = data;
 
   return (
     <div
-      ref={ref}
       style={{ transform: `rotate(${rotation}deg)`, ...dimensions }}
       className={clsx(
         "p-2 !relative",
-        "transition-[filter] duration-300 ease-in-out",
-        {
-          "drop-shadow-xl": selected,
-          "shadow-transparent": !selected
-        }
+        "transition-[filter] duration-300 ease-in-out"
       )}
     >
       <SpiceHandles
@@ -64,19 +59,36 @@ const SpiceNode: FC<SpiceNodeProps> = forwardRef<
             dangerouslySetInnerHTML={{ __html: symbol }}
           />
         )}
-
+        {!isEmpty(fields) && (
+          <NodeToolbar id={id} isVisible position={BOTTOM}>
+            <div
+              className={clsx(
+                "flex gap-4 items-center justify-between bg-accent rounded-sm py-2 px-4 relative"
+              )}
+            >
+              <Typography
+                className="overflow-hidden text-ellipsis"
+                variant="h4"
+              >
+                {data.name}
+              </Typography>
+              <SpiceAlert data={fieldsData} fields={fields} />
+            </div>
+          </NodeToolbar>
+        )}
         {!isEmpty(fields) && (
           <SpiceAttributes
             id={id}
             fields={fields}
-            component_type={component_type}
+            instance_name={instance_name}
             isVisible={selected}
             position={TOP}
+            data={fieldsData}
           />
         )}
       </div>
     </div>
   );
-});
+};
 
 export default SpiceNode;

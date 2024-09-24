@@ -87,6 +87,7 @@ export const useRotation = ({
       setRotation((currentRotation) => currentRotation + 90);
       setRotatedPositions(newPositions);
       updateNodeInternals(id);
+
       updateNodeData(id, {
         withRotation: {
           ...Array.from({ length: availableHandles.top }).reduce<{

@@ -75,14 +75,21 @@
   color: hsl(var(--foreground)) !important;
   background-color: hsl(var(--accent)) !important;
   border-color: hsl(var(--muted-foreground)) !important;
-  width: 40px !important;
-  height: 40px !important;
+  width: 60px !important;
+  height: 60px !important;
+
+  & svg {
+    max-width: 20px !important;
+    max-height: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
 }
 
 .react-flow__controls-button:first-child {
-  border-radius: 10px 10px 0 0;
+  border-radius: 0.25rem 0.25rem 0 0 !important;
 }
 
 .react-flow__controls-button:last-child {
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 0.25rem 0.25rem !important;
 }

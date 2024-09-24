@@ -1,5 +1,4 @@
 ---
-component_type: voltage_source
 instance_name: V
 symbol: dc_voltage_source.svg
 
@@ -18,5 +17,6 @@ bottom_ports:
 left_ports: []
 
 fields:
-  - type: number
-    name: Vcc
+  - type: string
+    name: value
+    required: true

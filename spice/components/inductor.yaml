@@ -1,5 +1,4 @@
 ---
-component_type: inductor
 instance_name: L
 symbol: inductor.svg
 
@@ -20,3 +19,4 @@ left_ports:
 fields:
   - type: string
     name: value
+    required: true

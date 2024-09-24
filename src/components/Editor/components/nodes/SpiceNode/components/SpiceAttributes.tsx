@@ -1,31 +1,45 @@
-import { SpiceNode } from "@/components/context/SpiceContext";
+import {
+  SpiceNode,
+  SpiceNodeDisplayName
+} from "@/components/context/SpiceContext";
 import { Typography } from "@/components/ui/Typography";
 import { Input } from "@/components/ui/input";
-import { NodeToolbar, Position } from "@xyflow/react";
+import { NodeToolbar, Position, useReactFlow } from "@xyflow/react";
 import clsx from "clsx";
 import { FC } from "react";
 import { motion } from "framer-motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/Button";
 
-interface SpiceAttributesProps {
+type SpiceAttributesProps = {
   isVisible?: boolean;
   position: Position;
-  component_type: string;
-  fields: SpiceNode["fields"];
   id: string;
-}
+} & Pick<SpiceNode, "instance_name" | "data" | "fields">;
 
 const SpiceAttributes: FC<SpiceAttributesProps> = ({
   isVisible,
   position,
-  component_type,
+  instance_name,
   fields,
-  id
+  id,
+  data
 }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { isDirty }
+  } = useForm<{
+    [key: string]: string | number;
+  }>({
+    defaultValues: data
+  });
+
+  const { setNodes } = useReactFlow();
+
   return (
     <NodeToolbar id={id} isVisible={isVisible} position={position}>
-      <Tabs
+      <div
         className={clsx("flex gap-2", {
           "flex-col-reverse": position === Position.Top,
           "flex-row": position === Position.Right,
@@ -33,40 +47,50 @@ const SpiceAttributes: FC<SpiceAttributesProps> = ({
           "flex-row-reverse": position === Position.Left
         })}
       >
-        <TabsList
-          className={clsx("flex w-fit m-auto shadow-xl", {
-            "flex-row":
-              position === Position.Top || position === Position.Bottom,
-            "flex-col":
-              position === Position.Right || position === Position.Left
-          })}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className={clsx("p-4 bg-accent rounded-lg w-[350px] shadow-xl")}
         >
-          <TabsTrigger value="configuration">
-            <Settings2 />
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="configuration">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={clsx(
-              "p-4 bg-accent backdrop-blur-md rounded-lg w-[350px] shadow-xl"
-            )}
+          <Typography variant="h4">
+            {SpiceNodeDisplayName[instance_name]}
+          </Typography>
+          <form
+            onSubmit={handleSubmit((formValues) => {
+              setNodes((nodes) =>
+                nodes.map((node) => {
+                  if (node.id === id)
+                    return {
+                      ...node,
+                      data: { ...node.data, data: formValues }
+                    };
+
+                  return node;
+                })
+              );
+            })}
+            className="w-full mt-6"
           >
-            <Typography variant="h4">{component_type}</Typography>
-            <div className="w-full mt-6">
-              {fields.map(({ name: fieldName }) => (
-                <div key={fieldName}>
-                  <Input
-                    className="mt-2 border-accent"
-                    placeholder={fieldName}
-                  />
-                </div>
-              ))}
+            {fields.map(({ name: fieldName, required = false }) => (
+              <div key={fieldName}>
+                <Input
+                  {...register(fieldName, {
+                    required: {
+                      value: required,
+                      message: "This field is required"
+                    }
+                  })}
+                  className="mt-2 border-accent"
+                  placeholder={fieldName}
+                />
+              </div>
+            ))}
+            <div className="w-full flex gap-2 items-center justify-end mt-6">
+              <Button disabled={!isDirty}>Save</Button>
             </div>
-          </motion.div>
-        </TabsContent>
-      </Tabs>
+          </form>
+        </motion.div>
+      </div>
     </NodeToolbar>
   );
 };
