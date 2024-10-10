@@ -7,6 +7,7 @@ use cinnamon::spice::{manager::SpiceManager, spice::Spice};
 use std::ffi::OsStr;
 use tauri::{Listener, Manager as TauriManager};
 use tauri_plugin_decorum::WebviewWindowExt;
+use tauri_plugin_log::{Target, TargetKind};
 
 use simulator::commands::simulate;
 
@@ -31,6 +32,17 @@ fn main() {
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_decorum::init())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .target(tauri_plugin_log::Target::new(
+                    tauri_plugin_log::TargetKind::Stdout,
+                ))
+                .filter(|metadata| metadata.target() != "trace")
+                .format(|out, message, record| {
+                    out.finish(format_args!("[{}]: {}", record.level(), message))
+                })
+                .build(),
+        )
         .setup(|app| {
             // Create a custom titlebar for main window
             // On Windows this hides decoration and creates custom window controls
@@ -43,23 +55,7 @@ fn main() {
 
             // ---------------------------------
 
-            // Init state management
-
-            let handle = app.handle();
-
-            // tauri::async_runtime::spawn(async move {
-            //     handle.listen_any("app-event", |event| {
-            //         if let Some(payload) = event.payload() {
-            //             match serde_json::from_str::<AppEvent>(payload) {
-            //                 Ok(AppEvent::EventA) => handle_event_a(),
-            //                 Ok(AppEvent::EventB) => handle_event_b(),
-            //                 Err(_) => eprintln!("Unknown event"),
-            //             }
-            //         }
-            //     });
-            // });
-
-            // app.manage(AppState::new());
+            // TODO: Init state management
 
             Ok(())
         })

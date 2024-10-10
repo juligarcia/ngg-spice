@@ -7,7 +7,7 @@ use std::{
 
 use super::{
     circuit::canvas::{CanvasEdge, CanvasNode},
-    simulation::{Simulation, SimulationConfig},
+    simulation::SimulationConfig,
     simulator::Simulator,
 };
 
@@ -167,7 +167,7 @@ pub async fn simulate(
     config: HashMap<String, SimulationConfig>,
     app_handle: tauri::AppHandle,
 ) {
-    println!("Starts simulate command");
+    log::info!("Starts simulate command");
     let mut simulation_handles: Vec<thread::JoinHandle<()>> = Vec::default();
 
     let orchestrator = Arc::new(Mutex::new(SimulationThreadOrchestrator::new(config)));
@@ -177,10 +177,10 @@ pub async fn simulate(
 
     let schematic = Simulator::create_schematic_from_canvas(nodes, edges).unwrap();
 
-    println!("Begin thread creation...");
+    log::info!("Begin thread creation...");
 
     for thread_n in 0..(threads_needed + 1) {
-        println!("Spawns {} thread...", thread_n);
+        log::info!("Spawns {} thread...", thread_n);
 
         let t_orchestrator = Arc::clone(&orchestrator);
         let t_app_handle = app_handle.clone();
@@ -189,7 +189,7 @@ pub async fn simulate(
         let handle = thread::spawn(move || {
             let thread_id = thread_n;
 
-            println!("Init {} thread...", thread_id);
+            log::info!("Init {} thread...", thread_id);
 
             let (mut simulator, _library) = Simulator::init(
                 thread_id,
@@ -230,7 +230,7 @@ pub async fn simulate(
             }
 
             MainThreadStatus::Done => {
-                println!("Main simulation thread is done");
+                log::info!("Main simulation thread is done");
                 break;
             }
         }
@@ -242,5 +242,5 @@ pub async fn simulate(
         handle.join().unwrap();
     }
 
-    println!("All threads joined");
+    log::info!("All threads joined");
 }

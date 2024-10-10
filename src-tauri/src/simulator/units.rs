@@ -1,6 +1,21 @@
 use super::unit_of_magnitude::Unit;
 
 #[derive(Clone)]
+pub struct Frequency {
+    base: i16,
+}
+
+impl Unit for Frequency {
+    fn format(&self) -> String {
+        format!("{}", self.base)
+    }
+
+    fn new(base: i16) -> Self {
+        Self { base }
+    }
+}
+
+#[derive(Clone)]
 pub struct Time {
     base: i16,
 }
@@ -69,6 +84,22 @@ pub struct Voltage {
 }
 
 impl Unit for Voltage {
+    fn format(&self) -> String {
+        format!("{}", self.base)
+    }
+
+    fn new(base: i16) -> Self {
+        Self { base }
+    }
+}
+
+#[derive(Clone)]
+
+pub struct Dimensionless {
+    base: i16,
+}
+
+impl Unit for Dimensionless {
     fn format(&self) -> String {
         format!("{}", self.base)
     }

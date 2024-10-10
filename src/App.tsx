@@ -71,7 +71,7 @@ function App() {
                         <div className="h-full w-full overflow-hidden rounded-xl shadow-2xl flex">
                           <div className="flex p-2 gap-2 grow min-w-0 bg-background">
                             <SimulationPanel open={openSimulationPanel} />
-                            <div className="bg-card w-full h-full rounded-lg border-2 flex flex-col justify-center items-center overflow-hidden">
+                            <div className="bg-card w-full h-full rounded-lg border-2 border-accent flex flex-col justify-center items-center overflow-hidden">
                               <Editor />
                             </div>
                           </div>

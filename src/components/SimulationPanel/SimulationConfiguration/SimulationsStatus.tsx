@@ -4,59 +4,84 @@ import { match, P } from "ts-pattern";
 import { Typography } from "@/components/ui/Typography";
 import { Progress } from "@/components/ui/progress";
 import { Bolt, CircleCheck, LoaderCircle } from "lucide-react";
+import clsx from "clsx";
 
 interface SimulationStatusBadgeProps {
   status: string;
   progress: number;
   icon: ReactNode;
+  compact?: boolean;
 }
 
 const SimulationStatusBadge: FC<SimulationStatusBadgeProps> = ({
   status,
   progress,
-  icon
+  icon,
+  compact
 }) => {
   return (
-    <div className="flex flex-col w-full bg-background rounded-sm relative overflow-hidden">
-      <div className="flex flex-row gap-8 grow w-full p-4">
-        <div className="flex gap-2 w-full items-center justify-between">
-          <div className="flex flex-col gap-2 grow w-20">
-            <Typography variant="small">Status</Typography>
-            <Typography variant="xsmall" className="text-muted-foreground">
-              {status}
-            </Typography>
+    <div
+      className={clsx(
+        "flex flex-col w-full bg-background rounded-sm relative overflow-hidden",
+        {
+          "!rounded-b-sm !rounded-t-none": compact
+        }
+      )}
+    >
+      {!compact && (
+        <div className={clsx("flex flex-row gap-8 grow w-full p-4")}>
+          <div className="flex gap-2 w-full items-center justify-between">
+            <div className="flex flex-col gap-2 grow w-20">
+              <Typography variant="small">Status</Typography>
+              <div className="flex items-center gap-4">
+                <Typography variant="xsmall" className="text-muted-foreground">
+                  {status}
+                </Typography>
+              </div>
+            </div>
+            {icon}
           </div>
-          {icon}
         </div>
-      </div>
-      <Progress
-        className="rounded-none"
-        value={progress}
-      />
+      )}
+      <Progress className="rounded-none" value={progress} />
     </div>
   );
 };
 
 interface SimulationStatusProps {
   status?: SimulationStatusType;
-  name: string;
+  compact?: boolean;
 }
 
-const SimulationStatus: FC<SimulationStatusProps> = ({ status }) => {
+const SimulationStatus: FC<SimulationStatusProps> = ({ status, compact }) => {
   return (
-    <div className="w-full mt-4">
+    <div
+      className={clsx("w-full mt-4", {
+        "mt-0 absolute bottom-0 -left-[16px] !w-[calc(100%_+_32px)]": compact
+      })}
+    >
       {match(status)
         .with(P.nullish, () => (
           <SimulationStatusBadge
-            icon={<Bolt size={25} className="stroke-muted-foreground" />}
+            compact={compact}
+            icon={
+              <Bolt
+                size={compact ? 15 : 25}
+                className="stroke-muted-foreground"
+              />
+            }
             status="Idle"
             progress={0}
           />
         ))
         .with({ status: "SourceDeck" }, () => (
           <SimulationStatusBadge
+            compact={compact}
             icon={
-              <LoaderCircle size={25} className="stroke-primary animate-spin" />
+              <LoaderCircle
+                size={compact ? 15 : 25}
+                className="stroke-primary animate-spin"
+              />
             }
             status="Sourcing"
             progress={0}
@@ -64,7 +89,13 @@ const SimulationStatus: FC<SimulationStatusProps> = ({ status }) => {
         ))
         .with({ status: "Ready" }, () => (
           <SimulationStatusBadge
-            icon={<CircleCheck size={25} className="stroke-primary" />}
+            compact={compact}
+            icon={
+              <CircleCheck
+                size={compact ? 15 : 25}
+                className="stroke-primary"
+              />
+            }
             status="Finalized"
             progress={100}
           />
@@ -81,11 +112,12 @@ const SimulationStatus: FC<SimulationStatusProps> = ({ status }) => {
             }
           }) => (
             <SimulationStatusBadge
+              compact={compact}
               status={`Running ${progress.toFixed(0)}%`}
               progress={progress}
               icon={
                 <LoaderCircle
-                  size={25}
+                  size={compact ? 15 : 25}
                   className="stroke-primary animate-spin"
                 />
               }

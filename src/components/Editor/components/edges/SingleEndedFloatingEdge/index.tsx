@@ -2,7 +2,7 @@ import {
   EdgeProps,
   Node,
   Position,
-  getSmoothStepPath,
+  SmoothStepEdge,
   useInternalNode
 } from "@xyflow/react";
 
@@ -32,24 +32,27 @@ const SingleEndedFloatingEdge: FC<SingleEndedFloatingEdgeProps> = ({
   const [sx, sy] = getRotatedHandlePositionById(
     sourceNode,
     sourceHandleId as string,
-    withRotation?.[String(sourceHandleId)] || Position.Top
+    withRotation?.[String(sourceHandleId)]!
   );
 
   const { tx, ty, targetPos } = getEdgeParams(sourceNode, targetNode);
 
-  const [edgePath] = getSmoothStepPath({
-    sourceX: sx,
-    sourceY: sy,
-    sourcePosition:
-      withRotation?.[
-        String(sourceHandleId) as keyof WithRotation["withRotation"]
-      ],
-    targetPosition: targetPos,
-    targetX: tx,
-    targetY: ty
-  });
-
-  return <path id={id} className="react-flow__edge-path" d={edgePath} />;
+  return (
+    <SmoothStepEdge
+      pathOptions={{ offset: 2, borderRadius: 3 }}
+      id={id}
+      sourceX={sx}
+      sourceY={sy}
+      sourcePosition={
+        withRotation?.[
+          String(sourceHandleId) as keyof WithRotation["withRotation"]
+        ] || Position.Top
+      }
+      targetPosition={targetPos}
+      targetX={tx}
+      targetY={ty}
+    />
+  );
 };
 
 export default SingleEndedFloatingEdge;

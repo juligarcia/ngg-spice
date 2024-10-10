@@ -4,37 +4,57 @@ import {
   SimulationDisplay
 } from "@/types/simulation";
 import { FC } from "react";
-import { SimulationConfigCommonInterface } from "./types";
 import { Typography } from "@/components/ui/Typography";
 import { Button } from "@/components/ui/Button";
 import { SquareCheck } from "lucide-react";
 import SimulationStatus from "../SimulationsStatus";
 import { useSimulationStore } from "@/store/simulation";
+import {
+  getIdOfType,
+  hasAnyOfType,
+  isOpeartingPoint,
+  isSimulationRunning
+} from "@/utils/simulation";
+import clsx from "clsx";
 
-export const Trigger: FC<
-  Pick<SimulationConfigCommonInterface, "isEnqueued">
-> = ({ isEnqueued }) => {
+export const Trigger: FC = () => {
+  const simulationMap = useSimulationStore.use.simulationsToRun();
+  const isEnqueued = hasAnyOfType(simulationMap, isOpeartingPoint);
+  const id = getIdOfType(simulationMap, isOpeartingPoint);
+  const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
+
   return (
-    <div className="bg-accent rounded-sm overflow-hidden flex items-center gap-2">
-      <Typography variant="h4">
-        {SimulationDisplay[Simulation.OperatingPoint]}
-      </Typography>
-      {isEnqueued && <SquareCheck className="stroke-primary" size={25} />}
+    <div
+      className={clsx(
+        "bg-accent rounded-sm overflow-hidden flex flex-col w-full mr-4"
+      )}
+    >
+      <div className={clsx("flex items-center gap-2")}>
+        <Typography className="capitalize" variant="h4">
+          {SimulationDisplay[Simulation.OperatingPoint]}
+        </Typography>
+        {isEnqueued && <SquareCheck className="stroke-primary" size={25} />}
+      </div>
+      <div id="status" className="opacity-0 w-full mt-2">
+        <SimulationStatus compact status={status} />
+      </div>
     </div>
   );
 };
 
-export const Content: FC<
-  Pick<
-    SimulationConfigCommonInterface,
-    "enqueueSimulation" | "isEnqueued" | "id" | "dequeueSimulation"
-  >
-> = ({ enqueueSimulation, isEnqueued, id, dequeueSimulation }) => {
+export const Content: FC = () => {
+  const simulationMap = useSimulationStore.use.simulationsToRun();
+
+  const enqueueSimulation = useSimulationStore.use.enqueueSimulation();
+  const dequeueSimulation = useSimulationStore.use.dequeueSimulation();
+
+  const isEnqueued = hasAnyOfType(simulationMap, isOpeartingPoint);
+
+  const id = getIdOfType(simulationMap, isOpeartingPoint);
+
   const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
 
-  const a = useSimulationStore.use.simulationStatus();
-
-  console.log(a);
+  const isRunning = isSimulationRunning(status);
 
   return (
     <div>
@@ -42,12 +62,11 @@ export const Content: FC<
         Compute the DC operating point trating capacitances as open circuits and
         inductances as short circuits
       </Typography>
-      {isEnqueued && (
-        <SimulationStatus name={SimulationDisplay.op} status={status} />
-      )}
+      {isEnqueued && <SimulationStatus status={status} />}
       <div className="mt-6 flex">
         {!isEnqueued && (
           <Button
+            disabled={isRunning}
             className="w-full"
             onClick={() => {
               enqueueSimulation({ Op: {} } as OperatingPointConfig);
@@ -58,6 +77,7 @@ export const Content: FC<
         )}
         {isEnqueued && (
           <Button
+            disabled={isRunning}
             className="w-full"
             variant="ghost"
             onClick={() => {

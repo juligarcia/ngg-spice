@@ -67,12 +67,12 @@ impl SpiceManager for NGGSpiceManager {
             "stderr" => msgs.red(),
             _ => msg.magenta().strikethrough(),
         };
-        println!("{}", msgc);
+        log::info!("{}", msgc);
     }
     fn cb_send_stat(&mut self, msg: String, id: i32) {
         // TODO: error handling
 
-        println!("{}", msg.green());
+        log::info!("{}", msg.green());
 
         let orch_guard = self.thread_orchestrator.lock().unwrap();
         let maybe_id = orch_guard.get_thread_ongoing_simulation_id(id as usize);
@@ -98,7 +98,7 @@ impl SpiceManager for NGGSpiceManager {
                     }
                 };
 
-                println!("{}", msg.blue());
+                log::info!("{}", msg.blue());
             }
             None => {
                 // TODO: Que hago aca?
@@ -106,9 +106,19 @@ impl SpiceManager for NGGSpiceManager {
         }
     }
     fn cb_ctrldexit(&mut self, status: i32, is_immediate: bool, is_quit: bool, id: i32) {
-        println!(
+        // TODO: implementar safe exit y restart
+        /*
+        If ngspice has been linked at runtime by dlopen/LoadLibrary (see 19.2.2),
+        the callback may close all threads, and then detach ngspice.dll by invoking
+        dlclose/FreeLibrary. The caller may then restart ngspice by another
+        loading and initialization (19.3.2.1).
+        */
+        log::info!(
             "ctrldexit {}; {}; {}; {};",
-            status, is_immediate, is_quit, id
+            status,
+            is_immediate,
+            is_quit,
+            id
         );
         self.quit_flag = true;
     }
@@ -116,11 +126,10 @@ impl SpiceManager for NGGSpiceManager {
         self.vec_pkvecinfoall.push(pkvecinfoall);
     }
     fn cb_send_data(&mut self, pkvecvaluesall: PkVecvaluesall, count: i32, id: i32) {
-        // println!("{:?}", pkvecvaluesall);
         self.vec_pkvecvalsall.push(pkvecvaluesall);
     }
     fn cb_bgt_state(&mut self, is_fin: bool, id: i32) {
-        println!(
+        log::info!(
             "BG thread for {} is {};",
             id,
             if is_fin { "done" } else { "starting" }

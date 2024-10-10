@@ -1,17 +1,16 @@
 use std::fs::File;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
-use std::thread::{self, sleep};
+use std::thread::sleep;
 use std::time::Duration;
 use std::{
     collections::{HashMap, HashSet},
     ffi::OsStr,
 };
 
-use cinnamon::spice::{manager::SpiceManager, spice::Spice};
+use cinnamon::spice::spice::Spice;
 use colored::Colorize;
 
-use super::circuit::schematic;
 use super::commands::{SecondaryThreadStatus, SimulationThreadOrchestrator};
 use super::simulation::Simulation;
 use super::{
@@ -44,10 +43,13 @@ impl Simulator {
         app_handle: tauri::AppHandle,
     ) -> (Simulator, Library) {
         let manager = NGGSpiceManager::new(id, Arc::clone(&thread_orchestrator), app_handle);
+        log::info!("Manager created for thread {}", id);
 
         let (spice, library) = Spice::init(OsStr::new(lib), manager, id as i32)
             // TODO: Better err handling
             .unwrap();
+
+        log::info!("Spice created for thread {}", id);
 
         (
             Simulator {
@@ -61,7 +63,7 @@ impl Simulator {
     }
 
     pub fn run(&mut self) {
-        println!("Being run on thread {}...", self.id);
+        log::info!("Being run on thread {}...", self.id);
 
         loop {
             let orch_guard = self.thread_orchestrator.lock().unwrap();
@@ -80,7 +82,7 @@ impl Simulator {
                         let mut orch_guard = self.thread_orchestrator.lock().unwrap();
 
                         orch_guard.set_active_simulation(self.id, &new_simulation_id);
-                        println!("Thread {}: {:?}", self.id, SecondaryThreadStatus::Running);
+                        log::info!("Thread {}: {:?}", self.id, SecondaryThreadStatus::Running);
                         orch_guard.set_thread_status(self.id, SecondaryThreadStatus::Running);
 
                         drop(orch_guard);
@@ -88,7 +90,7 @@ impl Simulator {
                         self.simulate(simulation, new_simulation_id);
                     } else {
                         let mut orch_guard = self.thread_orchestrator.lock().unwrap();
-                        println!("Thread {}: {:?}", self.id, SecondaryThreadStatus::Done);
+                        log::info!("Thread {}: {:?}", self.id, SecondaryThreadStatus::Done);
                         orch_guard.set_thread_status(self.id, SecondaryThreadStatus::Done);
                         drop(orch_guard);
                     }
@@ -234,7 +236,7 @@ impl Simulator {
             None => return Err(SimulatorError::NoSchematicFound),
         }?;
 
-        print!("{}", netlist.green());
+        log::info!("{}", netlist.green());
 
         let temp_file = Simulator::create_temp_cir_file(&netlist.into_bytes(), &id)?;
 

@@ -2103,6 +2103,7 @@ dependencies = [
  "colored",
  "libc",
  "libloading",
+ "log",
  "num-complex",
  "serde",
  "serde_json",

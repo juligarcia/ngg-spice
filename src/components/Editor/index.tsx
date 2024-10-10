@@ -8,8 +8,7 @@ import {
   useNodesState,
   OnConnect,
   Position,
-  ConnectionMode,
-  ControlButton
+  ConnectionMode
 } from "@xyflow/react";
 import { FC, useMemo, useRef, useState } from "react";
 import { useTheme } from "../ThemeProvider";
@@ -29,8 +28,6 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { osHotkeys } from "@/utils/hotkeys";
 import { useOs } from "../context/OsContext";
-import { invoke } from "@tauri-apps/api/core";
-import { match } from "ts-pattern";
 
 const Editor: FC = () => {
   const { theme } = useTheme();

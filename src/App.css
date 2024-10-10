@@ -32,7 +32,9 @@
     --accent: 224.10000000000002 10% 80%;
     --accent-foreground: 262.1 0% 10%;
     --destructive: 0 50% 30%;
+    --warning: 51 100% 45%;
     --destructive-foreground: 262.1 0% 90%;
+    --warning-foreground: 262.1 0% 95%;
     --border: 262.1 20% 50%;
     --input: 262.1 20% 18%;
     --ring: 262.1 83.3% 57.8%;
@@ -54,7 +56,9 @@
     --accent: 224.10000000000002 10% 15%;
     --accent-foreground: 262.1 0% 90%;
     --destructive: 0 50% 30%;
+    --warning: 51 100% 45%;
     --destructive-foreground: 262.1 0% 90%;
+    --warning-foreground: 262.1 10% 5%;
     --border: 262.1 20% 18%;
     --input: 262.1 20% 18%;
     --ring: 262.1 83.3% 57.8%;
