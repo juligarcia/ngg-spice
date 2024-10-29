@@ -32,9 +32,9 @@ export const isOfCategory = <T extends Node>(
 export const tagPort = (
   nodeId: string,
   position: Position,
-  index: number = 0
+  nameOrIndex: string | number = 0
 ) => {
-  return `port-[${nodeId}]-${position}-${index}`;
+  return `port-[${nodeId}]-${position}-${nameOrIndex}`;
 };
 
 export const tagNode = (uuid: string) => {
@@ -45,13 +45,42 @@ export const tagElement = (uuid: string) => {
   return `${NodeCategory.Element}-${uuid}`;
 };
 
+const isOutOfBounds = (parentId: string, childId: string): boolean => {
+  const child = document.getElementById(childId);
+  const parent = document.getElementById(parentId);
+
+  if (!child || !parent) return false;
+
+  const { x, y } = child.getBoundingClientRect();
+
+  const nodePosX = x;
+  const nodePosY = y;
+
+  const nodeWidth = child.clientWidth;
+
+  const nodeHeight = child.clientHeight;
+
+  const viewportWidth = parent.clientWidth;
+  const viewportHeight = parent.clientHeight;
+
+  const { left: offsetX, top: offsetY } = parent.getBoundingClientRect();
+
+  const isOutOfXBounds =
+    nodePosX - offsetX < 0 || nodePosX + nodeWidth - offsetX > viewportWidth;
+  const isOutOfYBounds =
+    nodePosY - offsetY < 0 || nodePosY + nodeHeight > viewportHeight;
+
+  return isOutOfXBounds || isOutOfYBounds;
+};
+
 const Nodes = {
   calculateNodeCenter,
   findNode,
   isOfCategory,
   tagPort,
   tagNode,
-  tagElement
+  tagElement,
+  isOutOfBounds
 };
 
 export default Nodes;

@@ -23,7 +23,6 @@ const useSimulationPanel = () => {
     const will_be_unlisten = listen<SimulationStatus>(
       "simulation_status_update",
       (event) => {
-        console.log(event);
         updateSimulationStatus(event.payload);
       }
     );

@@ -8,15 +8,16 @@ import {
   useNodesState,
   OnConnect,
   Position,
-  ConnectionMode
+  ConnectionMode,
+  useReactFlow
 } from "@xyflow/react";
-import { FC, useMemo, useRef, useState } from "react";
+import { FC, useCallback, useMemo, useRef, useState } from "react";
 import { useTheme } from "../ThemeProvider";
 import { nodeTypes } from "@/components/Editor/components/nodes";
 import { AppNode, NodeCategory, NodeType } from "./components/nodes/types";
 import { edgeTypes } from "./components/edges";
 import { AppEdge } from "./components/edges/types";
-import { uniqueId } from "lodash";
+import { debounce, uniqueId } from "lodash";
 import Nodes, { tagNode } from "./components/nodes/utils";
 import { ConnectionNodeType } from "./components/nodes/ConnectionNode/types";
 import { SpiceNodeType } from "./components/nodes/SpiceNode/types";
@@ -84,9 +85,7 @@ const Editor: FC = () => {
       name: `${node.instance_name}${refCounter.current.get(
         node.instance_name
       )}`,
-      data: Object.fromEntries(
-        node.fields.map((field) => [field.name, undefined])
-      )
+      data: {}
     }
   });
 
@@ -243,8 +242,8 @@ const Editor: FC = () => {
   // TODO: Elementos que no están totalmente configurados
 
   return (
-    <div className="w-full h-full grow">
-      <ReactFlow
+    <div id="canvas-wrapper" className="w-full h-full grow">
+      <ReactFlow<AppNode, AppEdge>
         selectNodesOnDrag={false}
         snapToGrid={true}
         snapGrid={[10, 10]}

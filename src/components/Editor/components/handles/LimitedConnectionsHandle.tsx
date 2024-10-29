@@ -39,10 +39,15 @@ const LimitedConnectionsHandle: FC<LimitedConnectionsHandleProps> = ({
         backgroundColor: isDark
           ? blend_colors("#0c0b0e", "#e6e6e6", proximity / 100)
           : blend_colors("#f2f2f2", "#000000", proximity / 100),
-        height: Math.round((proximity / 100) * 4 + 8),
-        width: Math.round((proximity / 100) * 4 + 8)
+        height: Math.round((proximity / 100) * 4 + 12),
+        width: Math.round((proximity / 100) * 4 + 12),
+        ...handleProps.style
       }}
-      className={clsx(className, "!border !border-foreground rounded-full", "transition-[width,_height,_background-color] duration-75 ease-linear",)}
+      className={clsx(
+        className,
+        "!border !border-foreground rounded-full",
+        "transition-[width,_height,_background-color] duration-75 ease-linear"
+      )}
       type={type}
       id={id}
       isConnectable={acceptsMoreConnections}

@@ -1,14 +1,14 @@
-import { Position } from "@xyflow/react";
 import { FC, ReactNode, createContext, useContext } from "react";
 import yaml from "js-yaml";
 import { BaseDirectory, readDir, readTextFile } from "@tauri-apps/plugin-fs";
 import { useQuery } from "@tanstack/react-query";
 import { resolveResource } from "@tauri-apps/api/path";
+import { SmallsignalParameters, TimeDomainParameters } from "@/types/elements";
 
 export interface Port {
-  position: Position;
-  label?: string;
-  spice_id?: string;
+  name?: string;
+  x: number;
+  y: number;
 }
 
 export type Field = {
@@ -31,12 +31,35 @@ export interface SingleValuedElement {
 }
 
 export interface ResistorData extends SingleValuedElement {}
+export const REQUIRED_RESISTOR_VALUES: Array<keyof ResistorData> = ["value"];
 
 export interface CapacitorData extends SingleValuedElement {}
+export const REQUIRED_CAPACITOR_VALUES: Array<keyof CapacitorData> = ["value"];
 
 export interface InductorData extends SingleValuedElement {}
+export const REQUIRED_INDUCTOR_VALUES: Array<keyof InductorData> = ["value"];
 
-export interface VoltageSourceData extends SingleValuedElement {}
+export type VoltageSourceData = {
+  time_domain: TimeDomainParameters;
+  small_signal: SmallsignalParameters;
+};
+export const REQUIRED_VOLTAGE_SOURCE_VALUES: Array<
+  UnionNestedKeysOf<VoltageSourceData>
+> = [
+  "time_domain.Dc.value",
+  "time_domain.Pulse.initial_value",
+  "time_domain.Pulse.final_value",
+  "time_domain.Sin.offset",
+  "time_domain.Sin.amplitude",
+  "time_domain.Exp.initial_value",
+  "time_domain.Exp.final_value",
+  "time_domain.Sffm.offset",
+  "time_domain.Sffm.amplitude",
+  "time_domain.Am.offset",
+  "time_domain.Am.amplitude",
+  "time_domain.Am.modulating_frequency",
+  "small_signal.amplitude"
+];
 
 export type SpiceData =
   | { instance_name: SpiceInstanceName.Resistor; data: Partial<ResistorData> }

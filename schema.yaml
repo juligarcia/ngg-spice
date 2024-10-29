@@ -7,8 +7,9 @@ dimensions:
   height: number
 
 top-ports: # Array of ports
-  - label: string # Port label (Optional)
-    spice_id: string # Name to which it needs to be mapped for simulation
+  - name: string # Port name/identifier (Optional)
+    x: number # Port X coordinate
+    y: number # Port Y coordinate
 
 right-ports: []
 

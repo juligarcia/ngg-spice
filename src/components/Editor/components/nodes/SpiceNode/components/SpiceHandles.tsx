@@ -3,6 +3,7 @@ import { Position } from "@xyflow/react";
 import { FC } from "react";
 import { tagPort } from "@/components/Editor/components/nodes/utils";
 import LimitedConnectionsHandle from "@/components/Editor/components/handles/LimitedConnectionsHandle";
+import clsx from "clsx";
 
 interface SpiceHandlesProps {
   id: string;
@@ -29,44 +30,64 @@ const SpiceHandles: FC<SpiceHandlesProps> = ({
 }) => {
   return (
     <>
-      {top_ports.map((_, index) => (
+      {top_ports.map(({ name, x, y }, index) => (
         <LimitedConnectionsHandle
-          className="!top-0 !left-[50%] !-translate-x-2/4 !-translate-y-2/4 !bottom-[unset] !right-[unset]"
-          // TODO: style left
-          key={tagPort(id, Position.Top, index)}
-          id={tagPort(id, Position.Top, index)}
+          style={{
+            left: x,
+            top: y
+          }}
+          className={clsx(
+            "!-translate-x-2/4 !-translate-y-2/4 !right-[unset] !bottom-[unset]"
+          )}
+          key={tagPort(id, Position.Top, name || index)}
+          id={tagPort(id, Position.Top, name || index)}
           type="source"
           position={TOP}
         />
       ))}
 
-      {right_ports.map((_, index) => (
+      {right_ports.map(({ name, x, y }, index) => (
         <LimitedConnectionsHandle
-          className="!right-0 !top-[50%] !-translate-y-2/4 !translate-x-2/4 !left-[unset] !bottom-[unset]"
-          // TODO: style top
-          key={tagPort(id, Position.Right, index)}
-          id={tagPort(id, Position.Right, index)}
+          style={{
+            left: x,
+            top: y
+          }}
+          className={clsx(
+            "!-translate-y-2/4 !-translate-x-2/4 !right-[unset] !bottom-[unset]"
+          )}
+          key={tagPort(id, Position.Right, name || index)}
+          id={tagPort(id, Position.Right, name || index)}
           type="source"
           position={RIGHT}
         />
       ))}
-      {bottom_ports.map((_, index) => (
+      {bottom_ports.map(({ name, x, y }, index) => (
         <LimitedConnectionsHandle
-          className="!bottom-0 !left-[50%] !-translate-x-2/4 !translate-y-2/4 !top-[unset] !right-[unset]"
-          // TODO: style left
-          key={tagPort(id, Position.Bottom, index)}
-          id={tagPort(id, Position.Bottom, index)}
+          style={{
+            left: x,
+            top: y
+          }}
+          className={clsx(
+            "!-translate-x-2/4 !-translate-y-2/4 !right-[unset] !bottom-[unset]"
+          )}
+          key={tagPort(id, Position.Bottom, name || index)}
+          id={tagPort(id, Position.Bottom, name || index)}
           type="source"
           position={BOTTOM}
         />
       ))}
 
-      {left_ports.map((_, index) => (
+      {left_ports.map(({ name, x, y }, index) => (
         <LimitedConnectionsHandle
-          className="!left-0 !top-[50%] !-translate-y-2/4 !-translate-x-2/4 !right-[unset] !bottom-[unset]"
-          // TODO: style top
-          key={tagPort(id, Position.Left, index)}
-          id={tagPort(id, Position.Left, index)}
+          style={{
+            left: x,
+            top: y
+          }}
+          className={clsx(
+            "!-translate-y-2/4 !-translate-x-2/4 !right-[unset] !bottom-[unset]"
+          )}
+          key={tagPort(id, Position.Left, name || index)}
+          id={tagPort(id, Position.Left, name || index)}
           type="source"
           position={LEFT}
         />

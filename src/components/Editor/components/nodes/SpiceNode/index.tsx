@@ -1,22 +1,16 @@
-import { NodeProps, NodeToolbar } from "@xyflow/react";
+import { NodeProps, Position } from "@xyflow/react";
 import { FC } from "react";
 import { SpiceNodeType } from "./types";
 import clsx from "clsx";
 import { useRotation } from "../hooks/useRotation";
-import SpiceAttributes from "./components/SpiceAttributes";
+import SpiceAttributes from "./components/SpiceAttributes/SpiceAttributes";
 import SpiceHandles from "./components/SpiceHandles";
-import { isEmpty } from "lodash";
-import SpiceAlert from "./components/SpiceAlert";
-import { Typography } from "@/components/ui/Typography";
+import { match, P } from "ts-pattern";
+import SpiceTag from "./components/SpiceTag/SpiceTag";
 
 export type SpiceNodeProps = NodeProps<SpiceNodeType>;
 
-const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data }) => {
-  const [rotation, [TOP, RIGHT, BOTTOM, LEFT]] = useRotation({
-    id,
-    selected
-  });
-
+const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data, dragging }) => {
   const {
     top_ports,
     right_ports,
@@ -25,15 +19,39 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data }) => {
     instance_name,
     symbol,
     dimensions,
-    fields,
-    data: fieldsData
+    name
   } = data;
+
+  const [rotation, [TOP, RIGHT, BOTTOM, LEFT]] = useRotation({
+    id,
+    selected: selected || dragging,
+    availableHandles: {
+      top: top_ports,
+      right: right_ports,
+      bottom: bottom_ports,
+      left: left_ports
+    }
+  });
+
+  // If its rotated
+  // TODO: bug with css transform when node is rotated and user zooms out
+  const offset = match(TOP)
+    .with(P.union(Position.Left, Position.Right), () =>
+      dimensions.width > dimensions.height
+        ? dimensions.height - dimensions.width + 30
+        : 30
+    )
+    .otherwise(() =>
+      dimensions.height > dimensions.width
+        ? dimensions.width - dimensions.height + 30
+        : 30
+    );
 
   return (
     <div
       style={{ transform: `rotate(${rotation}deg)`, ...dimensions }}
       className={clsx(
-        "p-2 !relative",
+        "!relative",
         "transition-[filter] duration-300 ease-in-out"
       )}
     >
@@ -59,33 +77,22 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data }) => {
             dangerouslySetInnerHTML={{ __html: symbol }}
           />
         )}
-        {!isEmpty(fields) && (
-          <NodeToolbar id={id} isVisible position={BOTTOM}>
-            <div
-              className={clsx(
-                "flex gap-4 items-center justify-between bg-accent rounded-sm py-2 px-4 relative"
-              )}
-            >
-              <Typography
-                className="overflow-hidden text-ellipsis"
-                variant="h4"
-              >
-                {data.name}
-              </Typography>
-              <SpiceAlert data={fieldsData} fields={fields} />
-            </div>
-          </NodeToolbar>
-        )}
-        {!isEmpty(fields) && (
-          <SpiceAttributes
-            id={id}
-            fields={fields}
-            instance_name={instance_name}
-            isVisible={selected}
-            position={TOP}
-            data={fieldsData}
-          />
-        )}
+        <SpiceTag
+          nodeData={data}
+          offset={offset}
+          name={name}
+          position={BOTTOM}
+          id={id}
+        />
+        <SpiceAttributes
+          selected={selected && !dragging}
+          offset={offset}
+          id={id}
+          instance_name={instance_name}
+          name={name}
+          position={TOP}
+          nodeData={data}
+        />
       </div>
     </div>
   );

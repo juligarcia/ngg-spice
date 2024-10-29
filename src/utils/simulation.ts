@@ -85,7 +85,6 @@ export const checkSimulationUniqueness = (
   return match(config)
     .with({ Op: {} }, () => {
       for (let [, storedConfig] of storeSimConfigs) {
-        console.log(storedConfig, isOpeartingPoint(storedConfig));
         if (isOpeartingPoint(storedConfig)) return false;
       }
       return true;

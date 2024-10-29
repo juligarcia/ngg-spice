@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <bx:grid x="0" y="0" width="45.559" height="45.559"/>
+    <bx:guide x="251.227" y="489.005" angle="180"/>
+  </defs>
+  <path style="stroke: rgb(0, 0, 0); stroke-width: 14px; paint-order: fill; fill: rgba(216, 216, 216, 0);" d="M 249.858 447.543 C 401.927 447.543 496.972 282.925 420.935 151.229 C 344.901 19.533 154.816 19.533 78.783 151.229 C 29.274 236.982 50.899 346.139 129.364 406.537 C 163.886 433.16 206.264 447.58 249.858 447.543 Z"/>
+  <line style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0); paint-order: fill; stroke-width: 11px; stroke-linecap: square;" x1="250.531" y1="318.913" x2="250.517" y2="494.514"/>
+  <line style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0); paint-order: fill; stroke-width: 11px; stroke-linecap: square;" x1="251.178" y1="5.571" x2="251.406" y2="176.744"/>
+  <line style="fill: rgb(216, 216, 216); stroke: rgb(0, 0, 0); stroke-width: 11px; stroke-linecap: square;" x1="253.583" y1="183.511" x2="313.876" y2="267.999"/>
+  <ellipse style="stroke: rgb(0, 0, 0); stroke-width: 11px; fill: rgba(216, 216, 216, 0);" cx="325.813" cy="281.787" rx="15.687" ry="15.687"/>
+  <ellipse style="stroke: rgb(0, 0, 0); stroke-width: 11px; fill: rgba(216, 216, 216, 0);" cx="250.569" cy="303.226" rx="15.687" ry="15.687"/>
+  <polyline style="stroke: rgb(0, 0, 0); fill: rgba(216, 216, 216, 0); stroke-width: 11px; stroke-linejoin: round; stroke-linecap: square;" points="5.179 91.118 45.559 91.118 87.301 132.687"/>
+  <polyline style="stroke: rgb(0, 0, 0); fill: rgba(216, 216, 216, 0); stroke-linejoin: round; stroke-width: 11px; stroke-linecap: square;" points="5.835 410.031 45.559 410.031 85.519 369.772"/>
+  <text style="font-family: Arial, sans-serif; font-size: 48px; font-weight: 700; white-space: pre;" x="9.325" y="399.84">+</text>
+  <text style="font-family: Arial, sans-serif; font-size: 48px; font-weight: 700; white-space: pre; transform-box: fill-box; transform-origin: 67.9216% -87.7302%;" x="12.4" y="126.536">-</text>
+</svg>

@@ -16,7 +16,7 @@ use super::simulation::Simulation;
 use super::{
     circuit::{
         canvas::{CanvasEdge, CanvasNode, NodeData},
-        element::Element,
+        element::{Element, SmallSignalConfig, TimeDomainConfig},
         schematic::Schematic,
     },
     manager::NGGSpiceManager,
@@ -160,12 +160,15 @@ impl Simulator {
         }
 
         for node in nodes {
-            let node_connections: Vec<String> = connections
+            let mut node_connections: Vec<String> = connections
                 .entry(node.id)
                 .or_default()
                 .clone()
                 .into_iter()
                 .collect();
+
+            // Ensure ports are tagged in the order they should be outputted
+            node_connections.sort();
 
             match node.data {
                 NodeData::R { value, name } => {
@@ -201,12 +204,31 @@ impl Simulator {
                     }
                 }
 
-                NodeData::V { value, name } => {
+                NodeData::V {
+                    name,
+                    time_domain,
+                    small_signal,
+                } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::<Voltage>::from(value)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                        if let Some(small_signal) = small_signal {
+                            let transformed_small_signal_config = SmallSignalConfig::from_canvas(small_signal)?;
 
-                        schematic.insert(Element::V(name, unit, n1.to_owned(), n2.to_owned()))
+                            schematic.insert(Element::V(
+                                name,
+                                TimeDomainConfig::from_canvas(time_domain)?,
+                                Some(transformed_small_signal_config),
+                                n1.to_owned(),
+                                n2.to_owned(),
+                            ));
+                        } else {
+                            schematic.insert(Element::V(
+                                name,
+                                TimeDomainConfig::from_canvas(time_domain)?,
+                                None,
+                                n1.to_owned(),
+                                n2.to_owned(),
+                            ));
+                        }
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }

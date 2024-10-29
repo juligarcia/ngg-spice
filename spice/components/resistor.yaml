@@ -10,13 +10,13 @@ top_ports: []
 
 bottom_ports: []
 
-right_ports: # Array of ports
-  - label: "right"
-
 left_ports:
-  - label: "left"
+  - name: "0"
+    x: 0
+    y: 30
 
-fields: # Dict of dicts
-  - type: string
-    name: value
-    required: true
+right_ports: # Array of ports
+  - name: "1"
+    x: 120
+    y: 30
+

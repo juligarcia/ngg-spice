@@ -18,6 +18,8 @@ import { OsContextProvider } from "./components/context/OsContext";
 import { SpiceContextProvider } from "./components/context/SpiceContext";
 import SimulationPanel from "./components/SimulationPanel/SimulationPanel";
 import { Toaster } from "react-hot-toast";
+import emojiData from "react-apple-emojis/src/data.json";
+import { EmojiProvider } from "react-apple-emojis";
 
 function App() {
   const [openSimulationPanel, setOpenSimulationPanel] = useLocalStorage(
@@ -29,63 +31,65 @@ function App() {
   const queryClient = new QueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <SpiceContextProvider>
-        <OsContextProvider>
-          <HotkeysProvider>
-            <ReactFlowProvider>
-              <TooltipProvider>
-                <ThemeProvider>
-                  <Layout>
-                    <Toaster />
-                    <div className="h-full w-full flex bg-gradient-to-br from-primary to-secondary">
-                      <div className="h-full flex flex-col items-center pt-8">
-                        <IconSidebar
-                          className="bg-background mt-4 mb-2 rounded-r-xl"
-                          top={[
-                            {
-                              ariaLabel: "simulations",
-                              Icon: AudioWaveform,
-                              onClick: () => {
-                                setOpenSimulationPanel(!openSimulationPanel);
+    <EmojiProvider data={emojiData}>
+      <QueryClientProvider client={queryClient}>
+        <SpiceContextProvider>
+          <OsContextProvider>
+            <HotkeysProvider>
+              <ReactFlowProvider>
+                <TooltipProvider>
+                  <ThemeProvider>
+                    <Layout>
+                      <Toaster />
+                      <div className="h-full w-full flex bg-gradient-to-br from-primary to-secondary">
+                        <div className="h-full flex flex-col items-center pt-8">
+                          <IconSidebar
+                            className="bg-background mt-4 mb-2 rounded-r-xl"
+                            top={[
+                              {
+                                ariaLabel: "simulations",
+                                Icon: AudioWaveform,
+                                onClick: () => {
+                                  setOpenSimulationPanel(!openSimulationPanel);
+                                },
+                                title: "Simulate"
+                              }
+                            ]}
+                            bottom={[
+                              {
+                                ariaLabel: "Project Configuration",
+                                Icon: Wrench,
+                                onClick: () => {},
+                                title: "Project"
                               },
-                              title: "Simulate"
-                            }
-                          ]}
-                          bottom={[
-                            {
-                              ariaLabel: "Project Configuration",
-                              Icon: Wrench,
-                              onClick: () => {},
-                              title: "Project"
-                            },
-                            {
-                              ariaLabel: "Theme toggle",
-                              node: <ThemeToggle />,
-                              title: "Theme"
-                            }
-                          ]}
-                        />
-                      </div>
-                      <div className="h-full w-full p-2">
-                        <div className="h-full w-full overflow-hidden rounded-xl shadow-2xl flex">
-                          <div className="flex p-2 gap-2 grow min-w-0 bg-background">
-                            <SimulationPanel open={openSimulationPanel} />
-                            <div className="bg-card w-full h-full rounded-lg border-2 border-accent flex flex-col justify-center items-center overflow-hidden">
-                              <Editor />
+                              {
+                                ariaLabel: "Theme toggle",
+                                node: <ThemeToggle />,
+                                title: "Theme"
+                              }
+                            ]}
+                          />
+                        </div>
+                        <div className="h-full w-full p-2">
+                          <div className="h-full w-full overflow-hidden rounded-xl shadow-2xl flex">
+                            <div className="flex p-2 gap-2 grow min-w-0 bg-background">
+                              <SimulationPanel open={openSimulationPanel} />
+                              <div className="bg-card w-full h-full rounded-lg border-2 border-accent flex flex-col justify-center items-center overflow-hidden">
+                                <Editor />
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Layout>
-                </ThemeProvider>
-              </TooltipProvider>
-            </ReactFlowProvider>
-          </HotkeysProvider>
-        </OsContextProvider>
-      </SpiceContextProvider>
-    </QueryClientProvider>
+                    </Layout>
+                  </ThemeProvider>
+                </TooltipProvider>
+              </ReactFlowProvider>
+            </HotkeysProvider>
+          </OsContextProvider>
+        </SpiceContextProvider>
+      </QueryClientProvider>
+    </EmojiProvider>
   );
 }
 

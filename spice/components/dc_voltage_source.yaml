@@ -7,16 +7,15 @@ dimensions:
   height: 100
 
 top_ports:
-  - label: "vcc+"
+  - name: "0"
+    x: 50
+    y: 0
 
 right_ports: []
 
 bottom_ports:
-  - label: "vcc-"
+  - name: "1"
+    x: 50
+    y: 100
 
 left_ports: []
-
-fields:
-  - type: string
-    name: value
-    required: true

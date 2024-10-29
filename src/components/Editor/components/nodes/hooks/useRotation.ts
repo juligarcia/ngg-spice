@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Position } from "@xyflow/react";
 import Nodes from "../utils";
+import { Port } from "@/components/context/SpiceContext";
 
 export type AvailableHandles = {
-  [key in Position]: number;
+  [key in Position]: Array<Port>;
 };
 
 interface UseRoatationParams {
@@ -27,7 +28,7 @@ type RotatedPositions = [Position, Position, Position, Position];
 export const useRotation = ({
   selected,
   id,
-  availableHandles = { top: 1, bottom: 1, left: 1, right: 1 }
+  availableHandles = { top: [], bottom: [], left: [], right: [] }
 }: UseRoatationParams): [number, Position[]] => {
   const [rotation, setRotation] = useState(0);
   const [rotatedPositions, setRotatedPositions] = useState<RotatedPositions>([
@@ -47,31 +48,31 @@ export const useRotation = ({
 
     updateNodeData(id, {
       withRotation: {
-        ...Array.from({ length: availableHandles.top }).reduce<{
+        ...availableHandles.top.reduce<{
           [key: string]: Position;
-        }>((rots, _, index) => {
-          rots[Nodes.tagPort(id, Position.Top, index)] = top;
+        }>((rots, { name }, index) => {
+          rots[Nodes.tagPort(id, Position.Top, name || index)] = top;
 
           return rots;
         }, {}),
-        ...Array.from({ length: availableHandles.right }).reduce<{
+        ...availableHandles.right.reduce<{
           [key: string]: Position;
-        }>((rots, _, index) => {
-          rots[Nodes.tagPort(id, Position.Right, index)] = right;
+        }>((rots, { name }, index) => {
+          rots[Nodes.tagPort(id, Position.Right, name || index)] = right;
 
           return rots;
         }, {}),
-        ...Array.from({ length: availableHandles.bottom }).reduce<{
+        ...availableHandles.bottom.reduce<{
           [key: string]: Position;
-        }>((rots, _, index) => {
-          rots[Nodes.tagPort(id, Position.Bottom, index)] = bottom;
+        }>((rots, { name }, index) => {
+          rots[Nodes.tagPort(id, Position.Bottom, name || index)] = bottom;
 
           return rots;
         }, {}),
-        ...Array.from({ length: availableHandles.left }).reduce<{
+        ...availableHandles.left.reduce<{
           [key: string]: Position;
-        }>((rots, _, index) => {
-          rots[Nodes.tagPort(id, Position.Left, index)] = left;
+        }>((rots, { name }, index) => {
+          rots[Nodes.tagPort(id, Position.Left, name || index)] = left;
 
           return rots;
         }, {})
@@ -90,31 +91,31 @@ export const useRotation = ({
 
       updateNodeData(id, {
         withRotation: {
-          ...Array.from({ length: availableHandles.top }).reduce<{
+          ...availableHandles.top.reduce<{
             [key: string]: Position;
-          }>((rots, _, index) => {
-            rots[Nodes.tagPort(id, Position.Top, index)] = top;
+          }>((rots, { name }, index) => {
+            rots[Nodes.tagPort(id, Position.Top, name || index)] = top;
 
             return rots;
           }, {}),
-          ...Array.from({ length: availableHandles.right }).reduce<{
+          ...availableHandles.right.reduce<{
             [key: string]: Position;
-          }>((rots, _, index) => {
-            rots[Nodes.tagPort(id, Position.Right, index)] = right;
+          }>((rots, { name }, index) => {
+            rots[Nodes.tagPort(id, Position.Right, name || index)] = right;
 
             return rots;
           }, {}),
-          ...Array.from({ length: availableHandles.bottom }).reduce<{
+          ...availableHandles.bottom.reduce<{
             [key: string]: Position;
-          }>((rots, _, index) => {
-            rots[Nodes.tagPort(id, Position.Bottom, index)] = bottom;
+          }>((rots, { name }, index) => {
+            rots[Nodes.tagPort(id, Position.Bottom, name || index)] = bottom;
 
             return rots;
           }, {}),
-          ...Array.from({ length: availableHandles.left }).reduce<{
+          ...availableHandles.left.reduce<{
             [key: string]: Position;
-          }>((rots, _, index) => {
-            rots[Nodes.tagPort(id, Position.Left, index)] = left;
+          }>((rots, { name }, index) => {
+            rots[Nodes.tagPort(id, Position.Left, name || index)] = left;
 
             return rots;
           }, {})
