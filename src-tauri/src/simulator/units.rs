@@ -95,6 +95,22 @@ impl Unit for Voltage {
 
 #[derive(Clone)]
 
+pub struct Current {
+    base: i16,
+}
+
+impl Unit for Current {
+    fn format(&self) -> String {
+        format!("{}", self.base)
+    }
+
+    fn new(base: i16) -> Self {
+        Self { base }
+    }
+}
+
+#[derive(Clone)]
+
 pub struct Phase {
     base: i16,
 }
@@ -116,6 +132,22 @@ pub struct Dimensionless {
 }
 
 impl Unit for Dimensionless {
+    fn format(&self) -> String {
+        format!("{}", self.base)
+    }
+
+    fn new(base: i16) -> Self {
+        Self { base }
+    }
+}
+
+#[derive(Clone)]
+
+pub struct Conductance {
+    base: i16,
+}
+
+impl Unit for Conductance {
     fn format(&self) -> String {
         format!("{}", self.base)
     }

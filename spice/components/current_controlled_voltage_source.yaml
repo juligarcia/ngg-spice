@@ -1,0 +1,21 @@
+---
+instance_name: H
+symbol: current_controlled_voltage_source.svg
+
+dimensions:
+  width: 240
+  height: 240
+
+top_ports: []
+
+right_ports:
+  - name: "1"
+    x: 240
+    y: 60
+  - name: "0"
+    x: 240
+    y: 180
+
+bottom_ports: []
+
+left_ports: []

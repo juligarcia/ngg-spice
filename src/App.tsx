@@ -9,7 +9,7 @@ import { AudioWaveform, Wrench } from "lucide-react";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { LocalStorage } from "./constants/localStorage";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Editor from "@/components/Editor";
+import Editor from "@/components/Editor/Editor";
 import "@xyflow/react/dist/style.css";
 import { ReactFlowProvider } from "@xyflow/react";
 import { HotkeysProvider } from "react-hotkeys-hook";

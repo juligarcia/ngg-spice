@@ -5,18 +5,21 @@ use crate::simulator::{
         SmallSignalConfig as CanvasSmallSignalConfig, TimeDomainConfig as CanvasTimeDomainConfig,
     },
     simulator_error::SimulatorError,
-    unit_of_magnitude::UnitOfMagnitude as Unit,
-    units::{Capacitance, Frequency, Inductance, Phase, Resistance, Time, Voltage},
+    unit_of_magnitude::{Unit as UnitTrait, UnitOfMagnitude as Unit},
+    units::{
+        Capacitance, Conductance, Current, Dimensionless, Frequency, Inductance, Phase, Resistance,
+        Time, Voltage,
+    },
 };
 
 #[derive(Clone)]
-pub enum TimeDomainConfig {
+pub enum TimeDomainConfig<T: UnitTrait> {
     Dc {
-        value: Unit<Voltage>,
+        value: Unit<T>,
     },
     Pulse {
-        initial_value: Unit<Voltage>,
-        final_value: Unit<Voltage>,
+        initial_value: Unit<T>,
+        final_value: Unit<T>,
         delay: Option<Unit<Time>>,
         rise_time: Option<Unit<Time>>,
         fall_time: Option<Unit<Time>>,
@@ -24,44 +27,44 @@ pub enum TimeDomainConfig {
         period: Option<Unit<Time>>,
     },
     Sin {
-        offset: Unit<Voltage>,
-        amplitude: Unit<Voltage>,
+        offset: Unit<T>,
+        amplitude: Unit<T>,
         frequency: Option<Unit<Frequency>>,
         delay: Option<Unit<Time>>,
         damping_factor: Option<Unit<Time>>,
     },
     Exp {
-        initial_value: Unit<Voltage>,
-        final_value: Unit<Voltage>,
+        initial_value: Unit<T>,
+        final_value: Unit<T>,
         rise_delay: Option<Unit<Time>>,
         rise_time: Option<Unit<Time>>,
         fall_delay: Option<Unit<Time>>,
         fall_time: Option<Unit<Time>>,
     },
     Sffm {
-        offset: Unit<Voltage>,
-        amplitude: Unit<Voltage>,
+        offset: Unit<T>,
+        amplitude: Unit<T>,
         carrier_frequency: Option<Unit<Frequency>>,
         modulation_index: Option<i16>,
         signal_frequency: Option<Unit<Frequency>>,
     },
     Am {
-        amplitude: Unit<Voltage>,
-        offset: Unit<Voltage>,
+        amplitude: Unit<T>,
+        offset: Unit<T>,
         modulating_frequency: Unit<Frequency>,
         carrier_frequency: Option<Unit<Frequency>>,
         delay: Option<Unit<Time>>,
     },
 }
 
-impl TimeDomainConfig {
+impl<T: UnitTrait> TimeDomainConfig<T> {
     pub fn from_canvas(
         canvas_time_domain_config: CanvasTimeDomainConfig,
     ) -> Result<Self, SimulatorError> {
         match canvas_time_domain_config {
             CanvasTimeDomainConfig::Dc { value } => {
-                let value = Unit::<Voltage>::from(value)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let value =
+                    Unit::<T>::from(value).map_err(|error| SimulatorError::UnitError(error))?;
 
                 Ok(TimeDomainConfig::Dc { value })
             }
@@ -75,10 +78,10 @@ impl TimeDomainConfig {
                 pulse_width,
                 period,
             } => {
-                let initial_value = Unit::<Voltage>::from(initial_value)
+                let initial_value = Unit::<T>::from(initial_value)
                     .map_err(|error| SimulatorError::UnitError(error))?;
 
-                let final_value = Unit::<Voltage>::from(final_value)
+                let final_value = Unit::<T>::from(final_value)
                     .map_err(|error| SimulatorError::UnitError(error))?;
 
                 if let Some(delay) = delay {
@@ -175,10 +178,10 @@ impl TimeDomainConfig {
                 fall_delay,
                 fall_time,
             } => {
-                let initial_value = Unit::<Voltage>::from(initial_value)
+                let initial_value = Unit::<T>::from(initial_value)
                     .map_err(|error| SimulatorError::UnitError(error))?;
 
-                let final_value = Unit::<Voltage>::from(final_value)
+                let final_value = Unit::<T>::from(final_value)
                     .map_err(|error| SimulatorError::UnitError(error))?;
 
                 if let Some(rise_delay) = rise_delay {
@@ -254,11 +257,11 @@ impl TimeDomainConfig {
                 delay,
                 damping_factor,
             } => {
-                let offset = Unit::<Voltage>::from(offset)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let offset =
+                    Unit::<T>::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let amplitude = Unit::<Voltage>::from(amplitude)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let amplitude =
+                    Unit::<T>::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
 
                 if let Some(frequency) = frequency {
                     let frequency = Unit::<Frequency>::from(frequency)
@@ -315,11 +318,11 @@ impl TimeDomainConfig {
                 modulation_index,
                 signal_frequency,
             } => {
-                let offset = Unit::<Voltage>::from(offset)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let offset =
+                    Unit::<T>::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let amplitude = Unit::<Voltage>::from(amplitude)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let amplitude =
+                    Unit::<T>::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
 
                 if let Some(carrier_frequency) = carrier_frequency {
                     let carrier_frequency = Unit::<Frequency>::from(carrier_frequency)
@@ -373,11 +376,11 @@ impl TimeDomainConfig {
                 carrier_frequency,
                 delay,
             } => {
-                let offset = Unit::<Voltage>::from(offset)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let offset =
+                    Unit::<T>::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let amplitude = Unit::<Voltage>::from(amplitude)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let amplitude =
+                    Unit::<T>::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
 
                 let modulating_frequency = Unit::<Frequency>::from(modulating_frequency)
                     .map_err(|error| SimulatorError::UnitError(error))?;
@@ -573,16 +576,16 @@ impl TimeDomainConfig {
 }
 
 #[derive(Clone)]
-pub struct SmallSignalConfig {
-    amplitude: Unit<Voltage>,
+pub struct SmallSignalConfig<T: UnitTrait> {
+    amplitude: Unit<T>,
     phase: Option<Unit<Phase>>,
 }
 
-impl SmallSignalConfig {
+impl<T: UnitTrait> SmallSignalConfig<T> {
     pub fn from_canvas(
         small_signal_config: CanvasSmallSignalConfig,
-    ) -> Result<SmallSignalConfig, SimulatorError> {
-        let amplitude = Unit::<Voltage>::from(small_signal_config.amplitude)
+    ) -> Result<SmallSignalConfig<T>, SimulatorError> {
+        let amplitude = Unit::<T>::from(small_signal_config.amplitude)
             .map_err(|error| SimulatorError::UnitError(error))?;
 
         if let Some(phase) = small_signal_config.phase {
@@ -619,11 +622,22 @@ pub enum Element {
     L(String, Unit<Inductance>, String, String),
     V(
         String,
-        TimeDomainConfig,
-        Option<SmallSignalConfig>,
+        TimeDomainConfig<Voltage>,
+        Option<SmallSignalConfig<Voltage>>,
         String,
         String,
     ),
+    I(
+        String,
+        TimeDomainConfig<Current>,
+        Option<SmallSignalConfig<Current>>,
+        String,
+        String,
+    ),
+    E(String, Unit<Dimensionless>, String, String, String, String),
+    F(String, Unit<Dimensionless>, String, String, String),
+    G(String, Unit<Conductance>, String, String, String, String),
+    H(String, Unit<Resistance>, String, String, String),
 }
 
 impl Element {
@@ -679,6 +693,93 @@ impl Element {
                     }
 
                     formatted.push('\n');
+
+                    return Ok(formatted);
+                }
+
+                Err(SimulatorError::ElementParserError(name.to_owned()))
+            }
+
+            Element::I(name, time_domain_config, small_signal_config, node1, node2) => {
+                if let [n1, n2] = &Self::replace_ground_alias(&[node1, node2], ground_alias)[0..2] {
+                    let mut formatted =
+                        format!("I{} {} {} {}", name, n1, n2, time_domain_config.format());
+
+                    if let Some(small_signal_config) = small_signal_config {
+                        formatted.push_str(&format!(" {}", small_signal_config.format()));
+                    }
+
+                    formatted.push('\n');
+
+                    return Ok(formatted);
+                }
+
+                Err(SimulatorError::ElementParserError(name.to_owned()))
+            }
+
+            Element::E(name, value, node1, node2, controll_node1, controll_node2) => {
+                if let [n1, n2, cn1, cn2] = &Self::replace_ground_alias(
+                    &[node1, node2, controll_node1, controll_node2],
+                    ground_alias,
+                )[0..4]
+                {
+                    let formatted = format!(
+                        "E{} {} {} {} {} {}\n",
+                        name,
+                        n1,
+                        n2,
+                        cn1,
+                        cn2,
+                        value.format()
+                    );
+
+                    return Ok(formatted);
+                }
+
+                Err(SimulatorError::ElementParserError(name.to_owned()))
+            }
+
+            Element::F(name, value, node1, node2, ref_src) => {
+                if let [n1, n2, ref_src] =
+                    &Self::replace_ground_alias(&[node1, node2, ref_src], ground_alias)[0..3]
+                {
+                    let formatted =
+                        format!("F{} {} {} {} {}\n", name, n1, n2, ref_src, value.format());
+
+                    return Ok(formatted);
+                }
+
+                Err(SimulatorError::ElementParserError(name.to_owned()))
+            }
+
+            Element::G(name, value, node1, node2, controll_node1, controll_node2) => {
+                if let [n1, n2, cn1, cn2] = &Self::replace_ground_alias(
+                    &[node1, node2, controll_node1, controll_node2],
+                    ground_alias,
+                )[0..4]
+                {
+                    let formatted = format!(
+                        "G{} {} {} {} {} {}\n",
+                        name,
+                        n1,
+                        n2,
+                        cn1,
+                        cn2,
+                        value.format()
+                    );
+
+                    return Ok(formatted);
+                }
+
+                Err(SimulatorError::ElementParserError(name.to_owned()))
+            }
+
+            Element::H(name, value, node1, node2, ref_src) => {
+                if let [n1, n2, ref_src] =
+                    &Self::replace_ground_alias(&[node1, node2, ref_src], ground_alias)[0..3]
+                {
+                    let formatted =
+                        format!("H{} {} {} {} {}\n", name, n1, n2, ref_src, value.format());
 
                     return Ok(formatted);
                 }

@@ -25,9 +25,9 @@ import {
   isNoiseAnalysis
 } from "@/utils/simulation";
 import { useStore } from "@xyflow/react";
-import { AppNode, NodeType } from "@/components/Editor/components/nodes/types";
+import { AppNode, NodeType } from "@/components/Editor/components/canvas/nodes/types";
 import { match, P } from "ts-pattern";
-import { ConnectionNodeType } from "@/components/Editor/components/nodes/ConnectionNode/types";
+import { ConnectionNodeType } from "@/components/Editor/components/canvas/nodes/ConnectionNode/types";
 import {
   Select,
   SelectContent,
@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/select";
 import { isEmpty } from "lodash";
 import { SpiceInstanceName } from "@/components/context/SpiceContext";
-import { SpiceNodeType } from "@/components/Editor/components/nodes/SpiceNode/types";
+import { SpiceNodeType } from "@/components/Editor/components/canvas/nodes/SpiceNode/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 

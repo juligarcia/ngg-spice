@@ -13,6 +13,7 @@ use colored::Colorize;
 
 use super::commands::{SecondaryThreadStatus, SimulationThreadOrchestrator};
 use super::simulation::Simulation;
+use super::units::{Conductance, Dimensionless};
 use super::{
     circuit::{
         canvas::{CanvasEdge, CanvasNode, NodeData},
@@ -22,7 +23,7 @@ use super::{
     manager::NGGSpiceManager,
     simulator_error::SimulatorError,
     unit_of_magnitude::UnitOfMagnitude,
-    units::{Capacitance, Inductance, Resistance, Voltage},
+    units::{Capacitance, Inductance, Resistance},
 };
 use libloading::Library;
 
@@ -211,7 +212,8 @@ impl Simulator {
                 } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
                         if let Some(small_signal) = small_signal {
-                            let transformed_small_signal_config = SmallSignalConfig::from_canvas(small_signal)?;
+                            let transformed_small_signal_config =
+                                SmallSignalConfig::from_canvas(small_signal)?;
 
                             schematic.insert(Element::V(
                                 name,
@@ -229,6 +231,95 @@ impl Simulator {
                                 n2.to_owned(),
                             ));
                         }
+                    } else {
+                        return Err(SimulatorError::FloatingNode);
+                    }
+                }
+
+                NodeData::I {
+                    name,
+                    time_domain,
+                    small_signal,
+                } => {
+                    if let Some([n1, n2]) = &node_connections.get(0..2) {
+                        if let Some(small_signal) = small_signal {
+                            let transformed_small_signal_config =
+                                SmallSignalConfig::from_canvas(small_signal)?;
+
+                            schematic.insert(Element::I(
+                                name,
+                                TimeDomainConfig::from_canvas(time_domain)?,
+                                Some(transformed_small_signal_config),
+                                n1.to_owned(),
+                                n2.to_owned(),
+                            ));
+                        } else {
+                            schematic.insert(Element::I(
+                                name,
+                                TimeDomainConfig::from_canvas(time_domain)?,
+                                None,
+                                n1.to_owned(),
+                                n2.to_owned(),
+                            ));
+                        }
+                    } else {
+                        return Err(SimulatorError::FloatingNode);
+                    }
+                }
+
+                NodeData::E { name, value } => {
+                    if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
+                        let unit = UnitOfMagnitude::<Dimensionless>::from(value)
+                            .map_err(|error| SimulatorError::UnitError(error))?;
+
+                        schematic.insert(Element::E(
+                            name,
+                            unit,
+                            n1.to_owned(),
+                            n2.to_owned(),
+                            cn1.to_owned(),
+                            cn2.to_owned(),
+                        ))
+                    } else {
+                        return Err(SimulatorError::FloatingNode);
+                    }
+                }
+
+                NodeData::F { name, value, src } => {
+                    if let Some([n1, n2]) = &node_connections.get(0..2) {
+                        let unit = UnitOfMagnitude::<Dimensionless>::from(value)
+                            .map_err(|error| SimulatorError::UnitError(error))?;
+
+                        schematic.insert(Element::F(name, unit, n1.to_owned(), n2.to_owned(), src));
+                    } else {
+                        return Err(SimulatorError::FloatingNode);
+                    }
+                }
+
+                NodeData::G { name, value } => {
+                    if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
+                        let unit = UnitOfMagnitude::<Conductance>::from(value)
+                            .map_err(|error| SimulatorError::UnitError(error))?;
+
+                        schematic.insert(Element::G(
+                            name,
+                            unit,
+                            n1.to_owned(),
+                            n2.to_owned(),
+                            cn1.to_owned(),
+                            cn2.to_owned(),
+                        ))
+                    } else {
+                        return Err(SimulatorError::FloatingNode);
+                    }
+                }
+
+                NodeData::H { name, value, src } => {
+                    if let Some([n1, n2]) = &node_connections.get(0..2) {
+                        let unit = UnitOfMagnitude::<Resistance>::from(value)
+                            .map_err(|error| SimulatorError::UnitError(error))?;
+
+                        schematic.insert(Element::H(name, unit, n1.to_owned(), n2.to_owned(), src));
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }

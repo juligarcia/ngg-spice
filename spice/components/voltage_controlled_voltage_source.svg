@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <bx:grid x="0" y="0" width="50.078" height="50.078"/>
+  </defs>
+  <rect x="50.078" y="50.078" width="500.78" height="500.78" style="stroke-width: 30px; stroke-linejoin: round; fill-opacity: 0; fill: rgb(255, 255, 255);"/>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 20px;" x1="0" y1="150.234" x2="150.234" y2="150.234"/>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 20px;" x1="150.234" y1="450.702" x2="0" y2="450.702"/>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 20px;" x1="450.702" y1="150.234" x2="600.936" y2="150.234"/>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 20px;" x1="450.702" y1="450.702" x2="600.936" y2="450.702"/>
+  <text style="font-family: Arial, sans-serif; font-size: 72px; font-weight: 700; white-space: pre;" x="154.251" y="175.461">+</text>
+  <text style="font-family: Arial, sans-serif; font-size: 48px; font-weight: 700; white-space: pre;" x="138.231" y="316.847">VIN</text>
+  <text style="font-family: Arial, sans-serif; font-size: 72px; font-weight: 700; white-space: pre;" x="162.977" y="469.892">-</text>
+  <ellipse style="fill: rgba(255, 255, 255, 0); fill-opacity: 0; stroke-width: 10px;" cx="400.624" cy="300.468" rx="50.078" ry="50.078"/>
+  <text style="font-family: Arial, sans-serif; font-size: 48px; font-weight: 700; white-space: pre;" x="366.986" y="317.903">VO</text>
+  <polyline style="stroke-width: 20px; fill: rgba(255, 255, 255, 0); stroke-linejoin: round;" points="469.276 150.234 400.624 150.234 400.624 250.39"/>
+  <polyline style="stroke-width: 20px; fill: rgba(255, 255, 255, 0); stroke-linejoin: round;" points="467.536 450.702 400.624 450.702 400.624 350.546"/>
+  <text style="font-family: Arial, sans-serif; font-size: 72px; font-weight: 700; white-space: pre;" x="479.131" y="124.937">+</text>
+  <text style="font-family: Arial, sans-serif; font-size: 72px; font-weight: 700; white-space: pre;" x="486.657" y="520.075">-</text>
+</svg>

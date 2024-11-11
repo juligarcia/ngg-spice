@@ -72,6 +72,29 @@ pub enum NodeData {
         time_domain: TimeDomainConfig,
         small_signal: Option<SmallSignalConfig>,
     },
+    I {
+        name: String,
+        time_domain: TimeDomainConfig,
+        small_signal: Option<SmallSignalConfig>,
+    },
+    E {
+        value: String,
+        name: String,
+    },
+    F {
+        value: String,
+        name: String,
+        src: String,
+    },
+    G {
+        value: String,
+        name: String,
+    },
+    H {
+        value: String,
+        name: String,
+        src: String,
+    },
     Node {},
     Gnd {},
 }

@@ -3,8 +3,10 @@ export enum Units {
   Capacitance = "F",
   Inductance = "H",
   Voltage = "V",
+  Current = "A",
   Phase = "°",
   Time = "s",
   Frequency = "Hz",
-  Unitless = " "
+  Unitless = " ",
+  Conductance = "S"
 }

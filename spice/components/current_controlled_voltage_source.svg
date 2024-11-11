@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <bx:grid x="0" y="0" width="50.078" height="50.078"/>
+  </defs>
+  <rect x="49.61" y="49.61" width="500.78" height="500.78" style="stroke-width: 30px; stroke-linejoin: round; fill-opacity: 0; fill: rgb(255, 255, 255);"/>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 20px;" x1="450.702" y1="150.234" x2="600.936" y2="150.234"/>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 20px;" x1="450.702" y1="450.702" x2="600.936" y2="450.702"/>
+  <ellipse style="fill: rgba(255, 255, 255, 0); fill-opacity: 0; stroke-width: 10px;" cx="400.624" cy="300.468" rx="50.078" ry="50.078"/>
+  <polyline style="stroke-width: 20px; fill: rgba(255, 255, 255, 0); stroke-linejoin: round;" points="469.276 150.234 400.624 150.234 400.624 250.39"/>
+  <polyline style="stroke-width: 20px; fill: rgba(255, 255, 255, 0); stroke-linejoin: round;" points="467.536 450.702 400.624 450.702 400.624 350.546"/>
+  <text style="font-family: Arial, sans-serif; font-size: 72px; font-weight: 700; white-space: pre;" x="479.804" y="124.869">+</text>
+  <text style="font-family: Arial, sans-serif; font-size: 72px; font-weight: 700; white-space: pre;" x="487.028" y="519.38">-</text>
+  <text style="font-family: Arial, sans-serif; font-size: 48px; font-weight: 700; white-space: pre;" x="366.741" y="317.783">VO</text>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 20px;" x1="150.234" y1="150.234" x2="50.078" y2="150.234"/>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 20px;" x1="150.234" y1="450.702" x2="50.078" y2="450.702"/>
+  <ellipse style="fill: rgba(255, 255, 255, 0); fill-opacity: 0; stroke-width: 10px;" cx="-200.312" cy="300.468" rx="50.078" ry="50.078" transform="matrix(-1, 0, 0, 1, 0, 0)"/>
+  <polyline style="stroke-width: 20px; fill: rgba(255, 255, 255, 0); stroke-linejoin: round; transform-box: fill-box; transform-origin: 50% 50%;" points="200.312 250.39 131.66 250.39 131.66 150.234" transform="matrix(-1, 0, 0, -1, -0.000012, 0.000008)"/>
+  <polyline style="stroke-width: 20px; fill: rgba(255, 255, 255, 0); stroke-linejoin: round; transform-box: fill-box; transform-origin: 50% 50%;" points="200.312 350.546 133.4 350.546 133.4 450.702" transform="matrix(-1, 0, 0, -1, -0.000003, 0.000016)"/>
+  <line style="fill: rgba(255, 255, 255, 0); stroke-width: 7px; stroke-linecap: round; transform-origin: 200.054px 302.234px;" x1="223.398" y1="301.963" x2="176.191" y2="301.963" transform="matrix(0, -1.000003, 0.999997, 0, 0.000014, -0.000007)"/>
+  <polyline style="fill: rgba(255, 255, 255, 0); stroke-width: 7px; stroke-linecap: round; transform-box: fill-box; transform-origin: 50% 50%;" points="185.411 313.814 199.782 326.107 214.683 313.917"/>
+  <text style="font-family: Arial, sans-serif; font-size: 48px; font-weight: 700; white-space: pre;" x="69.782" y="243.961">IREF</text>
+  <text style="font-family: Arial, sans-serif; font-size: 72px; font-weight: 700; white-space: pre;" x="80.641" y="125.796">+</text>
+  <text style="font-family: Arial, sans-serif; font-size: 72px; font-weight: 700; white-space: pre;" x="85.806" y="520.588">-</text>
+</svg>

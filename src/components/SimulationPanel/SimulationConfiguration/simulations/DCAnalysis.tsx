@@ -29,10 +29,10 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { AppNode, NodeType } from "@/components/Editor/components/nodes/types";
+import { AppNode, NodeType } from "@/components/Editor/components/canvas/nodes/types";
 import { match, P } from "ts-pattern";
 import { SpiceInstanceName } from "@/components/context/SpiceContext";
-import { SpiceNodeType } from "@/components/Editor/components/nodes/SpiceNode/types";
+import { SpiceNodeType } from "@/components/Editor/components/canvas/nodes/SpiceNode/types";
 import { Switch } from "@/components/ui/switch";
 import { useStore } from "@xyflow/react";
 
@@ -83,10 +83,10 @@ export const Content: FC = () => {
           [
             NodeType.Spice,
             {
-              // TODO: Agregar fuentes de corriente también
               instance_name: P.union(
                 SpiceInstanceName.Resistor,
-                SpiceInstanceName.VoltageSource
+                SpiceInstanceName.VoltageSource,
+                SpiceInstanceName.CurrentSource
               )
             }
           ],

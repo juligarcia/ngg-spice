@@ -26,9 +26,9 @@ import {
   isPoleZeroAnalysis
 } from "@/utils/simulation";
 import { useStore } from "@xyflow/react";
-import { AppNode, NodeType } from "@/components/Editor/components/nodes/types";
+import { AppNode, NodeType } from "@/components/Editor/components/canvas/nodes/types";
 import { match } from "ts-pattern";
-import { ConnectionNodeType } from "@/components/Editor/components/nodes/ConnectionNode/types";
+import { ConnectionNodeType } from "@/components/Editor/components/canvas/nodes/ConnectionNode/types";
 import {
   Select,
   SelectContent,

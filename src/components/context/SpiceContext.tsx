@@ -23,6 +23,11 @@ export enum SpiceInstanceName {
   Inductor = "L",
   Capacitor = "C",
   VoltageSource = "V",
+  CurrentSource = "I",
+  VCVS = "E",
+  VCIS = "G",
+  ICVS = "H",
+  ICIS = "F",
   Ground = "Gnd"
 }
 
@@ -39,12 +44,28 @@ export const REQUIRED_CAPACITOR_VALUES: Array<keyof CapacitorData> = ["value"];
 export interface InductorData extends SingleValuedElement {}
 export const REQUIRED_INDUCTOR_VALUES: Array<keyof InductorData> = ["value"];
 
-export type VoltageSourceData = {
+export interface VCVSData extends SingleValuedElement {}
+export const REQUIRED_VCVS_VALUES: Array<keyof VCVSData> = ["value"];
+
+export interface VCISData extends SingleValuedElement {}
+export const REQUIRED_VCIS_VALUES: Array<keyof VCISData> = ["value"];
+
+export interface ICISData extends SingleValuedElement {
+  src: string;
+}
+export const REQUIRED_ICIS_VALUES: Array<keyof ICISData> = ["value", "src"];
+
+export interface ICVSData extends SingleValuedElement {
+  src: string;
+}
+export const REQUIRED_ICVS_VALUES: Array<keyof ICVSData> = ["value", "src"];
+
+export type PowerSourceData = {
   time_domain: TimeDomainParameters;
   small_signal: SmallsignalParameters;
 };
-export const REQUIRED_VOLTAGE_SOURCE_VALUES: Array<
-  UnionNestedKeysOf<VoltageSourceData>
+export const REQUIRED_POWER_SOURCE_VALUES: Array<
+  UnionNestedKeysOf<PowerSourceData>
 > = [
   "time_domain.Dc.value",
   "time_domain.Pulse.initial_value",
@@ -67,9 +88,29 @@ export type SpiceData =
   | { instance_name: SpiceInstanceName.Inductor; data: Partial<InductorData> }
   | {
       instance_name: SpiceInstanceName.VoltageSource;
-      data: Partial<VoltageSourceData>;
+      data: Partial<PowerSourceData>;
     }
-  | { instance_name: SpiceInstanceName.Ground; data: { value?: never } };
+  | {
+      instance_name: SpiceInstanceName.CurrentSource;
+      data: Partial<PowerSourceData>;
+    }
+  | {
+      instance_name: SpiceInstanceName.VCVS;
+      data: Partial<VCVSData>;
+    }
+  | {
+      instance_name: SpiceInstanceName.VCIS;
+      data: Partial<VCISData>;
+    }
+  | {
+      instance_name: SpiceInstanceName.ICVS;
+      data: Partial<ICVSData>;
+    }
+  | {
+      instance_name: SpiceInstanceName.ICIS;
+      data: Partial<ICISData>;
+    }
+  | { instance_name: SpiceInstanceName.Ground; data: {} };
 
 export type SpiceNode = {
   symbol?: string;
@@ -87,7 +128,12 @@ export const SpiceNodeDisplayName: { [key in SpiceInstanceName]: string } = {
   [SpiceInstanceName.Capacitor]: "Capacitor",
   [SpiceInstanceName.Inductor]: "Inductor",
   [SpiceInstanceName.Ground]: "Ground",
-  [SpiceInstanceName.VoltageSource]: "Voltage Source"
+  [SpiceInstanceName.VoltageSource]: "Voltage Source",
+  [SpiceInstanceName.CurrentSource]: "Current Source",
+  [SpiceInstanceName.VCVS]: "Voltage-Controlled Voltage Source",
+  [SpiceInstanceName.VCIS]: "Voltage-Controlled Current Source",
+  [SpiceInstanceName.ICIS]: "Current-Controlled Current Source",
+  [SpiceInstanceName.ICVS]: "Current-Controlled Voltage Source"
 };
 
 interface SpiceContextType {
