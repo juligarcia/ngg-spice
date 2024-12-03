@@ -51,13 +51,13 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data, dragging }) => {
     match(BOTTOM)
       .with(P.union(Position.Left, Position.Right), () =>
         dimensions.width > dimensions.height
-          ? dimensions.height - dimensions.width + 8
-          : 8
+          ? dimensions.height - dimensions.width + 30
+          : 30
       )
       .otherwise(() =>
         dimensions.height > dimensions.width
-          ? dimensions.width - dimensions.height + 8
-          : 8
+          ? dimensions.width - dimensions.height + 30
+          : 30
       )
   );
 
@@ -82,18 +82,37 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data, dragging }) => {
           LEFT={LEFT}
         />
         <div className="w-full h-full">
-          {symbol && (
-            <div
-              className={clsx(
-                "w-full h-full fill-foreground stroke-foreground [&_svg]:w-full [&_svg]:h-full",
-                "transition-[fill,stroke] duration-150 ease-in-out hover:fill-muted-foreground hover:stroke-muted-foreground",
-                {
-                  "!fill-accent !stroke-accent": selected
+          <div
+            className={clsx(
+              "w-full h-full fill-foreground stroke-foreground [&_svg]:w-full [&_svg]:h-full",
+              "transition-[fill,stroke] duration-150 ease-in-out hover:fill-muted-foreground hover:stroke-muted-foreground",
+              {
+                "!fill-accent !stroke-accent": selected
+              }
+            )}
+          >
+            {match(symbol)
+              .with({ variants: P.nonNullable }, ({ key, variants }) => {
+                const keyValue = data.data[
+                  key as keyof typeof data.data
+                ] as keyof typeof variants;
+
+                console.log(keyValue, data.data);
+
+                if (keyValue) {
+                  const Icon = variants[keyValue];
+
+                  return <Icon />;
                 }
-              )}
-              dangerouslySetInnerHTML={{ __html: symbol }}
-            />
-          )}
+
+                const Icon = variants.default;
+
+                return <Icon />;
+              })
+              .otherwise((Icon) => (
+                <Icon />
+              ))}
+          </div>
           <SpiceAttributes
             selected={selected && !dragging}
             offset={attributesOffset}

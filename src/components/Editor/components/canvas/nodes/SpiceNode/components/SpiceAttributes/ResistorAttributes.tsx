@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { ResistorData } from "@/components/context/SpiceContext";
+import { ResistorData } from "@/components/context/SpiceContext/SpiceContext";
 import { Button } from "@/components/ui/Button";
 import { useReactFlow } from "@xyflow/react";
 import { Units } from "@/constants/units";

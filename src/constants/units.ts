@@ -8,5 +8,6 @@ export enum Units {
   Time = "s",
   Frequency = "Hz",
   Unitless = " ",
-  Conductance = "S"
+  Conductance = "S",
+  ElectronVolt = "eV"
 }

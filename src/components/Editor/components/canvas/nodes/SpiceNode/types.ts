@@ -1,6 +1,6 @@
 import { Node } from "@xyflow/react";
 import { NodeType, WithRotation } from "../types";
-import { SpiceNode } from "@/components/context/SpiceContext";
+import { SpiceNode } from "@/components/context/SpiceContext/SpiceContext";
 
 export type SpiceNodeValues = SpiceNode & WithRotation;
 

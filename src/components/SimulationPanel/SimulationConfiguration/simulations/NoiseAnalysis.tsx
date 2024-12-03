@@ -36,7 +36,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { isEmpty } from "lodash";
-import { SpiceInstanceName } from "@/components/context/SpiceContext";
+import { SpiceInstanceName } from "@/components/context/SpiceContext/SpiceContext";
 import { SpiceNodeType } from "@/components/Editor/components/canvas/nodes/SpiceNode/types";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";

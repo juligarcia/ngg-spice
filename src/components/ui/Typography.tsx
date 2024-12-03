@@ -13,8 +13,8 @@ const typographyVariants = cva("", {
       h4: "text-xl font-semibold tracking-tight",
       default: "",
       large: "text-lg font-semibold",
-      small: "text-sm font-medium leading-none",
-      xsmall: "text-xs font-medium leading-none"
+      small: "text-sm font-medium",
+      xsmall: "text-xs font-medium"
     }
   },
   defaultVariants: {

@@ -15,8 +15,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "createUpdaterArtifacts": "v1Compatible",
-    "resources": { "../spice/components/*": "spice/components/" }
+    "createUpdaterArtifacts": "v1Compatible"
   },
   "productName": "Next Geneneration Graphic Spice",
   "version": "0.0.0",
@@ -27,7 +26,7 @@
       "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": ["$RESOURCE/spice/components/*", "$TEMP/*"]
+        "scope": ["$TEMP/*"]
       }
     },
     "windows": [

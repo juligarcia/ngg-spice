@@ -15,7 +15,7 @@ import {
   REQUIRED_ICIS_VALUES,
   ICVSData,
   REQUIRED_ICVS_VALUES
-} from "@/components/context/SpiceContext";
+} from "@/components/context/SpiceContext/SpiceContext";
 import { get, isEmpty } from "lodash";
 
 export const getResistorHelperText = (

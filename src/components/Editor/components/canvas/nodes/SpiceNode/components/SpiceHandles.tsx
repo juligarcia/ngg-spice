@@ -1,4 +1,4 @@
-import { Port } from "@/components/context/SpiceContext";
+import { Port } from "@/components/context/SpiceContext/SpiceContext";
 import { Position } from "@xyflow/react";
 import { FC } from "react";
 import { tagPort } from "@/components/Editor/components/canvas/nodes/utils";

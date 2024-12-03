@@ -2,7 +2,7 @@ import {
   SpiceInstanceName,
   SpiceNode,
   SpiceNodeDisplayName
-} from "@/components/context/SpiceContext";
+} from "@/components/context/SpiceContext/SpiceContext";
 import { Typography } from "@/components/ui/Typography";
 import {
   NodeToolbar,
@@ -26,6 +26,7 @@ import SourceAttributes from "./SourceAttributes/PowerSourceAttributes";
 import { useMeasure } from "@uidotdev/usehooks";
 import CurrentControlledPowerSupplyAttributes from "./CurrentControlledPowerSupplyAttributes";
 import VoltageControlledPowerSupplyAttributes from "./VoltageControlledPowerSupplyAttributes";
+import BipolarJunctionTransistorAttributes from "./BipolarJunctionTransistorAttributes/BipolarJunctionTransistorAttributes";
 
 const storeSelector = (state: ReactFlowState) => ({
   singleSelection: state.nodes.filter((node) => node.selected).length === 1
@@ -291,6 +292,13 @@ const SpiceAttributes: FC<SpiceAttributesProps> = ({
                 />
               )
             )
+            .with({ instance_name: SpiceInstanceName.BJT }, (bjtData) => (
+              <BipolarJunctionTransistorAttributes
+                handleClose={handleClose}
+                id={id}
+                data={bjtData.data}
+              />
+            ))
             .otherwise(() => null)}
         </div>
       </div>

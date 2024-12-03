@@ -1,22 +1,11 @@
-import { FC, ReactNode, createContext, useContext } from "react";
-import yaml from "js-yaml";
-import { BaseDirectory, readDir, readTextFile } from "@tauri-apps/plugin-fs";
-import { useQuery } from "@tanstack/react-query";
-import { resolveResource } from "@tauri-apps/api/path";
 import { SmallsignalParameters, TimeDomainParameters } from "@/types/elements";
+import { ComponentType } from "react";
 
 export interface Port {
   name?: string;
   x: number;
   y: number;
 }
-
-export type Field = {
-  type: "number" | "string";
-  validation?: string;
-  name: string;
-  required?: boolean;
-};
 
 export enum SpiceInstanceName {
   Resistor = "R",
@@ -28,6 +17,10 @@ export enum SpiceInstanceName {
   VCIS = "G",
   ICVS = "H",
   ICIS = "F",
+  // JFET = "J",
+  // MOSFET = "M",
+  // MESFET = "Z",
+  BJT = "Q",
   Ground = "Gnd"
 }
 
@@ -59,6 +52,82 @@ export interface ICVSData extends SingleValuedElement {
   src: string;
 }
 export const REQUIRED_ICVS_VALUES: Array<keyof ICVSData> = ["value", "src"];
+
+export type BipolarJunctionTransistorModel = {
+  name: string;
+
+  // Transport saturation current
+  is: string;
+  // IS temperature effect exponent
+  xti: string;
+  // Bandgap voltage (barrier height)
+  eg: string;
+  // Forward Early voltage
+  vaf: string;
+  // Ideal maximum forward beta
+  bf: string;
+  // Base-emitter leakage saturation current
+  ise: string;
+  // Base-emitter leakage emission coefficient
+  ne: string;
+  // Corner for forward-beta high-current roll-off
+  ikf: string;
+  // High-current roll-off coefficient
+  nk: string;
+  // Forward and reverse beta temperature coefficient
+  xtb: string;
+  // Ideal maximum reverse beta
+  br: string;
+  // Base-collector leakage saturation current
+  isc: string;
+  // Base-collector leakage emission coefficient
+  nc: string;
+  // Corner for reverse-beta high-current roll-off
+  ikr: string;
+  // Collector ohmic resistance
+  rc: string;
+  // Base-collector zero-bias p-n capacitance
+  cjc: string;
+  // Base-collector p-n grading factor
+  mjc: string;
+  // Base-collector built-in potential
+  vjc: string;
+  // Forward-bias depletion capacitor coefficient
+  fc: string;
+  // Base-emitter zero-bias p-n capacitance
+  cje: string;
+  // Base-emitter p-n grading factor
+  mje: string;
+  // Base-emitter built-in potential
+  vje: string;
+  // Ideal reverse transit time
+  tr: string;
+  // Ideal forward transit time
+  tf: string;
+  // Transit time dependency on Ic
+  itf: string;
+  // Transit time bias dependence coefficient
+  xtf: string;
+  // Transit time dependency on Vbc
+  vtf: string;
+  // Zero-bias (maximum) base resistance
+  rb: string;
+};
+
+export enum BipolarJunctionTransistorType {
+  Npn = "NPN",
+  Pnp = "PNP"
+}
+
+export enum BipolarJunctionTransistorTypeDisplay {
+  NPN = "NPN",
+  PNP = "PNP"
+}
+
+export interface BipolarJunctionTransistorData {
+  t_type: BipolarJunctionTransistorType;
+  model?: BipolarJunctionTransistorModel;
+}
 
 export type PowerSourceData = {
   time_domain: TimeDomainParameters;
@@ -110,18 +179,38 @@ export type SpiceData =
       instance_name: SpiceInstanceName.ICIS;
       data: Partial<ICISData>;
     }
-  | { instance_name: SpiceInstanceName.Ground; data: {} };
+  | {
+      instance_name: SpiceInstanceName.BJT;
+      data: Partial<BipolarJunctionTransistorData>;
+    }
+  | {
+      instance_name: SpiceInstanceName.Ground;
+      data: Partial<{}>;
+    };
 
-export type SpiceNode = {
-  symbol?: string;
-  fields: Array<Field>;
+export type Symbol =
+  | ComponentType
+  | {
+      key: string;
+      variants: {
+        [key: string]: ComponentType;
+        default: ComponentType;
+      };
+    };
+
+export type SpiceNodeDefinition = {
+  instance_name: SpiceInstanceName;
+  symbol: Symbol;
   top_ports: Array<Port>;
   right_ports: Array<Port>;
   bottom_ports: Array<Port>;
   left_ports: Array<Port>;
   dimensions: { width: number; height: number };
-  name: string;
-} & SpiceData;
+};
+
+export type NamedSpiceNode = { name: string };
+
+export type SpiceNode = SpiceNodeDefinition & NamedSpiceNode & SpiceData;
 
 export const SpiceNodeDisplayName: { [key in SpiceInstanceName]: string } = {
   [SpiceInstanceName.Resistor]: "Resistor",
@@ -133,75 +222,6 @@ export const SpiceNodeDisplayName: { [key in SpiceInstanceName]: string } = {
   [SpiceInstanceName.VCVS]: "Voltage-Controlled Voltage Source",
   [SpiceInstanceName.VCIS]: "Voltage-Controlled Current Source",
   [SpiceInstanceName.ICIS]: "Current-Controlled Current Source",
-  [SpiceInstanceName.ICVS]: "Current-Controlled Voltage Source"
-};
-
-interface SpiceContextType {
-  components: Array<SpiceNode>;
-  isLoading: boolean;
-}
-
-const SpiceContext = createContext<SpiceContextType>({
-  components: [],
-  isLoading: false
-});
-
-interface SpiceContextProviderProps {
-  children: ReactNode;
-}
-
-export const SpiceContextProvider: FC<SpiceContextProviderProps> = ({
-  children
-}) => {
-  const { data: components, isPending: isLoadingSpice } = useQuery({
-    queryKey: ["spice-nodes"],
-    queryFn: async () => {
-      const entries = await readDir("spice/components", {
-        baseDir: BaseDirectory.Resource
-      });
-
-      const fileEntries = entries.filter(({ isFile, name }) => {
-        const extension = name.split(".").at(-1);
-
-        return isFile && (extension === "yaml" || extension === "yml");
-      });
-
-      return await Promise.all(
-        fileEntries.map(async ({ name }) => {
-          const content = await readTextFile(`spice/components/${name}`, {
-            baseDir: BaseDirectory.Resource
-          });
-
-          const spiceNode = yaml.load(content) as SpiceNode;
-
-          if (spiceNode.symbol) {
-            const symbolPath = await resolveResource(
-              `spice/components/${spiceNode.symbol}`
-            );
-
-            const symbolSVG = await readTextFile(symbolPath);
-
-            return { ...spiceNode, symbol: symbolSVG };
-          }
-
-          return spiceNode;
-        })
-      );
-    },
-    refetchOnMount: true
-  });
-
-  const isLoading = isLoadingSpice;
-
-  return (
-    <SpiceContext.Provider value={{ components: components ?? [], isLoading }}>
-      {children}
-    </SpiceContext.Provider>
-  );
-};
-
-export const useSpice = () => {
-  const spiceContext = useContext(SpiceContext);
-
-  return spiceContext;
+  [SpiceInstanceName.ICVS]: "Current-Controlled Voltage Source",
+  [SpiceInstanceName.BJT]: "Bipolar Junction Transistor"
 };

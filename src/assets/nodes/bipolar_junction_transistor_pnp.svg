@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <bx:grid x="0" y="0" width="41.863" height="41.863"/>
+  </defs>
+  <ellipse style="fill: rgba(255, 255, 255, 0); stroke-width: 30px;" cx="251.178" cy="251.178" rx="209.315" ry="209.317"/>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 30px;" x1="167.452" y1="125.589" x2="167.452" y2="376.767"/>
+  <line style="fill: rgb(216, 216, 216); stroke-width: 30px;" x1="0" y1="251.178" x2="167.452" y2="251.178"/>
+  <polyline style="stroke-width: 30px; fill: rgba(255, 255, 255, 0);" points="167.452 209.315 293.041 83.726 293.041 0"/>
+  <polyline style="fill: rgba(255, 255, 255, 0); stroke-linejoin: round; stroke-width: 30px; transform-box: fill-box; transform-origin: 50% 50%;" points="209.315 389.563 267.286 389.563 267.286 334.904" transform="matrix(-1, 0, 0, -1, -0.000008, -0.000009)"/>
+  <polyline style="fill: rgba(255, 255, 255, 0); stroke-width: 30px;" points="209.315 334.904 293.041 418.63 293.041 499.951"/>
+</svg>

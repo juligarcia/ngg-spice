@@ -1,5 +1,9 @@
 use serde::Deserialize;
 
+use crate::simulator::circuit::element::{
+    BjtModel as ContractBjtModel, BjtType as ContractBjtType,
+};
+
 #[derive(Deserialize, Clone)]
 
 pub enum TimeDomainConfig {
@@ -44,6 +48,61 @@ pub enum TimeDomainConfig {
         carrier_frequency: Option<String>,
         delay: Option<String>,
     },
+}
+
+#[derive(Deserialize, Clone)]
+pub struct BjtModel {
+    pub name: String,
+
+    pub is: Option<String>,  // Transport saturation current
+    pub xti: Option<String>, // IS temperature effect exponent
+    pub eg: Option<String>,  // Bandgap voltage (barrier height)
+    pub vaf: Option<String>, // Forward Early voltage
+    pub bf: Option<String>,  // Ideal maximum forward beta
+    pub ise: Option<String>, // Base-emitter leakage saturation current
+    pub ne: Option<String>,  // Base-emitter leakage emission coefficient
+    pub ikf: Option<String>, // Corner for forward-beta high-current roll-off
+    pub nk: Option<String>,  // High-current roll-off coefficient
+    pub xtb: Option<String>, // Forward and reverse beta temperature coefficient
+    pub br: Option<String>,  // Ideal maximum reverse beta
+    pub isc: Option<String>, // Base-collector leakage saturation current
+    pub nc: Option<String>,  // Base-collector leakage emission coefficient
+    pub ikr: Option<String>, // Corner for reverse-beta high-current roll-off
+    pub rc: Option<String>,  // Collector ohmic resistance
+    pub cjc: Option<String>, // Base-collector zero-bias p-n capacitance
+    pub mjc: Option<String>, // Base-collector p-n grading factor
+    pub vjc: Option<String>, // Base-collector built-in potential
+    pub fc: Option<String>,  // Forward-bias depletion capacitor coefficient
+    pub cje: Option<String>, // Base-emitter zero-bias p-n capacitance
+    pub mje: Option<String>, // Base-emitter p-n grading factor
+    pub vje: Option<String>, // Base-emitter built-in potential
+    pub tr: Option<String>,  // Ideal reverse transit time
+    pub tf: Option<String>,  // Ideal forward transit time
+    pub itf: Option<String>, // Transit time dependency on Ic
+    pub xtf: Option<String>, // Transit time bias dependence coefficient
+    pub vtf: Option<String>, // Transit time dependency on Vbc
+    pub rb: Option<String>,  // Zero-bias (maximum) base resistance
+}
+
+impl BjtModel {
+    pub fn to_contract(&self) -> ContractBjtModel {
+        ContractBjtModel::from_canvas(&self)
+    }
+}
+
+#[derive(Deserialize, Clone)]
+pub enum BjtType {
+    NPN,
+    PNP,
+}
+
+impl BjtType {
+    pub fn to_contract(&self) -> ContractBjtType {
+        match self {
+            BjtType::NPN => ContractBjtType::Npn,
+            BjtType::PNP => ContractBjtType::Pnp,
+        }
+    }
 }
 
 #[derive(Deserialize, Clone)]
@@ -94,6 +153,11 @@ pub enum NodeData {
         value: String,
         name: String,
         src: String,
+    },
+    Q {
+        name: String,
+        t_type: BjtType,
+        model: Option<BjtModel>,
     },
     Node {},
     Gnd {},

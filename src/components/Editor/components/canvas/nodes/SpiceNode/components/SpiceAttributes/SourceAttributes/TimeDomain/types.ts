@@ -4,7 +4,7 @@ import {
   UseFormUnregister
 } from "react-hook-form";
 import { PowerSourceAttributesForm } from "../PowerSourceAttributes";
-import { SpiceInstanceName } from "@/components/context/SpiceContext";
+import { SpiceInstanceName } from "@/components/context/SpiceContext/SpiceContext";
 
 export type TimeDomainAnalysisProps = {
   register: UseFormRegister<PowerSourceAttributesForm>;

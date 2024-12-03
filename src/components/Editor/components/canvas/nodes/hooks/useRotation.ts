@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Position } from "@xyflow/react";
 import Nodes from "../utils";
-import { Port } from "@/components/context/SpiceContext";
+import { Port } from "@/components/context/SpiceContext/SpiceContext";
 
 export type AvailableHandles = {
   [key in Position]: Array<Port>;

@@ -10,7 +10,7 @@ import {
   Position,
   ConnectionMode
 } from "@xyflow/react";
-import { FC, useMemo, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { useTheme } from "../ThemeProvider";
 import { nodeTypes } from "@/components/Editor/components/canvas/nodes";
 import {
@@ -25,13 +25,15 @@ import Nodes, { tagNode } from "./components/canvas/nodes/utils";
 import { ConnectionNodeType } from "./components/canvas/nodes/ConnectionNode/types";
 import { SpiceNodeType } from "./components/canvas/nodes/SpiceNode/types";
 import {
+  BipolarJunctionTransistorType,
+  SpiceData,
   SpiceInstanceName,
-  SpiceNode,
-  useSpice
-} from "../context/SpiceContext";
+  SpiceNodeDefinition
+} from "../context/SpiceContext/SpiceContext";
 import { useHotkeys } from "react-hotkeys-hook";
 import { osHotkeys } from "@/utils/hotkeys";
 import { useOs } from "../context/OsContext";
+import { spiceNodes } from "../context/SpiceContext/nodes/nodes";
 
 const Editor: FC = () => {
   const { theme } = useTheme();
@@ -43,51 +45,7 @@ const Editor: FC = () => {
 
   const refCounter = useRef<Map<string, number>>(new Map());
 
-  const { components } = useSpice();
-
-  const [R, C, L, GND, V, I, G, E, F, H] = useMemo(() => {
-    const R = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.Resistor
-    );
-
-    const C = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.Capacitor
-    );
-
-    const L = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.Inductor
-    );
-
-    const GND = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.Ground
-    );
-
-    const V = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.VoltageSource
-    );
-
-    const I = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.CurrentSource
-    );
-
-    const G = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.VCIS
-    );
-
-    const E = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.VCVS
-    );
-
-    const F = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.ICIS
-    );
-
-    const H = components.find(
-      ({ instance_name }) => instance_name === SpiceInstanceName.ICVS
-    );
-
-    return [R, C, L, GND, V, I, G, E, F, H];
-  }, [components]);
+  const { R, C, L, Gnd, V, I, G, E, F, H, Q } = spiceNodes;
 
   const { os } = useOs();
 
@@ -99,7 +57,9 @@ const Editor: FC = () => {
     { keyup: true, keydown: true }
   );
 
-  const createNewSpiceNode = (node: SpiceNode): SpiceNodeType => ({
+  const createNewSpiceNode = (
+    node: SpiceNodeDefinition & Partial<SpiceData>
+  ): SpiceNodeType => ({
     type: NodeType.Spice,
     id: Nodes.tagElement(uniqueId()),
     position: { x: 0, y: 0 },
@@ -108,7 +68,7 @@ const Editor: FC = () => {
       name: `${node.instance_name}${refCounter.current.get(
         node.instance_name
       )}`,
-      data: {}
+      data: node.data || {}
     }
   });
 
@@ -155,9 +115,9 @@ const Editor: FC = () => {
   });
 
   useHotkeys(osHotkeys({ macos: "0", windows: "0", linux: "0" }, os), () => {
-    if (!GND) return;
+    if (!Gnd) return;
 
-    const newComponentNode = createNewSpiceNode(GND);
+    const newComponentNode = createNewSpiceNode(Gnd);
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
@@ -242,6 +202,26 @@ const Editor: FC = () => {
     else refCounter.current.set(SpiceInstanceName.ICVS, counter + 1);
 
     const newComponentNode = createNewSpiceNode(H);
+
+    setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
+  });
+
+  useHotkeys(osHotkeys({ macos: "q", windows: "q", linux: "q" }, os), () => {
+    if (!Q) return;
+
+    const counter = refCounter.current.get(SpiceInstanceName.BJT);
+
+    if (counter === undefined) refCounter.current.set(SpiceInstanceName.BJT, 1);
+    else refCounter.current.set(SpiceInstanceName.BJT, counter + 1);
+
+    const newComponentNode = createNewSpiceNode({
+      ...Q,
+      // Override to allow for type check of initial values
+      instance_name: SpiceInstanceName.BJT,
+      data: {
+        t_type: BipolarJunctionTransistorType.Npn
+      }
+    });
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });

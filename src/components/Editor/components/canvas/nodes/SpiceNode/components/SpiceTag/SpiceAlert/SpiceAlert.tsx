@@ -1,4 +1,4 @@
-import { SpiceInstanceName } from "@/components/context/SpiceContext";
+import { SpiceInstanceName } from "@/components/context/SpiceContext/SpiceContext";
 import { Typography } from "@/components/ui/Typography";
 import {
   Tooltip,

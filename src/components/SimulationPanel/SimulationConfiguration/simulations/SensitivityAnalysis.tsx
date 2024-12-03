@@ -33,7 +33,7 @@ import { Label } from "@/components/ui/label";
 import { useStore } from "@xyflow/react";
 import { AppNode, NodeType } from "@/components/Editor/components/canvas/nodes/types";
 import { match, P } from "ts-pattern";
-import { SpiceInstanceName } from "@/components/context/SpiceContext";
+import { SpiceInstanceName } from "@/components/context/SpiceContext/SpiceContext";
 import { SpiceNodeType } from "@/components/Editor/components/canvas/nodes/SpiceNode/types";
 import { ConnectionNodeType } from "@/components/Editor/components/canvas/nodes/ConnectionNode/types";
 import {

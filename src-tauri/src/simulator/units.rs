@@ -143,6 +143,22 @@ impl Unit for Dimensionless {
 
 #[derive(Clone)]
 
+pub struct Energy {
+    base: i16,
+}
+
+impl Unit for Energy {
+    fn format(&self) -> String {
+        format!("{}", self.base)
+    }
+
+    fn new(base: i16) -> Self {
+        Self { base }
+    }
+}
+
+#[derive(Clone)]
+
 pub struct Conductance {
     base: i16,
 }

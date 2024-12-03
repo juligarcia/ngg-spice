@@ -5,7 +5,7 @@ import {
   SpiceInstanceName,
   VCISData,
   VCVSData
-} from "@/components/context/SpiceContext";
+} from "@/components/context/SpiceContext/SpiceContext";
 import { Button } from "@/components/ui/Button";
 import { useReactFlow } from "@xyflow/react";
 import { Units } from "@/constants/units";

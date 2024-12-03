@@ -6,7 +6,7 @@ import { SmallSignalAnalysisProps } from "./TimeDomain/types";
 import { isUnit } from "@/utils/validations";
 import _ from "lodash";
 import { match } from "ts-pattern";
-import { SpiceInstanceName } from "@/components/context/SpiceContext";
+import { SpiceInstanceName } from "@/components/context/SpiceContext/SpiceContext";
 
 const SmallSignal: FC<SmallSignalAnalysisProps> = ({
   register,

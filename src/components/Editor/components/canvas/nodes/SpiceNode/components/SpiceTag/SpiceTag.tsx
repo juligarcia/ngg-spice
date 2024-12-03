@@ -2,13 +2,14 @@ import { FC } from "react";
 import SpiceAlert from "./SpiceAlert/SpiceAlert";
 import { match } from "ts-pattern";
 import { SpiceNodeValues } from "../../types";
-import { SpiceInstanceName } from "@/components/context/SpiceContext";
+import { SpiceInstanceName } from "@/components/context/SpiceContext/SpiceContext";
 import ResistorTag from "./ResistorTag";
 import CapacitorTag from "./CapacitorTag";
 import InductorTag from "./InductorTag";
 import PowerSourceTag from "./PowerSourceTag";
 import clsx from "clsx";
 import ControlledPowerSourceTag from "./ControlledPowerSourceTag";
+import BipolarJunctionTransistorTag from "./BipolarJunctionTransistorTag";
 
 interface SpiceTagProps {
   id: string;
@@ -26,7 +27,7 @@ const SpiceTag: FC<SpiceTagProps> = ({ id, nodeData, name, offset }) => {
     <div
       style={{ bottom: -offset }}
       className={clsx(
-        "flex h-fit z-10 bg-accent/50 rounded-sm absolute items-center px-4 py-2 gap-3 w-fit left-2/4  translate-y-[100%] -translate-x-2/4"
+        "flex h-fit z-10 bg-accent/50 rounded-sm absolute items-center px-4 py-2 gap-3 w-fit left-2/4 translate-y-[100%] -translate-x-2/4"
       )}
       id={id}
     >
@@ -90,6 +91,9 @@ const SpiceTag: FC<SpiceTagProps> = ({ id, nodeData, name, offset }) => {
             name={name}
             data={icvsData.data}
           />
+        ))
+        .with({ instance_name: SpiceInstanceName.BJT }, (bjtData) => (
+          <BipolarJunctionTransistorTag name={name} data={bjtData.data} />
         ))
         .otherwise(() => null)}
       <SpiceAlert nodeData={nodeData} />

@@ -5,7 +5,7 @@ import {
   ICISData,
   ICVSData,
   SpiceInstanceName
-} from "@/components/context/SpiceContext";
+} from "@/components/context/SpiceContext/SpiceContext";
 import { Button } from "@/components/ui/Button";
 import { useReactFlow, useStore } from "@xyflow/react";
 import { Units } from "@/constants/units";
@@ -36,8 +36,6 @@ type Form = ICISData | ICVSData;
 const CurrentControlledPowerSupplyAttributes: FC<
   CurrentControlledPowerSupplyAttributesProps
 > = ({ data, id, type, handleClose }) => {
-  console.log(data);
-
   const {
     formState: { isDirty, errors },
     register,

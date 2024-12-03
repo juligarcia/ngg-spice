@@ -2,13 +2,14 @@ use std::collections::HashSet;
 
 use crate::simulator::{
     circuit::canvas::{
-        SmallSignalConfig as CanvasSmallSignalConfig, TimeDomainConfig as CanvasTimeDomainConfig,
+        BjtModel as CanvasBjtModel, SmallSignalConfig as CanvasSmallSignalConfig,
+        TimeDomainConfig as CanvasTimeDomainConfig,
     },
     simulator_error::SimulatorError,
     unit_of_magnitude::{Unit as UnitTrait, UnitOfMagnitude as Unit},
     units::{
-        Capacitance, Conductance, Current, Dimensionless, Frequency, Inductance, Phase, Resistance,
-        Time, Voltage,
+        Capacitance, Conductance, Current, Dimensionless, Energy, Frequency, Inductance, Phase,
+        Resistance, Time, Voltage,
     },
 };
 
@@ -616,6 +617,293 @@ impl<T: UnitTrait> SmallSignalConfig<T> {
 }
 
 #[derive(Clone)]
+pub enum BjtType {
+    Npn,
+    Pnp,
+}
+
+impl BjtType {
+    pub fn format(&self) -> String {
+        match self {
+            BjtType::Npn => "NPN".to_string(),
+            BjtType::Pnp => "PNP".to_string(),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct BjtModel {
+    name: String,
+
+    is: Option<Unit<Current>>,        // Transport saturation current
+    xti: Option<Unit<Dimensionless>>, // IS temperature effect exponent
+    eg: Option<Unit<Energy>>,         // Bandgap voltage (barrier height)
+    vaf: Option<Unit<Voltage>>,       // Forward Early voltage
+    bf: Option<Unit<Dimensionless>>,  // Ideal maximum forward beta
+    ise: Option<Unit<Current>>,       // Base-emitter leakage saturation current
+    ne: Option<Unit<Dimensionless>>,  // Base-emitter leakage emission coefficient
+    ikf: Option<Unit<Current>>,       // Corner for forward-beta high-current roll-off
+    nk: Option<Unit<Dimensionless>>,  // High-current roll-off coefficient
+    xtb: Option<Unit<Dimensionless>>, // Forward and reverse beta temperature coefficient
+    br: Option<Unit<Dimensionless>>,  // Ideal maximum reverse beta
+    isc: Option<Unit<Current>>,       // Base-collector leakage saturation current
+    nc: Option<Unit<Dimensionless>>,  // Base-collector leakage emission coefficient
+    ikr: Option<Unit<Current>>,       // Corner for reverse-beta high-current roll-off
+    rc: Option<Unit<Resistance>>,     // Collector ohmic resistance
+    cjc: Option<Unit<Capacitance>>,   // Base-collector zero-bias p-n capacitance
+    mjc: Option<Unit<Dimensionless>>, // Base-collector p-n grading factor
+    vjc: Option<Unit<Voltage>>,       // Base-collector built-in potential
+    fc: Option<Unit<Dimensionless>>,  // Forward-bias depletion capacitor coefficient
+    cje: Option<Unit<Capacitance>>,   // Base-emitter zero-bias p-n capacitance
+    mje: Option<Unit<Dimensionless>>, // Base-emitter p-n grading factor
+    vje: Option<Unit<Voltage>>,       // Base-emitter built-in potential
+    tr: Option<Unit<Time>>,           // Ideal reverse transit time
+    tf: Option<Unit<Time>>,           // Ideal forward transit time
+    itf: Option<Unit<Current>>,       // Transit time dependency on Ic
+    xtf: Option<Unit<Dimensionless>>, // Transit time bias dependence coefficient
+    vtf: Option<Unit<Voltage>>,       // Transit time dependency on Vbc
+    rb: Option<Unit<Resistance>>,     // Zero-bias (maximum) base resistance
+}
+
+impl BjtModel {
+    pub fn from_canvas(canvas_model: &CanvasBjtModel) -> BjtModel {
+        BjtModel {
+            name: canvas_model.name.to_owned(),
+            is: canvas_model
+                .is
+                .clone()
+                .and_then(|is| Unit::<Current>::from(is).map_or(None, |is| Some(is))),
+            xti: canvas_model
+                .xti
+                .clone()
+                .and_then(|xti| Unit::<Dimensionless>::from(xti).map_or(None, |xti| Some(xti))),
+            eg: canvas_model
+                .eg
+                .clone()
+                .and_then(|eg| Unit::<Energy>::from(eg).map_or(None, |eg| Some(eg))),
+            vaf: canvas_model
+                .vaf
+                .clone()
+                .and_then(|vaf| Unit::<Voltage>::from(vaf).map_or(None, |vaf| Some(vaf))),
+            bf: canvas_model
+                .bf
+                .clone()
+                .and_then(|bf| Unit::<Dimensionless>::from(bf).map_or(None, |bf| Some(bf))),
+            ise: canvas_model
+                .ise
+                .clone()
+                .and_then(|ise| Unit::<Current>::from(ise).map_or(None, |ise| Some(ise))),
+            ne: canvas_model
+                .ne
+                .clone()
+                .and_then(|ne| Unit::<Dimensionless>::from(ne).map_or(None, |ne| Some(ne))),
+            ikf: canvas_model
+                .ikf
+                .clone()
+                .and_then(|ikf| Unit::<Current>::from(ikf).map_or(None, |ikf| Some(ikf))),
+            nk: canvas_model
+                .nk
+                .clone()
+                .and_then(|nk| Unit::<Dimensionless>::from(nk).map_or(None, |nk| Some(nk))),
+            xtb: canvas_model
+                .xtb
+                .clone()
+                .and_then(|xtb| Unit::<Dimensionless>::from(xtb).map_or(None, |xtb| Some(xtb))),
+            br: canvas_model
+                .br
+                .clone()
+                .and_then(|br| Unit::<Dimensionless>::from(br).map_or(None, |br| Some(br))),
+            isc: canvas_model
+                .isc
+                .clone()
+                .and_then(|isc| Unit::<Current>::from(isc).map_or(None, |isc| Some(isc))),
+            nc: canvas_model
+                .nc
+                .clone()
+                .and_then(|nc| Unit::<Dimensionless>::from(nc).map_or(None, |nc| Some(nc))),
+            ikr: canvas_model
+                .ikr
+                .clone()
+                .and_then(|ikr| Unit::<Current>::from(ikr).map_or(None, |ikr| Some(ikr))),
+            rc: canvas_model
+                .rc
+                .clone()
+                .and_then(|rc| Unit::<Resistance>::from(rc).map_or(None, |rc| Some(rc))),
+            cjc: canvas_model
+                .cjc
+                .clone()
+                .and_then(|cjc| Unit::<Capacitance>::from(cjc).map_or(None, |cjc| Some(cjc))),
+            mjc: canvas_model
+                .mjc
+                .clone()
+                .and_then(|mjc| Unit::<Dimensionless>::from(mjc).map_or(None, |mjc| Some(mjc))),
+            vjc: canvas_model
+                .vjc
+                .clone()
+                .and_then(|vjc| Unit::<Voltage>::from(vjc).map_or(None, |vjc| Some(vjc))),
+            fc: canvas_model
+                .fc
+                .clone()
+                .and_then(|fc| Unit::<Dimensionless>::from(fc).map_or(None, |fc| Some(fc))),
+            cje: canvas_model
+                .cje
+                .clone()
+                .and_then(|cje| Unit::<Capacitance>::from(cje).map_or(None, |cje| Some(cje))),
+            mje: canvas_model
+                .mje
+                .clone()
+                .and_then(|mje| Unit::<Dimensionless>::from(mje).map_or(None, |mje| Some(mje))),
+            vje: canvas_model
+                .vje
+                .clone()
+                .and_then(|vje| Unit::<Voltage>::from(vje).map_or(None, |vje| Some(vje))),
+            tr: canvas_model
+                .tr
+                .clone()
+                .and_then(|tr| Unit::<Time>::from(tr).map_or(None, |tr| Some(tr))),
+            tf: canvas_model
+                .tf
+                .clone()
+                .and_then(|tf| Unit::<Time>::from(tf).map_or(None, |tf| Some(tf))),
+            itf: canvas_model
+                .itf
+                .clone()
+                .and_then(|itf| Unit::<Current>::from(itf).map_or(None, |itf| Some(itf))),
+            xtf: canvas_model
+                .xtf
+                .clone()
+                .and_then(|xtf| Unit::<Dimensionless>::from(xtf).map_or(None, |xtf| Some(xtf))),
+            vtf: canvas_model
+                .vtf
+                .clone()
+                .and_then(|vtf| Unit::<Voltage>::from(vtf).map_or(None, |vtf| Some(vtf))),
+            rb: canvas_model
+                .rb
+                .clone()
+                .and_then(|rb| Unit::<Resistance>::from(rb).map_or(None, |rb| Some(rb))),
+        }
+    }
+
+    pub fn format(&self, transistor_type: &BjtType) -> String {
+        let mut formatted = format!(".model {} {}(", self.name, transistor_type.format());
+
+        if let Some(is) = &self.is {
+            formatted.push_str(&format!("IS={} ", is.format()));
+        }
+
+        if let Some(xti) = &self.xti {
+            formatted.push_str(&format!("XTI={} ", xti.format()));
+        }
+
+        if let Some(eg) = &self.eg {
+            formatted.push_str(&format!("EG={} ", eg.format()));
+        }
+
+        if let Some(vaf) = &self.vaf {
+            formatted.push_str(&format!("VAF={} ", vaf.format()));
+        }
+
+        if let Some(bf) = &self.bf {
+            formatted.push_str(&format!("BF={} ", bf.format()));
+        }
+
+        if let Some(ise) = &self.ise {
+            formatted.push_str(&format!("ISE={} ", ise.format()));
+        }
+
+        if let Some(ne) = &self.ne {
+            formatted.push_str(&format!("NE={} ", ne.format()));
+        }
+
+        if let Some(ikf) = &self.ikf {
+            formatted.push_str(&format!("IKF={} ", ikf.format()));
+        }
+
+        if let Some(nk) = &self.nk {
+            formatted.push_str(&format!("NK={} ", nk.format()));
+        }
+
+        if let Some(xtb) = &self.xtb {
+            formatted.push_str(&format!("XTB={} ", xtb.format()));
+        }
+
+        if let Some(br) = &self.br {
+            formatted.push_str(&format!("BR={} ", br.format()));
+        }
+
+        if let Some(isc) = &self.isc {
+            formatted.push_str(&format!("ISC={} ", isc.format()));
+        }
+
+        if let Some(nc) = &self.nc {
+            formatted.push_str(&format!("NC={} ", nc.format()));
+        }
+
+        if let Some(ikr) = &self.ikr {
+            formatted.push_str(&format!("IKR={} ", ikr.format()));
+        }
+
+        if let Some(rc) = &self.rc {
+            formatted.push_str(&format!("RC={} ", rc.format()));
+        }
+
+        if let Some(cjc) = &self.cjc {
+            formatted.push_str(&format!("CJC={} ", cjc.format()));
+        }
+
+        if let Some(mjc) = &self.mjc {
+            formatted.push_str(&format!("MJC={} ", mjc.format()));
+        }
+
+        if let Some(vjc) = &self.vjc {
+            formatted.push_str(&format!("VJC={} ", vjc.format()));
+        }
+
+        if let Some(fc) = &self.fc {
+            formatted.push_str(&format!("FC={} ", fc.format()));
+        }
+
+        if let Some(cje) = &self.cje {
+            formatted.push_str(&format!("CJE={} ", cje.format()));
+        }
+
+        if let Some(mje) = &self.mje {
+            formatted.push_str(&format!("MJE={} ", mje.format()));
+        }
+
+        if let Some(vje) = &self.vje {
+            formatted.push_str(&format!("VJE={} ", vje.format()));
+        }
+
+        if let Some(tr) = &self.tr {
+            formatted.push_str(&format!("TR={} ", tr.format()));
+        }
+
+        if let Some(tf) = &self.tf {
+            formatted.push_str(&format!("TF={} ", tf.format()));
+        }
+
+        if let Some(itf) = &self.itf {
+            formatted.push_str(&format!("ITF={} ", itf.format()));
+        }
+
+        if let Some(xtf) = &self.xtf {
+            formatted.push_str(&format!("XTF={} ", xtf.format()));
+        }
+
+        if let Some(vtf) = &self.vtf {
+            formatted.push_str(&format!("VTF={} ", vtf.format()));
+        }
+
+        if let Some(rb) = &self.rb {
+            formatted.push_str(&format!("RB={} ", rb.format()));
+        }
+
+        format!("{})\n", formatted.trim_end())
+    }
+}
+
+#[derive(Clone)]
 pub enum Element {
     R(String, Unit<Resistance>, String, String),
     C(String, Unit<Capacitance>, String, String),
@@ -638,6 +926,7 @@ pub enum Element {
     F(String, Unit<Dimensionless>, String, String, String),
     G(String, Unit<Conductance>, String, String, String, String),
     H(String, Unit<Resistance>, String, String, String),
+    Q(String, String, String, String, BjtType, Option<BjtModel>),
 }
 
 impl Element {
@@ -780,6 +1069,39 @@ impl Element {
                 {
                     let formatted =
                         format!("H{} {} {} {} {}\n", name, n1, n2, ref_src, value.format());
+
+                    return Ok(formatted);
+                }
+
+                Err(SimulatorError::ElementParserError(name.to_owned()))
+            }
+
+            Element::Q(name, c_node, b_node, e_node, transistor_type, model) => {
+                if let [c_node, b_node, e_node] =
+                    &Self::replace_ground_alias(&[c_node, b_node, e_node], ground_alias)[0..3]
+                {
+                    let mut formatted = format!(
+                        "Q{} {} {} {} {}\n",
+                        name,
+                        c_node,
+                        b_node,
+                        e_node,
+                        if let Some(model) = model {
+                            model.name.to_owned()
+                        } else {
+                            transistor_type.format()
+                        }
+                    );
+
+                    if let Some(model) = model {
+                        formatted.push_str(&model.format(transistor_type));
+                    } else {
+                        formatted.push_str(&format!(
+                            ".model {} {}\n",
+                            transistor_type.format(),
+                            transistor_type.format()
+                        ));
+                    }
 
                     return Ok(formatted);
                 }

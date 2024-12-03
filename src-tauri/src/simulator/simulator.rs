@@ -325,7 +325,27 @@ impl Simulator {
                     }
                 }
 
-                _ => {}
+                NodeData::Q {
+                    name,
+                    t_type,
+                    model,
+                } => {
+                    if let Some([c_node, b_node, e_node]) = &node_connections.get(0..3) {
+                        schematic.insert(Element::Q(
+                            name,
+                            c_node.to_owned(),
+                            b_node.to_owned(),
+                            e_node.to_owned(),
+                            t_type.to_contract(),
+                            model.and_then(|model| Some(model.to_contract())),
+                        ));
+                    } else {
+                        return Err(SimulatorError::FloatingNode);
+                    }
+                }
+
+                NodeData::Gnd {} => {}
+                NodeData::Node {} => {}
             }
         }
 
