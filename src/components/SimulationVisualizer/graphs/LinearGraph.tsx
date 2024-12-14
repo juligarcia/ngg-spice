@@ -65,7 +65,7 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
     // if total points is too low -> less than 1 point per pixel
     // we take 1 point per pixel
     const estimatedDensity = Math.max(
-      Math.floor(estimatedTotalPoints / width),
+      Math.floor(estimatedTotalPoints / (width * 5)),
       1
     );
 
@@ -117,7 +117,7 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
       bs(data, x2, (datum, needle) => getX(xAccessor)(datum) - needle)
     );
 
-    const estimatedDensity = Math.floor((end - start) / width);
+    const estimatedDensity = Math.floor((end - start) / (width * 5));
 
     // Avoid further downsampling if point density does not accompany
     if (estimatedDensity <= 0) return;
@@ -183,6 +183,7 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
       graphContainer,
       plotState.current.downSampledData,
       {
+        animatedZooms: true,
         labels: [plotState.current.xAccessor, plotState.current.yAccessor],
         color: "#7C3AED",
         title: `${plotState.current.yAccessor} / ${plotState.current.xAccessor}`,
@@ -245,7 +246,7 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
       // if total points is too low -> less than 1 point per pixel
       // we take 1 point per pixel
       const estimatedDensity = Math.max(
-        Math.floor(estimatedTotalPoints / width),
+        Math.floor(estimatedTotalPoints / (width * 5)),
         1
       );
 
@@ -266,7 +267,9 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
       plotState.current.graph?.updateOptions({
         file: plotState.current.downSampledData
       });
-    }, 150),
+
+      console.log(plotState.current.downSampledData.length);
+    }, 300),
     []
   );
 

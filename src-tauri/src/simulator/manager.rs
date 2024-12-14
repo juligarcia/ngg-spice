@@ -125,7 +125,7 @@ impl SpiceManager for NGGSpiceManager {
         let simulation_data = SimulationData::new(pkvecvaluesall);
 
         if let Some(simulation_id) = maybe_id {
-            if orch_guard.has_threshold_elapsed(id as usize, 500) {
+            if orch_guard.has_threshold_elapsed(id as usize, 150) {
                 orch_guard.restart_timer(id as usize);
 
                 let buffer = orch_guard.flush_simulation_data_buffer(id as usize);
