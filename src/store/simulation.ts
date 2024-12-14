@@ -1,50 +1,78 @@
-import { SimulationConfig, SimulationStatus } from "@/types/simulation";
+import {
+  SimulationConfig,
+  SimulationData,
+  SimulationDataPayload,
+  SimulationStatusPayload
+} from "@/types/simulation";
 import { create } from "zustand";
 import { v4 as uuidv4 } from "uuid";
 import { createSelectors } from "@/utils/zustand";
+import { getIdOfType } from "@/utils/simulation";
+import { subscribeWithSelector } from "zustand/middleware";
 
 interface SimulationStore {
   simulationsToRun: Map<string, SimulationConfig>;
 
-  enqueueSimulation(newSimulationConfig: SimulationConfig): void;
+  enqueueSimulation<T extends SimulationConfig>(
+    newSimulationConfig: T,
+    isOfType: (config: SimulationConfig) => config is T
+  ): void;
   dequeueSimulation(simulationToRemove: string): void;
 
-  simulationStatus: Map<string, SimulationStatus>;
+  simulationStatus: Map<string, SimulationStatusPayload>;
+  simulationData: Map<string, Array<SimulationData>>;
 
-  updateSimulationStatus(newStatus: SimulationStatus): void;
-  resetSimulationStatus(): void;
+  updateSimulationStatus(newStatus: SimulationStatusPayload): void;
+  resetSimulations(): void;
+
+  pushSimulationData(newDataItem: SimulationDataPayload): void;
 }
 
-const useSimulationStoreBase = create<SimulationStore>((set) => ({
-  simulationsToRun: new Map<string, SimulationConfig>(),
+const useSimulationStoreBase = create<SimulationStore>()(
+  subscribeWithSelector((set) => ({
+    simulationsToRun: new Map(),
+    simulationData: new Map(),
+    simulationStatus: new Map(),
 
-  enqueueSimulation: (newSimulationConfig: SimulationConfig) =>
-    set((state) => {
-      state.simulationsToRun.set(uuidv4(), newSimulationConfig);
+    enqueueSimulation: (newSimulationConfig, isOfType) =>
+      set((state) => {
+        const id = getIdOfType(state.simulationsToRun, isOfType) || uuidv4();
 
-      return { simulationsToRun: new Map(state.simulationsToRun) };
-    }),
+        state.simulationsToRun.set(id, newSimulationConfig);
 
-  dequeueSimulation: (simulationToRemove: string) =>
-    set((state) => {
-      state.simulationsToRun.delete(simulationToRemove);
+        return { simulationsToRun: new Map(state.simulationsToRun) };
+      }),
 
-      return { simulationsToRun: new Map(state.simulationsToRun) };
-    }),
+    dequeueSimulation: (simulationToRemove) =>
+      set((state) => {
+        state.simulationsToRun.delete(simulationToRemove);
 
-  simulationStatus: new Map<string, SimulationStatus>(),
+        return { simulationsToRun: new Map(state.simulationsToRun) };
+      }),
 
-  updateSimulationStatus: (newStatus: SimulationStatus) =>
-    set((state) => {
-      state.simulationStatus.set(newStatus.id, newStatus);
+    updateSimulationStatus: (newStatus) =>
+      set((state) => {
+        state.simulationStatus.set(newStatus.id, newStatus);
 
-      return { simulationStatus: new Map(state.simulationStatus) };
-    }),
+        return { simulationStatus: new Map(state.simulationStatus) };
+      }),
 
-  resetSimulationStatus: () =>
-    set(() => {
-      return { simulationStatus: new Map() };
-    })
-}));
+    pushSimulationData: (newDataItem) =>
+      set((state) => {
+        const current = state.simulationData.get(newDataItem.id) || [];
+
+        current.push(...newDataItem.data);
+
+        state.simulationData.set(newDataItem.id, current);
+
+        return { simulationData: new Map(state.simulationData) };
+      }),
+
+    resetSimulations: () =>
+      set(() => {
+        return { simulationStatus: new Map(), simulationData: new Map() };
+      })
+  }))
+);
 
 export const useSimulationStore = createSelectors(useSimulationStoreBase);

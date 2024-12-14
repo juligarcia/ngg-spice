@@ -97,8 +97,6 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data, dragging }) => {
                   key as keyof typeof data.data
                 ] as keyof typeof variants;
 
-                console.log(keyValue, data.data);
-
                 if (keyValue) {
                   const Icon = variants[keyValue];
 

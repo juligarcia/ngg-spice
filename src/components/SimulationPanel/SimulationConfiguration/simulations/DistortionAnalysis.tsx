@@ -73,7 +73,7 @@ export const Content: FC = () => {
       {isEnqueued && <SimulationStatus status={status} />}
       <form
         onSubmit={handleSubmit((config) => {
-          enqueueSimulation({ Disto: config });
+          enqueueSimulation({ Disto: config }, isDistortionAnalysis);
           reset(config);
         })}
         className="mt-6 flex flex-col gap-2"

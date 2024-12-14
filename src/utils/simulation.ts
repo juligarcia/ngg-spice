@@ -2,7 +2,7 @@ import {
   SimulationConfig,
   OperatingPointConfig,
   TransientAnalysisConfig,
-  SimulationStatus,
+  SimulationStatusPayload,
   SmallSignalACAnalysisConfig,
   DistortionAnalysisConfig,
   DCAnalysisConfig,
@@ -62,14 +62,16 @@ export const isDCAnalysis = (
   return "Dc" in config;
 };
 
-export const isSimulationRunning = (status: SimulationStatus | undefined) =>
+export const isSimulationRunning = (
+  status: SimulationStatusPayload | undefined
+) =>
   match(status)
     .with(P.nullish, () => false)
     .with({ status: "Ready" }, () => false)
     .otherwise(() => true);
 
 export const anySimulationRunning = (
-  statusMap: Map<string, SimulationStatus>
+  statusMap: Map<string, SimulationStatusPayload>
 ) => {
   for (let [, status] of statusMap) {
     if (isSimulationRunning(status)) return true;

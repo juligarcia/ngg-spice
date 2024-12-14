@@ -29,7 +29,7 @@ export const Trigger: FC = () => {
   const isEnqueued = hasAnyOfType(simulationMap, isTransientAnalysis);
 
   return (
-    <div className="bg-accent rounded-sm overflow-hidden flex items-center gap-2">
+    <div className="bg-accent rounded-sm  overflow-hidden flex items-center gap-2 w-full mr-2">
       <Typography className="capitalize" variant="h4">
         {SimulationDisplay[Simulation.Transient]}
       </Typography>
@@ -72,7 +72,7 @@ export const Content: FC = () => {
       {isEnqueued && <SimulationStatus status={status} />}
       <form
         onSubmit={handleSubmit((config) => {
-          enqueueSimulation({ Tran: config });
+          enqueueSimulation({ Tran: config }, isTransientAnalysis);
           reset(config);
         })}
         className="mt-6 flex flex-col gap-2"

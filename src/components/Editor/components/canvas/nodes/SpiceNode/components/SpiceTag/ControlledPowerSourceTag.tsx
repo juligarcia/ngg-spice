@@ -45,7 +45,7 @@ const ControlledPowerSourceTag: FC<ControlledPowerSourceTagProps> = ({
     labels
       .filter((maybeLabel) => !!maybeLabel)
       .map((label, index, filteredLabels) => (
-        <Typography variant="h4">{`${label}${
+        <Typography key={label?.toString()} variant="h4">{`${label}${
           index < filteredLabels.length - 1 ? "," : ""
         }`}</Typography>
       ));

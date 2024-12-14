@@ -9,7 +9,7 @@ import PnpNodeSymbol from "@/assets/nodes/bipolar_junction_transistor_pnp.svg?re
 export const BipolarJunctionTransistor: SpiceNodeDefinition = {
   instance_name: SpiceInstanceName.BJT,
   symbol: {
-    key: "type",
+    key: "t_type",
     variants: {
       [BipolarJunctionTransistorType.Npn]: NpnNodeSymbol,
       [BipolarJunctionTransistorType.Pnp]: PnpNodeSymbol,

@@ -9,20 +9,18 @@ use tauri::Emitter;
 use crate::simulator::{
     commands::SecondaryThreadStatus,
     simulation_status::{SimulationStatus, SimulationStatusPayload},
-    simulator_error::SimulatorError,
 };
 
-use super::commands::SimulationThreadOrchestrator;
+use super::{
+    commands::SimulationThreadOrchestrator,
+    simulation_data::{SimulationData, SimulationDataPayload},
+};
 
 #[derive(Clone, Debug)]
 pub struct NGGSpiceManager {
     // -------- Callbacks
     sharedres: Arc<RwLock<VecDeque<String>>>,
     quit_flag: bool,
-    vec_char: Vec<String>,
-    vec_stat: Vec<String>,
-    vec_pkvecinfoall: Vec<PkVecinfoall>,
-    vec_pkvecvalsall: Vec<PkVecvaluesall>,
 
     // -------- Internal
     app_handle: tauri::AppHandle,
@@ -40,10 +38,7 @@ impl NGGSpiceManager {
         NGGSpiceManager {
             sharedres: Arc::new(RwLock::new(VecDeque::<String>::with_capacity(10))),
             quit_flag: false,
-            vec_char: Vec::<String>::new(),
-            vec_stat: Vec::<String>::new(),
-            vec_pkvecinfoall: Vec::<PkVecinfoall>::new(),
-            vec_pkvecvalsall: Vec::<PkVecvaluesall>::new(),
+
             app_handle,
 
             thread_orchestrator,
@@ -67,7 +62,7 @@ impl SpiceManager for NGGSpiceManager {
             "stderr" => msgs.red(),
             _ => msg.magenta().strikethrough(),
         };
-        log::info!("{}", msgc);
+        // log::info!("{}", msgc);
     }
     fn cb_send_stat(&mut self, msg: String, id: i32) {
         // TODO: error handling
@@ -122,34 +117,78 @@ impl SpiceManager for NGGSpiceManager {
         );
         self.quit_flag = true;
     }
-    fn cb_send_init(&mut self, pkvecinfoall: PkVecinfoall, id: i32) {
-        self.vec_pkvecinfoall.push(pkvecinfoall);
-    }
+    fn cb_send_init(&mut self, pkvecinfoall: PkVecinfoall, id: i32) {}
     fn cb_send_data(&mut self, pkvecvaluesall: PkVecvaluesall, count: i32, id: i32) {
-        self.vec_pkvecvalsall.push(pkvecvaluesall);
+        let mut orch_guard = self.thread_orchestrator.lock().unwrap();
+
+        let maybe_id: Option<String> = orch_guard.get_thread_ongoing_simulation_id(id as usize);
+        let simulation_data = SimulationData::new(pkvecvaluesall);
+
+        if let Some(simulation_id) = maybe_id {
+            if orch_guard.has_threshold_elapsed(id as usize, 500) {
+                orch_guard.restart_timer(id as usize);
+
+                let buffer = orch_guard.flush_simulation_data_buffer(id as usize);
+
+                log::info!(
+                    "BG thread: {} flushed buffer of length {}",
+                    id,
+                    buffer.len()
+                );
+
+                if let Err(_) = self.app_handle.emit(
+                    "simulation_data_push",
+                    SimulationDataPayload {
+                        id: simulation_id,
+                        data: buffer,
+                    },
+                ) {
+                    drop(orch_guard);
+                    self.cb_ctrldexit(1, true, true, 1);
+                }
+            } else {
+                orch_guard.push_simulation_data(id as usize, simulation_data);
+                drop(orch_guard);
+            }
+        } else {
+            drop(orch_guard);
+        }
     }
     fn cb_bgt_state(&mut self, is_fin: bool, id: i32) {
-        log::info!(
-            "BG thread for {} is {};",
-            id,
-            if is_fin { "done" } else { "starting" }
-        );
+        // log::info!(
+        //     "BG thread for {} is {};",
+        //     id,
+        //     if is_fin { "done" } else { "starting" }
+        // );
 
         if is_fin {
             let mut orch_guard = self.thread_orchestrator.lock().unwrap();
             orch_guard.set_thread_status(id as usize, SecondaryThreadStatus::Idle);
             let maybe_id = orch_guard.get_thread_ongoing_simulation_id(id as usize);
+            let buffer = orch_guard.flush_simulation_data_buffer(id as usize);
             drop(orch_guard);
 
             if let Some(running_id) = maybe_id {
                 // Over-emit the ready status on bg thread is done,
                 // The .op simulation does not have events so this covers it
 
+                log::info!("BG thread: {} flushing due to termination", id,);
+
+                if let Err(_) = self.app_handle.emit(
+                    "simulation_data_push",
+                    SimulationDataPayload {
+                        id: running_id.to_owned(),
+                        data: buffer,
+                    },
+                ) {
+                    self.cb_ctrldexit(1, true, true, 1);
+                }
+
                 if let Err(_) = self.app_handle.emit(
                     "simulation_status_update",
                     SimulationStatusPayload {
                         status: SimulationStatus::Ready,
-                        id: running_id,
+                        id: running_id.to_owned(),
                     },
                 ) {
                     self.cb_ctrldexit(1, true, true, 1);

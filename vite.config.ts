@@ -2,14 +2,18 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import svgr from "vite-plugin-svgr";
+import { comlink } from "vite-plugin-comlink";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react(), svgr()],
+  plugins: [comlink(), react(), svgr()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src")
     }
+  },
+  worker: {
+    plugins: () => [comlink()]
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`

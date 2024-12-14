@@ -7,3 +7,4 @@ pub mod simulator;
 pub mod simulator_error;
 pub mod unit_of_magnitude;
 pub mod units;
+pub mod simulation_data;

@@ -44,8 +44,9 @@ const IconSidebarOption: FC<IconSidebarOptionProps> = ({
           className={clsx(
             "p-0 w-full max-w-full overflow-hidden flex flex-col items-center justify-center",
             {
-              "h-16": !!title,
-              "h-12": !title
+              "h-16": !node && !!title,
+              "h-12": !node && !title,
+              "h-fit": !!node
             }
           )}
           variant={!!onClick ? "ghost" : "inactive"}

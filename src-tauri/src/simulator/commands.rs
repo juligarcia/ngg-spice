@@ -2,12 +2,13 @@ use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
     thread::{self, sleep},
-    time::Duration,
+    time::{Duration, SystemTime},
 };
 
 use super::{
     circuit::canvas::{CanvasEdge, CanvasNode},
     simulation::SimulationConfig,
+    simulation_data::SimulationData,
     simulator::Simulator,
 };
 
@@ -33,6 +34,8 @@ struct ThreadOperationInfo {
     status: SecondaryThreadStatus,
     ongoing_simulation: Option<String>,
     queued_simulations: Vec<(String, SimulationConfig)>,
+    current_timer: Option<SystemTime>,
+    simulation_data_buffer: Vec<SimulationData>,
 }
 
 impl ThreadOperationInfo {
@@ -41,7 +44,39 @@ impl ThreadOperationInfo {
             status: SecondaryThreadStatus::Idle,
             queued_simulations: Vec::default(),
             ongoing_simulation: None,
+            current_timer: None,
+            simulation_data_buffer: Vec::default(),
         }
+    }
+
+    pub fn restart_timer(&mut self) {
+        self.current_timer = Some(SystemTime::now());
+    }
+
+    pub fn has_threshold_elapsed(&self, threshold: u128) -> bool {
+        if let Some(timer) = &self.current_timer {
+            if let Ok(elapsed) = timer.elapsed() {
+                if (elapsed.as_millis() > threshold) {
+                    log::info!("Elapsed {}", elapsed.as_millis())
+                }
+
+                return elapsed.as_millis() > threshold;
+            }
+        }
+
+        return false;
+    }
+
+    pub fn flush_simulation_data_buffer(&mut self) -> Vec<SimulationData> {
+        let buffer = self.simulation_data_buffer.clone();
+
+        self.simulation_data_buffer = Vec::default();
+
+        return buffer;
+    }
+
+    pub fn push_simulation_data(&mut self, simulation_data: SimulationData) {
+        self.simulation_data_buffer.push(simulation_data);
     }
 
     pub fn queue_simulation(&mut self, simulation_info: (String, SimulationConfig)) {
@@ -125,6 +160,34 @@ impl SimulationThreadOrchestrator {
         return None;
     }
 
+    pub fn restart_timer(&mut self, id: usize) {
+        if let Some(thread_info) = self.thread_info.get_mut(&id) {
+            return thread_info.restart_timer();
+        }
+    }
+
+    pub fn has_threshold_elapsed(&self, id: usize, threshold: u128) -> bool {
+        if let Some(thread_info) = self.thread_info.get(&id) {
+            return thread_info.has_threshold_elapsed(threshold);
+        }
+
+        return false;
+    }
+
+    pub fn push_simulation_data(&mut self, id: usize, simulation_data: SimulationData) {
+        if let Some(thread_info) = self.thread_info.get_mut(&id) {
+            return thread_info.push_simulation_data(simulation_data);
+        }
+    }
+
+    pub fn flush_simulation_data_buffer(&mut self, id: usize) -> Vec<SimulationData> {
+        if let Some(thread_info) = self.thread_info.get_mut(&id) {
+            return thread_info.flush_simulation_data_buffer();
+        }
+
+        return Vec::default();
+    }
+
     pub fn get_thread_status(&self, id: usize) -> SecondaryThreadStatus {
         self.thread_info.get(&id).unwrap().status.clone()
     }
@@ -195,6 +258,7 @@ pub async fn simulate(
                 thread_id,
                 t_orchestrator,
                 format!(
+                    // TODO: cambiar
                     "/opt/homebrew/opt/libngspice/lib/libngspice.{}.dylib",
                     thread_id
                 )

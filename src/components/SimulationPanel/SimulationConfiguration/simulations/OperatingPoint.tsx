@@ -69,7 +69,10 @@ export const Content: FC = () => {
             disabled={isRunning}
             className="w-full"
             onClick={() => {
-              enqueueSimulation({ Op: {} } as OperatingPointConfig);
+              enqueueSimulation(
+                { Op: {} } as OperatingPointConfig,
+                isOpeartingPoint
+              );
             }}
           >
             Add to queue

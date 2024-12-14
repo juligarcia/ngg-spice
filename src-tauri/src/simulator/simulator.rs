@@ -83,6 +83,7 @@ impl Simulator {
                         let mut orch_guard = self.thread_orchestrator.lock().unwrap();
 
                         orch_guard.set_active_simulation(self.id, &new_simulation_id);
+                        orch_guard.restart_timer(self.id);
                         log::info!("Thread {}: {:?}", self.id, SecondaryThreadStatus::Running);
                         orch_guard.set_thread_status(self.id, SecondaryThreadStatus::Running);
 
@@ -114,7 +115,7 @@ impl Simulator {
                 }
             }
 
-            sleep(Duration::from_millis(100));
+            sleep(Duration::from_millis(50));
         }
     }
 

@@ -27,9 +27,9 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 262.1 10% 70%;
     --secondary-foreground: 0 0% 0%;
-    --muted: 224.10000000000002 10% 85%;
+    --muted: 224.1 10% 85%;
     --muted-foreground: 262.1 0% 35%;
-    --accent: 224.10000000000002 10% 80%;
+    --accent: 224.1 10% 80%;
     --accent-foreground: 262.1 0% 10%;
     --destructive: 0 68% 37%;
     --warning: 51 100% 45%;
@@ -51,9 +51,9 @@
     --primary-foreground: 0 0% 100%;
     --secondary: 262.1 10% 10%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 224.10000000000002 10% 15%;
+    --muted: 224.1 10% 15%;
     --muted-foreground: 262.1 0% 60%;
-    --accent: 224.10000000000002 10% 15%;
+    --accent: 224.1 10% 15%;
     --accent-foreground: 262.1 0% 90%;
     --destructive: 0 68% 37%;
     --warning: 51 100% 45%;
@@ -97,6 +97,28 @@
 .react-flow__controls-button:last-child {
   border-radius: 0 0 0.25rem 0.25rem !important;
 }
+
+/*
+--------- Dygraphs -------
+*/
+
+.dygraph-label.dygraph-title {
+  font-size: 18px;
+  color: hsl(var(--muted-foreground)) !important;
+  font-family: inherit;
+  font-weight: bold;
+  text-align: center;
+}
+
+.dygraph-axis-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/*
+--------- End Dygraphs ---
+*/
 
 body {
   width: 100vw;

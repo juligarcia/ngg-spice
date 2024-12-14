@@ -1,3 +1,8 @@
+export enum SimulationListenerTag {
+  StatusUpdate = "simulation_status_update",
+  DataPush = "simulation_data_push"
+}
+
 export enum Simulation {
   Transient = "tran",
   OperatingPoint = "op",
@@ -20,7 +25,7 @@ export enum SimulationDisplay {
   sens = "Senitivity analysis"
 }
 
-type BaseSimulationStatus = {
+type BaseSimulationEvent = {
   id: string;
 };
 
@@ -41,8 +46,39 @@ type Progress = {
   };
 };
 
-export type SimulationStatus = BaseSimulationStatus &
-  (SourceDeck | Ready | Progress);
+export type SimulationStatus = SourceDeck | Ready | Progress;
+
+export type SimulationStatusPayload = BaseSimulationEvent & SimulationStatus;
+
+export const isInProgress = (status?: SimulationStatus): status is Progress => {
+  return (
+    !!status && typeof status.status === "object" && "Progress" in status.status
+  );
+};
+
+export const isReady = (status?: SimulationStatus): status is Ready => {
+  return (
+    !!status && typeof status.status === "string" && status.status === "Ready"
+  );
+};
+
+export interface ComputedData {
+  name: string;
+  c_real: number;
+  c_imag: number;
+  is_scale: boolean;
+  is_complex: boolean;
+}
+
+export interface SimulationData {
+  computed: number;
+  data_index: number;
+  computed_values_for_index: Array<ComputedData>;
+}
+
+export type SimulationDataPayload = BaseSimulationEvent & {
+  data: Array<SimulationData>;
+};
 
 export type OperatingPointConfig = {
   Op: {};

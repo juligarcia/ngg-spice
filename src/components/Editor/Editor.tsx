@@ -8,9 +8,10 @@ import {
   useNodesState,
   OnConnect,
   Position,
-  ConnectionMode
+  ConnectionMode,
+  useStoreApi
 } from "@xyflow/react";
-import { FC, useRef, useState } from "react";
+import { FC, useRef } from "react";
 import { useTheme } from "../ThemeProvider";
 import { nodeTypes } from "@/components/Editor/components/canvas/nodes";
 import {
@@ -38,24 +39,20 @@ import { spiceNodes } from "../context/SpiceContext/nodes/nodes";
 const Editor: FC = () => {
   const { theme } = useTheme();
 
-  const [snapToGrid, setSnapToGrid] = useState(false);
+  const { getState } = useStoreApi();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<AppEdge>([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(
+    getState().nodes as AppNode[]
+  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState<AppEdge>(
+    getState().edges as AppEdge[]
+  );
 
   const refCounter = useRef<Map<string, number>>(new Map());
 
   const { R, C, L, Gnd, V, I, G, E, F, H, Q } = spiceNodes;
 
   const { os } = useOs();
-
-  useHotkeys(
-    osHotkeys({ macos: "shift" }, os),
-    () => {
-      setSnapToGrid(!snapToGrid);
-    },
-    { keyup: true, keydown: true }
-  );
 
   const createNewSpiceNode = (
     node: SpiceNodeDefinition & Partial<SpiceData>
@@ -314,7 +311,10 @@ const Editor: FC = () => {
   // TODO: Elementos que no están totalmente configurados
 
   return (
-    <div id="canvas-wrapper" className="w-full h-full grow">
+    <div
+      id="canvas-wrapper"
+      className="w-full h-full border-2 border-accent rounded-lg overflow-hidden"
+    >
       <ReactFlow<AppNode, AppEdge>
         selectNodesOnDrag={false}
         snapToGrid={true}

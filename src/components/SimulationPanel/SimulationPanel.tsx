@@ -4,32 +4,42 @@ import SimulationActions from "./SimulationActions";
 import SimulationConfiguration from "./SimulationConfiguration/SimulationConfiguration";
 import clsx from "clsx";
 import { scrollbarClassName } from "@/constants/tailwind";
+import SimulationPanelTrigger from "./components/SimulationPanelTrigger";
+import { useProgramStore } from "@/store/program";
+import { motion } from "framer-motion";
 
-interface SimulationPanelProps {
-  open?: boolean;
-}
+const SimulationPanel: FC = () => {
+  const simulationPanelOpen = useProgramStore.use.simulationPanelOpen();
 
-const SimulationPanel: FC<SimulationPanelProps> = ({ open }) => {
-  return open ? (
-    <div
-      className={clsx(
-        "w-[600px] flex flex-col py-4 pl-4 pr-2 border-accent border-2 rounded-lg bg-background gap-4 h-full z-10"
-      )}
-    >
-      <Typography className="border-b-2 border-accent pb-4" variant="h3">
-        Simulation Configuration
-      </Typography>
-      <div
-        className={clsx(
-          "flex flex-col grow min-h-0 overflow-y-scroll rounded-lg",
-          scrollbarClassName
-        )}
+  return (
+    <div className="flex">
+      <motion.div
+        initial={false}
+        className="overflow-hidden"
+        animate={{ width: simulationPanelOpen ? 400 : 0 }}
       >
-        <SimulationConfiguration />
-      </div>
-      <SimulationActions />
+        <div
+          className={clsx(
+            "w-[400px] shrink-0 flex flex-col py-4 pl-4 pr-2 border-accent border-y-2 bg-gradient-to-r from-accent/40 via-card to-card gap-4 h-full z-10"
+          )}
+        >
+          <Typography className="border-b-2 border-accent pb-4 text-muted-foreground" variant="h3">
+            Simulation Panel
+          </Typography>
+          <div
+            className={clsx(
+              "flex flex-col grow min-h-0 overflow-y-scroll rounded-lg",
+              scrollbarClassName
+            )}
+          >
+            <SimulationConfiguration />
+          </div>
+          <SimulationActions />
+        </div>
+      </motion.div>
+      <SimulationPanelTrigger />
     </div>
-  ) : null;
+  );
 };
 
 export default SimulationPanel;
