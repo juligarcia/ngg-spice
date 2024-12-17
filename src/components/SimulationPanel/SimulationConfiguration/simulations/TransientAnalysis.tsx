@@ -7,12 +7,7 @@ import {
 import { FC } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import { CircleHelp, SquareCheck } from "lucide-react";
+import { SquareCheck } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/Button";
 import { useSimulationStore } from "@/store/simulation";
@@ -23,13 +18,15 @@ import {
   isSimulationRunning,
   isTransientAnalysis
 } from "@/utils/simulation";
+import { isUnit } from "@/utils/validations";
+import FieldContainer from "@/components/ui/FieldContainer";
 
 export const Trigger: FC = () => {
   const simulationMap = useSimulationStore.use.simulationsToRun();
   const isEnqueued = hasAnyOfType(simulationMap, isTransientAnalysis);
 
   return (
-    <div className="bg-accent rounded-sm  overflow-hidden flex items-center gap-2 w-full mr-2">
+    <div className="px-1 bg-accent rounded-sm overflow-hidden flex items-center gap-2 w-full mr-2">
       <Typography className="capitalize" variant="h4">
         {SimulationDisplay[Simulation.Transient]}
       </Typography>
@@ -41,14 +38,6 @@ export const Trigger: FC = () => {
 type TransientAnalysisConfigForm = TransientAnalysisConfig["Tran"];
 
 export const Content: FC = () => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isDirty },
-    control
-  } = useForm<TransientAnalysisConfigForm>({});
-
   const simulationMap = useSimulationStore.use.simulationsToRun();
 
   const enqueueSimulation = useSimulationStore.use.enqueueSimulation();
@@ -58,12 +47,26 @@ export const Content: FC = () => {
 
   const id = getIdOfType(simulationMap, isTransientAnalysis);
 
+  const configuration = simulationMap.get(id || "") as
+    | TransientAnalysisConfig
+    | undefined;
+
   const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
 
   const isRunning = isSimulationRunning(status);
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isDirty, errors },
+    control
+  } = useForm<TransientAnalysisConfigForm>({
+    defaultValues: configuration?.Tran || {}
+  });
+
   return (
-    <div>
+    <div className="p-1">
       <div className="min-h-fit">
         <Typography className="text-muted-foreground">
           Perform a non-linear, time-domain simulation.
@@ -77,51 +80,54 @@ export const Content: FC = () => {
         })}
         className="mt-6 flex flex-col gap-2"
       >
-        <div className="flex items-center gap-4 h-10">
-          <Typography className="whitespace-nowrap grow w-full">
-            Time step *
-          </Typography>
-          <Input
-            disabled={isRunning}
-            {...register("tstep")}
+        <div className="flex items-center gap-4">
+          <FieldContainer
+            prefix="Time step *"
             className="grow w-full"
-          />
-          <Tooltip>
-            <TooltipContent className="max-w-80" side="right">
-              <Typography className="leading-normal">
-                Refers to the computing increment.
-              </Typography>
-            </TooltipContent>
-            <TooltipTrigger>
-              <CircleHelp className="stroke-muted-foreground" size={20} />
-            </TooltipTrigger>
-          </Tooltip>
+            error={errors["tstep"]}
+            tooltip="Refers to the computing increment."
+          >
+            <Input
+              defaultValue={configuration?.Tran.tstep}
+              disabled={isRunning}
+              {...register("tstep", {
+                required: {
+                  value: true,
+                  message: "This field is required."
+                },
+                validate: {
+                  isUnit: isUnit("time")
+                }
+              })}
+            />
+          </FieldContainer>
         </div>
-        <div className="flex items-center gap-4 h-10">
-          <Typography className="whitespace-nowrap grow w-full">
-            Stop time *
-          </Typography>
+        <FieldContainer
+          prefix="Stop time *"
+          className="grow w-full"
+          error={errors["tstop"]}
+          tooltip="Refers to the final time."
+        >
           <Input
+            defaultValue={configuration?.Tran.tstop}
             disabled={isRunning}
-            {...register("tstop")}
-            className="grow w-full"
+            {...register("tstop", {
+              required: {
+                value: true,
+                message: "This field is required."
+              },
+              validate: {
+                isUnit: isUnit("time")
+              }
+            })}
           />
-          <Tooltip>
-            <TooltipContent className="max-w-80" side="right">
-              <Typography className="leading-normal">
-                Refers to the final time.
-              </Typography>
-            </TooltipContent>
-            <TooltipTrigger>
-              <CircleHelp className="stroke-muted-foreground" size={20} />
-            </TooltipTrigger>
-          </Tooltip>
-        </div>
-        <div className="flex items-center gap-4 h-10">
-          <Typography className="whitespace-nowrap grow w-full">
-            Start time
-          </Typography>
+        </FieldContainer>
+        <FieldContainer
+          tooltip=" Refers to the initial time."
+          prefix="Start time"
+        >
           <Input
+            defaultValue={configuration?.Tran.tstart}
             {...register("tstart", {
               setValueAs: (value) => value || undefined
             })}
@@ -129,22 +135,17 @@ export const Content: FC = () => {
             placeholder="0"
             className="grow w-full"
           />
-          <Tooltip>
-            <TooltipContent className="max-w-80" side="right">
-              <Typography className="leading-normal">
-                Refers to the initial time.
-              </Typography>
-            </TooltipContent>
-            <TooltipTrigger>
-              <CircleHelp className="stroke-muted-foreground" size={20} />
-            </TooltipTrigger>
-          </Tooltip>
-        </div>
-        <div className="flex items-center gap-4 h-10">
-          <Typography className="whitespace-nowrap grow w-full">
-            Maximum step
-          </Typography>
+        </FieldContainer>
+        <FieldContainer
+          tooltip="Refers to the maximum step size that spice uses.By default, the
+                program chooses either the selected time step or (time stop -
+                time start)/50, whichever is smaller. This field can be used to
+                guarantee a computing interval that is smaller than the printer
+                increment, Time step."
+          prefix="Maximum step"
+        >
           <Input
+            defaultValue={configuration?.Tran.tmax}
             {...register("tmax", {
               setValueAs: (value) => value || undefined
             })}
@@ -152,31 +153,21 @@ export const Content: FC = () => {
             placeholder="Default"
             className="grow w-full"
           />
-          <Tooltip>
-            <TooltipContent className="max-w-80" side="right">
-              <Typography className="leading-normal">
-                Refers to the maximum step size that spice uses.By default, the
-                program chooses either the selected time step or (time stop -
-                time start)/50, whichever is smaller. This field can be used to
-                guarantee a computing interval that is smaller than the printer
-                increment, Time step.
-              </Typography>
-            </TooltipContent>
-            <TooltipTrigger>
-              <CircleHelp className="stroke-muted-foreground" size={20} />
-            </TooltipTrigger>
-          </Tooltip>
-        </div>
-        <div className="flex items-center gap-4 h-10">
-          <Typography className="whitespace-nowrap grow w-full">
-            Initial conditions
-          </Typography>
-          <div className="flex grow w-full justify-end">
+        </FieldContainer>
+        <FieldContainer
+          tooltip=" An optional keyword that indicates that the user does not want
+                ngspice to solve for the quiescent operating point before
+                beginning the transient analysis."
+          prefix="Initial conditions"
+        >
+          <div className="h-10  items-center flex grow w-full justify-end">
             <Controller<TransientAnalysisConfigForm>
               control={control}
               name="uic"
+              defaultValue={configuration?.Tran.uic}
               render={({ field: { onBlur, onChange, ref } }) => (
                 <Checkbox
+                  defaultChecked={configuration?.Tran.uic}
                   disabled={isRunning}
                   onCheckedChange={onChange}
                   onBlur={onBlur}
@@ -185,20 +176,7 @@ export const Content: FC = () => {
               )}
             />
           </div>
-
-          <Tooltip>
-            <TooltipContent className="max-w-80" side="right">
-              <Typography className="leading-normal">
-                An optional keyword that indicates that the user does not want
-                ngspice to solve for the quiescent operating point before
-                beginning the transient analysis.
-              </Typography>
-            </TooltipContent>
-            <TooltipTrigger>
-              <CircleHelp className="stroke-muted-foreground" size={20} />
-            </TooltipTrigger>
-          </Tooltip>
-        </div>
+        </FieldContainer>
         <div className="mt-6 flex">
           {isEnqueued && (
             <Button

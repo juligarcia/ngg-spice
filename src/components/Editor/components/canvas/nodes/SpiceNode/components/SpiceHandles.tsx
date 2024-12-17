@@ -39,8 +39,8 @@ const SpiceHandles: FC<SpiceHandlesProps> = ({
           className={clsx(
             "!-translate-x-2/4 !-translate-y-2/4 !right-[unset] !bottom-[unset]"
           )}
-          key={tagPort(id, Position.Top, name || index)}
-          id={tagPort(id, Position.Top, name || index)}
+          key={tagPort(id, name || index)}
+          id={tagPort(id, name || index)}
           type="source"
           position={TOP}
         />
@@ -55,8 +55,8 @@ const SpiceHandles: FC<SpiceHandlesProps> = ({
           className={clsx(
             "!-translate-y-2/4 !-translate-x-2/4 !right-[unset] !bottom-[unset]"
           )}
-          key={tagPort(id, Position.Right, name || index)}
-          id={tagPort(id, Position.Right, name || index)}
+          key={tagPort(id, name || index)}
+          id={tagPort(id, name || index)}
           type="source"
           position={RIGHT}
         />
@@ -70,8 +70,8 @@ const SpiceHandles: FC<SpiceHandlesProps> = ({
           className={clsx(
             "!-translate-x-2/4 !-translate-y-2/4 !right-[unset] !bottom-[unset]"
           )}
-          key={tagPort(id, Position.Bottom, name || index)}
-          id={tagPort(id, Position.Bottom, name || index)}
+          key={tagPort(id, name || index)}
+          id={tagPort(id, name || index)}
           type="source"
           position={BOTTOM}
         />
@@ -86,8 +86,8 @@ const SpiceHandles: FC<SpiceHandlesProps> = ({
           className={clsx(
             "!-translate-y-2/4 !-translate-x-2/4 !right-[unset] !bottom-[unset]"
           )}
-          key={tagPort(id, Position.Left, name || index)}
-          id={tagPort(id, Position.Left, name || index)}
+          key={tagPort(id, name || index)}
+          id={tagPort(id, name || index)}
           type="source"
           position={LEFT}
         />

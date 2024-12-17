@@ -23,7 +23,7 @@ const SimulationPanelTrigger: FC = () => {
     <div
       onClick={toggleSimulationPanelOpen}
       className={clsx(
-        "w-fit relative rounded-r-lg h-full cursor-pointer flex flex-col items-center justify-between px-2 py-6",
+        "bg-accent w-fit relative rounded-r-lg h-full cursor-pointer flex flex-col items-center justify-between px-2 py-6",
         "transition-[background-color] duration-300",
         "[&_*]:transition-colors [&_*]:duration-300",
         "hover:bg-primary [&_*]:hover:text-foreground",

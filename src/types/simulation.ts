@@ -238,3 +238,8 @@ export type SimulationConfig =
   | NoiseAnalysisConfig
   | PoleZeroAnalysisConfig
   | SensitivityAnalysisConfig;
+
+export enum SimulationBasis {
+  Time = "time",
+  Frequency = "frequency"
+}

@@ -1,4 +1,4 @@
-import { Node, Position } from "@xyflow/react";
+import { Node } from "@xyflow/react";
 import { NodeCategory } from "./types";
 
 // Given that nodeOrigin = [0.5, 0.5] we only need it's position here
@@ -29,12 +29,8 @@ export const isOfCategory = <T extends Node>(
     : node.id.indexOf(category) >= 0;
 };
 
-export const tagPort = (
-  nodeId: string,
-  position: Position,
-  nameOrIndex: string | number = 0
-) => {
-  return `port-[${nodeId}]-${position}-${nameOrIndex}`;
+export const tagPort = (nodeId: string, nameOrIndex: string | number = 0) => {
+  return `port-[${nodeId}]-${nameOrIndex}`;
 };
 
 export const tagNode = (uuid: string) => {

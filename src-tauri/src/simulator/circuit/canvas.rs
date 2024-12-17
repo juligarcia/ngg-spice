@@ -173,4 +173,5 @@ pub struct CanvasNode {
 pub struct CanvasEdge {
     pub target: String,
     pub source: String,
+    pub source_port: String
 }

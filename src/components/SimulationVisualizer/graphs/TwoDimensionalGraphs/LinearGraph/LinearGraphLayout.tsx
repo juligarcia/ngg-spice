@@ -1,10 +1,11 @@
 import { FC, useCallback, useEffect, useMemo, useRef } from "react";
+import ReactDOMServer from "react-dom/server";
 
 import { useSimulationStore } from "@/store/simulation";
 
 import Dygraph from "dygraphs";
 import { throttle } from "lodash";
-import { PlotState } from "./types";
+import { PlotState } from "../../types";
 import {
   isInProgress,
   isReady,
@@ -14,17 +15,24 @@ import {
 } from "@/types/simulation";
 import { downsample } from "@/utils/sampling";
 import bs from "binary-search";
-import { getX } from "./utils";
+import { getX } from "../../utils";
 import * as Arr from "@/utils/array";
+import { Typography } from "@/components/ui/Typography";
+import { Series } from "./LinearGraph";
 
-type LinearGraphProps = {
-  width: number;
-  height: number;
+type LinearGraphLayoutProps = {
   simulationId: string;
   order: number;
+  xAccessor: string;
+  series: Series[];
 };
 
-const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
+const LinearGraphLayout: FC<LinearGraphLayoutProps> = ({
+  xAccessor,
+  series,
+  simulationId,
+  order
+}) => {
   const graphContainerId = `chart-container-${order}-${simulationId}`;
 
   const _dataRef = useRef(
@@ -47,9 +55,6 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
     const width = graphContainer.clientWidth;
     const height = graphContainer.clientHeight;
 
-    const xAccessor = "time";
-    const yAccessor = "vv1#branch";
-
     // Grab plot / simulation completion from the simulation status 0, ..., 100
     const plotCompletion = isInProgress(simulationStatus)
       ? simulationStatus.status.Progress.progress
@@ -70,17 +75,17 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
     );
 
     // If initial data exists, downsample it
-    const downSampledData =
+    const [downSampledData, errorCorrectedIndex] =
       data.length === 0
-        ? []
-        : downsample(data, estimatedDensity, 0, xAccessor, yAccessor);
+        ? [[], 0]
+        : downsample(data, estimatedDensity, 0, xAccessor, series);
 
-    const lastDatumIndex = data.length;
+    const lastDatumIndex = errorCorrectedIndex;
 
     return {
       graph: null,
       xAccessor,
-      yAccessor,
+      series,
       data,
       plotCompletion,
       estimatedTotalPoints,
@@ -103,7 +108,7 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
     const downSampledData = plotState.current.downSampledData;
 
     const xAccessor = plotState.current.xAccessor;
-    const yAccessor = plotState.current.yAccessor;
+    const series = plotState.current.series;
 
     const width = plotState.current.width;
 
@@ -123,12 +128,12 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
     if (estimatedDensity <= 0) return;
 
     // Downsample the original data but only the slice between start and end
-    const zoomedInDownSampledData = downsample(
+    const [zoomedInDownSampledData] = downsample(
       Arr.slice(data, start, end + 1),
       estimatedDensity,
       0,
       xAccessor,
-      yAccessor
+      series
     );
 
     // Only piece of state that will be tinkered with here is the down sampled data
@@ -165,12 +170,59 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
 
   const plotState = useRef<PlotState | null>(null);
 
+  useEffect(() => {
+    if (!plotState.current || !plotState.current.graph) return;
+
+    plotState.current.xAccessor = xAccessor;
+    plotState.current.series = series;
+
+    const [newDownsampledData] = downsample(
+      plotState.current.data,
+      plotState.current.estimatedDensity,
+      0,
+      xAccessor,
+      series
+    );
+
+    plotState.current.downSampledData = newDownsampledData;
+
+    plotState.current.graph.updateOptions({
+      file: newDownsampledData,
+      labels: [xAccessor, ...Arr.map(series, ({ accessor }) => accessor)],
+      title: `${
+        plotState.current.xAccessor
+      } vs. ${plotState.current.series.reduce((acc, curr) => {
+        if (acc) return `${acc}, ${curr.accessor}`;
+        return curr.accessor;
+      }, "")}`,
+      series: Object.fromEntries(series.map((s) => [s.accessor, s]))
+    });
+  }, [xAccessor, series]);
+
   // Initiate plot state
   useEffect(() => {
     plotState.current = deriveState(
       _dataRef.current,
       _simulationStatus.current
     );
+
+    const graphContainer = document.getElementById(graphContainerId);
+
+    if (!graphContainer) return;
+
+    graphContainer.addEventListener("pointermove", (event) => {
+      const legend = document.getElementsByClassName("dygraph-legend")[0];
+
+      const { clientX, clientY } = event;
+
+      legend.animate(
+        {
+          left: `${clientX + 10}px`,
+          top: `${clientY + 10}px`
+        },
+        { duration: 300, fill: "forwards" }
+      );
+    });
   }, []);
 
   // Create Dygraph plot with down sampled data
@@ -183,12 +235,43 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
       graphContainer,
       plotState.current.downSampledData,
       {
+        series: Object.fromEntries(series.map((s) => [s.accessor, s])),
+        fillGraph: true,
+        legendFormatter: (data) => {
+          if (!data.x)
+            return ReactDOMServer.renderToStaticMarkup(
+              <Typography></Typography>
+            );
+
+          const seriesData = data.series.map(({ color, y }, index) => (
+            <div className="flex items-center">
+              <Typography style={{ color }}>
+                {plotState.current?.series[index].accessor}
+              </Typography>
+              <Typography>{`: ${y.toFixed(3)}`}</Typography>
+            </div>
+          ));
+
+          const Legend = (
+            <div className="p-3">
+              <div>
+                <Typography>{`${xAccessor}: ${data.x.toFixed(3)}`}</Typography>
+              </div>
+              {seriesData}
+            </div>
+          );
+
+          return ReactDOMServer.renderToStaticMarkup(Legend);
+        },
+        highlightCircleSize: 5,
         animatedZooms: true,
-        labels: [plotState.current.xAccessor, plotState.current.yAccessor],
-        color: "#7C3AED",
-        title: `${plotState.current.yAccessor} / ${plotState.current.xAccessor}`,
+        title: `${
+          plotState.current.xAccessor
+        } vs. ${plotState.current.series.reduce((acc, curr) => {
+          if (acc) return `${acc}, ${curr.accessor}`;
+          return curr.accessor;
+        }, "")}`,
         legend: "always",
-        strokeWidth: 2,
         gridLineColor: "#D5D7DD",
         axisLineColor: "#D5D7DD",
         zoomCallback: handleZoomChange
@@ -215,7 +298,7 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
     observer.observe(graphContainer);
 
     return [observer, graphContainer];
-  }, [order, graphContainerId]);
+  }, [order, graphContainerId, plotState.current?.graph]);
 
   // Cleanup observer
   useEffect(() => {
@@ -229,7 +312,7 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
       const width = plotState.current.width;
       const data = plotState.current.data;
       const xAccessor = plotState.current.xAccessor;
-      const yAccessor = plotState.current.yAccessor;
+      const series = plotState.current.series;
       const lastDatumIndex = plotState.current.lastDatumIndex;
 
       const plotCompletion = isInProgress(simulationStatus)
@@ -250,25 +333,23 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
         1
       );
 
-      const newDownSampledData = downsample(
+      const [newDownSampledData, errorCorrectedIndex] = downsample(
         data,
         estimatedDensity,
         lastDatumIndex,
         xAccessor,
-        yAccessor
+        series
       );
 
       plotState.current.downSampledData.push(...newDownSampledData);
       plotState.current.plotCompletion = plotCompletion;
       plotState.current.estimatedTotalPoints = estimatedTotalPoints;
       plotState.current.estimatedDensity = estimatedDensity;
-      plotState.current.lastDatumIndex = data.length;
+      plotState.current.lastDatumIndex = errorCorrectedIndex;
 
       plotState.current.graph?.updateOptions({
         file: plotState.current.downSampledData
       });
-
-      console.log(plotState.current.downSampledData.length);
     }, 300),
     []
   );
@@ -313,14 +394,7 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
     [simulationId]
   );
 
-  return (
-    <div className="bg-card p-4 h-full w-full max-w-full max-h-full">
-      <div
-        className="h-full w-full max-w-full max-h-full"
-        id={graphContainerId}
-      />
-    </div>
-  );
+  return <div className="grow min-w-0" id={graphContainerId} />;
 };
 
-export default LinearGraph;
+export default LinearGraphLayout;

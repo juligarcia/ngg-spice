@@ -22,13 +22,13 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id }) => {
       <Handle
         className={uniformClassname}
         type="source"
-        id={tagPort(id, Position.Left)}
+        id={tagPort(id)}
         position={Position.Left}
       />
       <Handle
         className={uniformClassname}
         type="source"
-        id={tagPort(id, Position.Top)}
+        id={tagPort(id)}
         position={Position.Top}
       />
       <div
@@ -51,14 +51,14 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id }) => {
       <Handle
         className={uniformClassname}
         type="source"
-        id={tagPort(id, Position.Bottom)}
+        id={tagPort(id)}
         position={Position.Bottom}
       />
 
       <Handle
         className={uniformClassname}
         type="source"
-        id={tagPort(id, Position.Right)}
+        id={tagPort(id)}
         position={Position.Right}
       />
     </div>

@@ -7,7 +7,6 @@ import {
   useEdgesState,
   useNodesState,
   OnConnect,
-  Position,
   ConnectionMode,
   useStoreApi
 } from "@xyflow/react";
@@ -247,12 +246,6 @@ const Editor: FC = () => {
       let centerY = Math.round((centerYSource + centerYTarget) / 2);
       centerY = centerY - (centerY % 10);
 
-      const offsetX = centerXSource - centerXTarget;
-      const offsetY = centerYSource - centerYTarget;
-
-      const absOffsetX = Math.abs(offsetX);
-      const absOffsetY = Math.abs(offsetY);
-
       const newConnectionNodeId = tagNode(uuid);
 
       const newConnectionNode: ConnectionNodeType = {
@@ -268,14 +261,7 @@ const Editor: FC = () => {
         source,
         target: newConnectionNode.id,
         sourceHandle,
-        targetHandle:
-          absOffsetX > absOffsetY
-            ? offsetX > 0
-              ? Nodes.tagPort(newConnectionNodeId, Position.Right)
-              : Nodes.tagPort(newConnectionNodeId, Position.Left)
-            : offsetY > 0
-            ? Nodes.tagPort(newConnectionNodeId, Position.Bottom)
-            : Nodes.tagPort(newConnectionNodeId, Position.Top)
+        targetHandle: Nodes.tagPort(newConnectionNodeId)
       };
 
       const newEdge2: AppEdge = {
@@ -284,14 +270,7 @@ const Editor: FC = () => {
         source: target,
         sourceHandle: targetHandle,
         target: newConnectionNode.id,
-        targetHandle:
-          absOffsetX > absOffsetY
-            ? offsetX > 0
-              ? Nodes.tagPort(newConnectionNodeId, Position.Left)
-              : Nodes.tagPort(newConnectionNodeId, Position.Right)
-            : offsetY > 0
-            ? Nodes.tagPort(newConnectionNodeId, Position.Top)
-            : Nodes.tagPort(newConnectionNodeId, Position.Bottom)
+        targetHandle: Nodes.tagPort(newConnectionNodeId)
       };
 
       setEdges((eds: AppEdge[]) => addEdge(newEdge1, eds));

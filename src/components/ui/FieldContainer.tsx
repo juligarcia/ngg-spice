@@ -9,16 +9,28 @@ interface FieldContainerProps {
   children: ReactNode;
   error?: FieldError;
   tooltip?: string;
+  className?: string;
+  prefix?: string;
 }
 
 const FieldContainer: FC<FieldContainerProps> = ({
   children,
   postfix,
+  prefix,
   error,
-  tooltip
+  tooltip,
+  className
 }) => (
-  <div>
+  <div className={className}>
     <div className="flex items-center">
+      {prefix && (
+        <Typography
+          className="mr-2 grow w-full text-muted-foreground whitespace-nowrap font-bold"
+          variant="small"
+        >
+          {prefix}
+        </Typography>
+      )}
       <div className="grow w-full flex gap-2">
         {children}
         {tooltip && (

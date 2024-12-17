@@ -1,8 +1,7 @@
 import { FC, memo } from "react";
-import { match, P } from "ts-pattern";
-import LinearGraph from "./graphs/LinearGraph";
+import { match } from "ts-pattern";
+import LinearGraph from "./graphs/TwoDimensionalGraphs/LinearGraph/LinearGraph";
 import { Typography } from "../ui/Typography";
-import { useMeasure } from "@uidotdev/usehooks";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +11,8 @@ import {
 import { ChevronDown } from "lucide-react";
 import { Button } from "../ui/Button";
 import { useSimulationStore } from "@/store/simulation";
-import { SimulationDisplay } from "@/types/simulation";
 import { useLayoutStore } from "@/store/layout";
+import { simulationConfig2Name } from "./utils";
 
 interface SimulationVisualizerProps {
   simulationId?: string;
@@ -26,12 +25,11 @@ const SimulationVisualizer: FC<SimulationVisualizerProps> = ({
 }) => {
   const graphType = "linear";
 
-  const [ref, { width, height }] = useMeasure();
-
   const simulationsToRun = useSimulationStore.use.simulationsToRun();
+  const simulationConfig = simulationsToRun.get(simulationId || "");
   const updateConfiguration = useLayoutStore.use.updateConfiguration();
 
-  const isInitialized = width && height;
+  const isInitialized = !!simulationConfig;
 
   if (!simulationId)
     return (
@@ -62,30 +60,8 @@ const SimulationVisualizer: FC<SimulationVisualizerProps> = ({
                     })
                   }
                 >
-                  {/* <PencilRuler size={15} className="mr-2" /> */}
                   <Typography>
-                    {match(simulationConfig)
-                      .with(
-                        { Tran: P.nonNullable },
-                        () => SimulationDisplay.tran
-                      )
-                      .with({ Ac: P.nonNullable }, () => SimulationDisplay.ac)
-                      .with({ Dc: P.nonNullable }, () => SimulationDisplay.dc)
-                      .with(
-                        { Disto: P.nonNullable },
-                        () => SimulationDisplay.disto
-                      )
-                      .with(
-                        { Noise: P.nonNullable },
-                        () => SimulationDisplay.noise
-                      )
-                      .with({ Op: P.nonNullable }, () => SimulationDisplay.op)
-                      .with({ Pz: P.nonNullable }, () => SimulationDisplay.pz)
-                      .with(
-                        { Sens: P.nonNullable },
-                        () => SimulationDisplay.sens
-                      )
-                      .run()}
+                    {simulationConfig2Name(simulationConfig)}
                   </Typography>
                 </DropdownMenuItem>
               )
@@ -96,21 +72,16 @@ const SimulationVisualizer: FC<SimulationVisualizerProps> = ({
     );
 
   return (
-    <div
-      ref={ref}
-      className="w-full h-full flex flex-col items-center justify-center border-2 border-accent rounded-lg overflow-hidden"
-    >
-      {isInitialized &&
-        match(graphType)
-          .with("linear", () => (
-            <LinearGraph
-              order={order}
-              simulationId={simulationId}
-              width={width}
-              height={height}
-            />
-          ))
-          .otherwise(() => null)}
+    <div className="w-full h-full flex flex-col items-center justify-center border-r-2 border-b-2 border-accent rounded-lg overflow-hidden">
+      {isInitialized && (
+        <>
+          {match(graphType)
+            .with("linear", () => (
+              <LinearGraph order={order} simulationId={simulationId} />
+            ))
+            .otherwise(() => null)}
+        </>
+      )}
     </div>
   );
 };

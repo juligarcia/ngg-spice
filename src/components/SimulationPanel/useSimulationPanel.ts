@@ -71,7 +71,11 @@ const useSimulationPanel = () => {
             data: { Node: {} }
           }))
       })),
-      edges: edges.map(({ source, target }) => ({ source, target })),
+      edges: edges.map(({ target, sourceHandle, source }) => ({
+        source,
+        source_port: sourceHandle,
+        target
+      })),
       config: simulationsToRun
     });
   }, [simulationsToRun]);

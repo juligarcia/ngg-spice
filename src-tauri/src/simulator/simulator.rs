@@ -131,7 +131,7 @@ impl Simulator {
         nodes: Vec<CanvasNode>,
         edges: Vec<CanvasEdge>,
     ) -> Result<Schematic, SimulatorError> {
-        let mut connections: HashMap<String, HashSet<String>> = HashMap::default();
+        let mut connections: HashMap<String, HashSet<(String, String)>> = HashMap::default();
         let mut schematic = Schematic::new();
 
         // Lets me know the node type by id
@@ -143,7 +143,7 @@ impl Simulator {
 
         // Get all connections, and create a map of all nodes connected to sources
         for edge in edges {
-            let node_connections: &mut HashSet<String> =
+            let node_connections: &mut HashSet<(String, String)> =
                 connections.entry(edge.source.to_owned()).or_default();
 
             let maybe_source_node = nodes_map.get(&edge.source);
@@ -155,22 +155,22 @@ impl Simulator {
                     }
 
                     _ => {
-                        node_connections.insert(edge.target);
+                        node_connections.insert((edge.source_port, edge.target));
                     }
                 };
             }
         }
 
         for node in nodes {
-            let mut node_connections: Vec<String> = connections
+            let mut node_connections: Vec<(String, String)> = connections
                 .entry(node.id)
                 .or_default()
                 .clone()
                 .into_iter()
                 .collect();
 
-            // Ensure ports are tagged in the order they should be outputted
-            node_connections.sort();
+            // Ensure ports are tagged in the order they should be outputted, sort by source
+            node_connections.sort_by(|c1, c2| c1.0.cmp(&c2.0));
 
             match node.data {
                 NodeData::R { value, name } => {
@@ -178,7 +178,7 @@ impl Simulator {
                         let unit = UnitOfMagnitude::<Resistance>::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::R(name, unit, n1.to_owned(), n2.to_owned()))
+                        schematic.insert(Element::R(name, unit, n1.1.to_owned(), n2.1.to_owned()))
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
@@ -189,7 +189,7 @@ impl Simulator {
                         let unit = UnitOfMagnitude::<Capacitance>::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::C(name, unit, n1.to_owned(), n2.to_owned()))
+                        schematic.insert(Element::C(name, unit, n1.1.to_owned(), n2.1.to_owned()))
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
@@ -200,7 +200,7 @@ impl Simulator {
                         let unit = UnitOfMagnitude::<Inductance>::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::L(name, unit, n1.to_owned(), n2.to_owned()))
+                        schematic.insert(Element::L(name, unit, n1.1.to_owned(), n2.1.to_owned()))
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
@@ -220,16 +220,16 @@ impl Simulator {
                                 name,
                                 TimeDomainConfig::from_canvas(time_domain)?,
                                 Some(transformed_small_signal_config),
-                                n1.to_owned(),
-                                n2.to_owned(),
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
                             ));
                         } else {
                             schematic.insert(Element::V(
                                 name,
                                 TimeDomainConfig::from_canvas(time_domain)?,
                                 None,
-                                n1.to_owned(),
-                                n2.to_owned(),
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
                             ));
                         }
                     } else {
@@ -251,16 +251,16 @@ impl Simulator {
                                 name,
                                 TimeDomainConfig::from_canvas(time_domain)?,
                                 Some(transformed_small_signal_config),
-                                n1.to_owned(),
-                                n2.to_owned(),
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
                             ));
                         } else {
                             schematic.insert(Element::I(
                                 name,
                                 TimeDomainConfig::from_canvas(time_domain)?,
                                 None,
-                                n1.to_owned(),
-                                n2.to_owned(),
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
                             ));
                         }
                     } else {
@@ -276,10 +276,10 @@ impl Simulator {
                         schematic.insert(Element::E(
                             name,
                             unit,
-                            n1.to_owned(),
-                            n2.to_owned(),
-                            cn1.to_owned(),
-                            cn2.to_owned(),
+                            n1.1.to_owned(),
+                            n2.1.to_owned(),
+                            cn1.1.to_owned(),
+                            cn2.1.to_owned(),
                         ))
                     } else {
                         return Err(SimulatorError::FloatingNode);
@@ -291,7 +291,13 @@ impl Simulator {
                         let unit = UnitOfMagnitude::<Dimensionless>::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::F(name, unit, n1.to_owned(), n2.to_owned(), src));
+                        schematic.insert(Element::F(
+                            name,
+                            unit,
+                            n1.1.to_owned(),
+                            n2.1.to_owned(),
+                            src,
+                        ));
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
@@ -305,10 +311,10 @@ impl Simulator {
                         schematic.insert(Element::G(
                             name,
                             unit,
-                            n1.to_owned(),
-                            n2.to_owned(),
-                            cn1.to_owned(),
-                            cn2.to_owned(),
+                            n1.1.to_owned(),
+                            n2.1.to_owned(),
+                            cn1.1.to_owned(),
+                            cn2.1.to_owned(),
                         ))
                     } else {
                         return Err(SimulatorError::FloatingNode);
@@ -320,7 +326,13 @@ impl Simulator {
                         let unit = UnitOfMagnitude::<Resistance>::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::H(name, unit, n1.to_owned(), n2.to_owned(), src));
+                        schematic.insert(Element::H(
+                            name,
+                            unit,
+                            n1.1.to_owned(),
+                            n2.1.to_owned(),
+                            src,
+                        ));
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
@@ -334,9 +346,9 @@ impl Simulator {
                     if let Some([c_node, b_node, e_node]) = &node_connections.get(0..3) {
                         schematic.insert(Element::Q(
                             name,
-                            c_node.to_owned(),
-                            b_node.to_owned(),
-                            e_node.to_owned(),
+                            c_node.1.to_owned(),
+                            b_node.1.to_owned(),
+                            e_node.1.to_owned(),
                             t_type.to_contract(),
                             model.and_then(|model| Some(model.to_contract())),
                         ));
