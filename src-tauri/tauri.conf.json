@@ -15,25 +15,28 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "createUpdaterArtifacts": "v1Compatible"
+    "createUpdaterArtifacts": "v1Compatible",
+    "resources": {
+      "./resources/bjt/models_seed_data.txt": "models/bjt/models_seed_data.txt"
+    }
   },
-  "productName": "Next Geneneration Graphic Spice",
+  "productName": "Graphic Spice",
   "version": "0.0.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.graphic.spice.dev",
   "plugins": {},
   "app": {
     "security": {
       "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": ["$TEMP/*"]
+        "scope": ["$RESOURCE/**", "$TEMP/**"]
       }
     },
     "windows": [
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "Next Geneneration Graphic Spice",
+        "title": "Graphic Spice",
         "width": 1920,
         "height": 1080,
         "titleBarStyle": "Overlay",

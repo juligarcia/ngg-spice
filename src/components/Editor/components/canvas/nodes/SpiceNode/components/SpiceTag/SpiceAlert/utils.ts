@@ -14,7 +14,9 @@ import {
   ICISData,
   REQUIRED_ICIS_VALUES,
   ICVSData,
-  REQUIRED_ICVS_VALUES
+  REQUIRED_ICVS_VALUES,
+  BipolarJunctionTransistorData,
+  REQUIRED_BJT_VALUES
 } from "@/components/context/SpiceContext/SpiceContext";
 import { get, isEmpty } from "lodash";
 
@@ -80,7 +82,7 @@ export const getPowerSourceHelperText = (
 
   if (!name) return "All elements must have names";
 
-  if (isEmpty(data)) return "Power source is not properly configured";
+  if (isEmpty(data)) return "BJT is not properly configured";
 
   for (let key of REQUIRED_POWER_SOURCE_VALUES) {
     const isComplex = key.includes(".");
@@ -187,6 +189,37 @@ export const getICVSHelperText = (data: Partial<ICVSData>, name?: string) => {
   for (let key of REQUIRED_ICVS_VALUES) {
     if (data[key] === undefined) {
       helperText = "Controlled source is not properly configured";
+      break;
+    }
+  }
+
+  return helperText;
+};
+
+export const getBJTHelperText = (
+  data: Partial<BipolarJunctionTransistorData>,
+  name?: string
+) => {
+  let helperText: string | null = null;
+
+  if (!name) return "All elements must have names";
+
+  if (isEmpty(data)) return "BJT is not properly configured";
+
+  for (let key of REQUIRED_BJT_VALUES) {
+    const isComplex = key.includes(".");
+
+    if (isComplex) {
+      const [parent, category] = key.split(".");
+
+      if (get(data, `${parent}.${category}`) !== undefined) {
+        if (get(data, key) === undefined) {
+          helperText = "BJT is not properly configured";
+          break;
+        }
+      }
+    } else if (get(data, key) === undefined) {
+      helperText = "BJT is not properly configured";
       break;
     }
   }

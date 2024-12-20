@@ -1,5 +1,5 @@
-use crate::ngspice::types::*;
-use crate::spice::manager::SpiceManager;
+use super::ngspice::types::*;
+use super::manager::SpiceManager;
 use libc::*;
 
 pub unsafe extern "C" fn cbw_send_char<Manager: SpiceManager>(

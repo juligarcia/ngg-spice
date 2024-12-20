@@ -1,9 +1,7 @@
-use std::collections::HashSet;
-
 use crate::simulator::{
     circuit::canvas::{
-        BjtModel as CanvasBjtModel, SmallSignalConfig as CanvasSmallSignalConfig,
-        TimeDomainConfig as CanvasTimeDomainConfig,
+        BjtModel as CanvasBjtModel, BjtPolarity as CanvasBjtPolarity,
+        SmallSignalConfig as CanvasSmallSignalConfig, TimeDomainConfig as CanvasTimeDomainConfig,
     },
     simulator_error::SimulatorError,
     unit_of_magnitude::{Unit as UnitTrait, UnitOfMagnitude as Unit},
@@ -12,6 +10,10 @@ use crate::simulator::{
         Resistance, Time, Voltage,
     },
 };
+use native_db::{native_db, ToKey};
+use native_model::{native_model, Model};
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 
 #[derive(Clone)]
 pub enum TimeDomainConfig<T: UnitTrait> {
@@ -616,59 +618,221 @@ impl<T: UnitTrait> SmallSignalConfig<T> {
     }
 }
 
-#[derive(Clone)]
-pub enum BjtType {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum BjtPolarity {
     Npn,
     Pnp,
 }
 
-impl BjtType {
+impl BjtPolarity {
     pub fn format(&self) -> String {
         match self {
-            BjtType::Npn => "NPN".to_string(),
-            BjtType::Pnp => "PNP".to_string(),
+            BjtPolarity::Npn => "NPN".to_string(),
+            BjtPolarity::Pnp => "PNP".to_string(),
+        }
+    }
+
+    pub fn to_canvas(&self) -> CanvasBjtPolarity {
+        match self {
+            BjtPolarity::Npn => CanvasBjtPolarity::NPN,
+            BjtPolarity::Pnp => CanvasBjtPolarity::PNP,
         }
     }
 }
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[native_model(id = 1, version = 1)]
+#[native_db]
 pub struct BjtModel {
-    name: String,
+    #[primary_key]
+    pub name: String,
 
-    is: Option<Unit<Current>>,        // Transport saturation current
-    xti: Option<Unit<Dimensionless>>, // IS temperature effect exponent
-    eg: Option<Unit<Energy>>,         // Bandgap voltage (barrier height)
-    vaf: Option<Unit<Voltage>>,       // Forward Early voltage
-    bf: Option<Unit<Dimensionless>>,  // Ideal maximum forward beta
-    ise: Option<Unit<Current>>,       // Base-emitter leakage saturation current
-    ne: Option<Unit<Dimensionless>>,  // Base-emitter leakage emission coefficient
-    ikf: Option<Unit<Current>>,       // Corner for forward-beta high-current roll-off
-    nk: Option<Unit<Dimensionless>>,  // High-current roll-off coefficient
-    xtb: Option<Unit<Dimensionless>>, // Forward and reverse beta temperature coefficient
-    br: Option<Unit<Dimensionless>>,  // Ideal maximum reverse beta
-    isc: Option<Unit<Current>>,       // Base-collector leakage saturation current
-    nc: Option<Unit<Dimensionless>>,  // Base-collector leakage emission coefficient
-    ikr: Option<Unit<Current>>,       // Corner for reverse-beta high-current roll-off
-    rc: Option<Unit<Resistance>>,     // Collector ohmic resistance
-    cjc: Option<Unit<Capacitance>>,   // Base-collector zero-bias p-n capacitance
-    mjc: Option<Unit<Dimensionless>>, // Base-collector p-n grading factor
-    vjc: Option<Unit<Voltage>>,       // Base-collector built-in potential
-    fc: Option<Unit<Dimensionless>>,  // Forward-bias depletion capacitor coefficient
-    cje: Option<Unit<Capacitance>>,   // Base-emitter zero-bias p-n capacitance
-    mje: Option<Unit<Dimensionless>>, // Base-emitter p-n grading factor
-    vje: Option<Unit<Voltage>>,       // Base-emitter built-in potential
-    tr: Option<Unit<Time>>,           // Ideal reverse transit time
-    tf: Option<Unit<Time>>,           // Ideal forward transit time
-    itf: Option<Unit<Current>>,       // Transit time dependency on Ic
-    xtf: Option<Unit<Dimensionless>>, // Transit time bias dependence coefficient
-    vtf: Option<Unit<Voltage>>,       // Transit time dependency on Vbc
-    rb: Option<Unit<Resistance>>,     // Zero-bias (maximum) base resistance
+    pub polarity: BjtPolarity,
+
+    pub is: Option<Unit<Current>>, // Transport saturation current
+    pub xti: Option<Unit<Dimensionless>>, // IS temperature effect exponent
+    pub eg: Option<Unit<Energy>>,  // Bandgap voltage (barrier height)
+    pub vaf: Option<Unit<Voltage>>, // Forward Early voltage
+    pub bf: Option<Unit<Dimensionless>>, // Ideal maximum forward beta
+    pub ise: Option<Unit<Current>>, // Base-emitter leakage saturation current
+    pub ne: Option<Unit<Dimensionless>>, // Base-emitter leakage emission coefficient
+    pub ikf: Option<Unit<Current>>, // Corner for forward-beta high-current roll-off
+    pub nk: Option<Unit<Dimensionless>>, // High-current roll-off coefficient
+    pub xtb: Option<Unit<Dimensionless>>, // Forward and reverse beta temperature coefficient
+    pub br: Option<Unit<Dimensionless>>, // Ideal maximum reverse beta
+    pub isc: Option<Unit<Current>>, // Base-collector leakage saturation current
+    pub nc: Option<Unit<Dimensionless>>, // Base-collector leakage emission coefficient
+    pub ikr: Option<Unit<Current>>, // Corner for reverse-beta high-current roll-off
+    pub rc: Option<Unit<Resistance>>, // Collector ohmic resistance
+    pub cjc: Option<Unit<Capacitance>>, // Base-collector zero-bias p-n capacitance
+    pub mjc: Option<Unit<Dimensionless>>, // Base-collector p-n grading factor
+    pub vjc: Option<Unit<Voltage>>, // Base-collector built-in potential
+    pub fc: Option<Unit<Dimensionless>>, // Forward-bias depletion capacitor coefficient
+    pub cje: Option<Unit<Capacitance>>, // Base-emitter zero-bias p-n capacitance
+    pub mje: Option<Unit<Dimensionless>>, // Base-emitter p-n grading factor
+    pub vje: Option<Unit<Voltage>>, // Base-emitter built-in potential
+    pub tr: Option<Unit<Time>>,    // Ideal reverse transit time
+    pub tf: Option<Unit<Time>>,    // Ideal forward transit time
+    pub itf: Option<Unit<Current>>, // Transit time dependency on Ic
+    pub xtf: Option<Unit<Dimensionless>>, // Transit time bias dependence coefficient
+    pub vtf: Option<Unit<Voltage>>, // Transit time dependency on Vbc
+    pub rb: Option<Unit<Resistance>>, // Zero-bias (maximum) base resistance
 }
 
 impl BjtModel {
+    pub fn to_canvas(&self) -> CanvasBjtModel {
+        CanvasBjtModel {
+            name: self.name.to_owned(),
+            polarity: self.polarity.to_canvas(),
+
+            is: if let Some(unit) = &self.is {
+                Some(unit.format())
+            } else {
+                None
+            },
+            xti: if let Some(unit) = &self.xti {
+                Some(unit.format())
+            } else {
+                None
+            },
+            eg: if let Some(unit) = &self.eg {
+                Some(unit.format())
+            } else {
+                None
+            },
+            vaf: if let Some(unit) = &self.vaf {
+                Some(unit.format())
+            } else {
+                None
+            },
+            bf: if let Some(unit) = &self.bf {
+                Some(unit.format())
+            } else {
+                None
+            },
+            ise: if let Some(unit) = &self.ise {
+                Some(unit.format())
+            } else {
+                None
+            },
+            ne: if let Some(unit) = &self.ne {
+                Some(unit.format())
+            } else {
+                None
+            },
+            ikf: if let Some(unit) = &self.ikf {
+                Some(unit.format())
+            } else {
+                None
+            },
+            nk: if let Some(unit) = &self.nk {
+                Some(unit.format())
+            } else {
+                None
+            },
+            xtb: if let Some(unit) = &self.xtb {
+                Some(unit.format())
+            } else {
+                None
+            },
+            br: if let Some(unit) = &self.br {
+                Some(unit.format())
+            } else {
+                None
+            },
+            isc: if let Some(unit) = &self.isc {
+                Some(unit.format())
+            } else {
+                None
+            },
+            nc: if let Some(unit) = &self.nc {
+                Some(unit.format())
+            } else {
+                None
+            },
+            ikr: if let Some(unit) = &self.ikr {
+                Some(unit.format())
+            } else {
+                None
+            },
+            rc: if let Some(unit) = &self.rc {
+                Some(unit.format())
+            } else {
+                None
+            },
+            cjc: if let Some(unit) = &self.cjc {
+                Some(unit.format())
+            } else {
+                None
+            },
+            mjc: if let Some(unit) = &self.mjc {
+                Some(unit.format())
+            } else {
+                None
+            },
+            vjc: if let Some(unit) = &self.vjc {
+                Some(unit.format())
+            } else {
+                None
+            },
+            fc: if let Some(unit) = &self.fc {
+                Some(unit.format())
+            } else {
+                None
+            },
+            cje: if let Some(unit) = &self.cje {
+                Some(unit.format())
+            } else {
+                None
+            },
+            mje: if let Some(unit) = &self.mje {
+                Some(unit.format())
+            } else {
+                None
+            },
+            vje: if let Some(unit) = &self.vje {
+                Some(unit.format())
+            } else {
+                None
+            },
+            tr: if let Some(unit) = &self.tr {
+                Some(unit.format())
+            } else {
+                None
+            },
+            tf: if let Some(unit) = &self.tf {
+                Some(unit.format())
+            } else {
+                None
+            },
+            itf: if let Some(unit) = &self.itf {
+                Some(unit.format())
+            } else {
+                None
+            },
+            xtf: if let Some(unit) = &self.xtf {
+                Some(unit.format())
+            } else {
+                None
+            },
+            vtf: if let Some(unit) = &self.vtf {
+                Some(unit.format())
+            } else {
+                None
+            },
+            rb: if let Some(unit) = &self.rb {
+                Some(unit.format())
+            } else {
+                None
+            },
+        }
+    }
+
     pub fn from_canvas(canvas_model: &CanvasBjtModel) -> BjtModel {
         BjtModel {
             name: canvas_model.name.to_owned(),
+            polarity: canvas_model.polarity.to_domain(),
+
             is: canvas_model
                 .is
                 .clone()
@@ -784,8 +948,8 @@ impl BjtModel {
         }
     }
 
-    pub fn format(&self, transistor_type: &BjtType) -> String {
-        let mut formatted = format!(".model {} {}(", self.name, transistor_type.format());
+    pub fn format(&self) -> String {
+        let mut formatted = format!(".model {} {}(", self.name, self.polarity.format());
 
         if let Some(is) = &self.is {
             formatted.push_str(&format!("IS={} ", is.format()));
@@ -926,7 +1090,7 @@ pub enum Element {
     F(String, Unit<Dimensionless>, String, String, String),
     G(String, Unit<Conductance>, String, String, String, String),
     H(String, Unit<Resistance>, String, String, String),
-    Q(String, String, String, String, BjtType, Option<BjtModel>),
+    Q(String, String, String, String, BjtModel),
 }
 
 impl Element {
@@ -1076,7 +1240,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::Q(name, c_node, b_node, e_node, transistor_type, model) => {
+            Element::Q(name, c_node, b_node, e_node, model) => {
                 if let [c_node, b_node, e_node] =
                     &Self::replace_ground_alias(&[c_node, b_node, e_node], ground_alias)[0..3]
                 {
@@ -1086,22 +1250,10 @@ impl Element {
                         c_node,
                         b_node,
                         e_node,
-                        if let Some(model) = model {
-                            model.name.to_owned()
-                        } else {
-                            transistor_type.format()
-                        }
+                        model.name.to_owned()
                     );
 
-                    if let Some(model) = model {
-                        formatted.push_str(&model.format(transistor_type));
-                    } else {
-                        formatted.push_str(&format!(
-                            ".model {} {}\n",
-                            transistor_type.format(),
-                            transistor_type.format()
-                        ));
-                    }
+                    formatted.push_str(&model.format());
 
                     return Ok(formatted);
                 }

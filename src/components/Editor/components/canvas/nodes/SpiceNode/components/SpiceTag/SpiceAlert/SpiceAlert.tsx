@@ -17,7 +17,8 @@ import {
   getVCVSHelperText,
   getVCISHelperText,
   getICISHelperText,
-  getICVSHelperText
+  getICVSHelperText,
+  getBJTHelperText
 } from "./utils";
 
 type SpiceAlertProps = {
@@ -76,6 +77,9 @@ const SpiceAlert: FC<SpiceAlertProps> = ({ nodeData }) => {
         instance_name: SpiceInstanceName.ICVS
       },
       ({ data, name }) => getICVSHelperText(data, name)
+    )
+    .with({ instance_name: SpiceInstanceName.BJT }, ({ data, name }) =>
+      getBJTHelperText(data, name)
     )
     .otherwise(() => false);
 

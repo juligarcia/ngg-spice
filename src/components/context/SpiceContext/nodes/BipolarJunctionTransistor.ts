@@ -1,5 +1,5 @@
 import {
-  BipolarJunctionTransistorType,
+  BipolarJunctionTransistorPolarity,
   SpiceInstanceName,
   SpiceNodeDefinition
 } from "../SpiceContext";
@@ -9,10 +9,10 @@ import PnpNodeSymbol from "@/assets/nodes/bipolar_junction_transistor_pnp.svg?re
 export const BipolarJunctionTransistor: SpiceNodeDefinition = {
   instance_name: SpiceInstanceName.BJT,
   symbol: {
-    key: "t_type",
+    key: "model.polarity",
     variants: {
-      [BipolarJunctionTransistorType.Npn]: NpnNodeSymbol,
-      [BipolarJunctionTransistorType.Pnp]: PnpNodeSymbol,
+      [BipolarJunctionTransistorPolarity.Npn]: NpnNodeSymbol,
+      [BipolarJunctionTransistorPolarity.Pnp]: PnpNodeSymbol,
       default: NpnNodeSymbol
     }
   },

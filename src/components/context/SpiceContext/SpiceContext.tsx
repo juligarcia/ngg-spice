@@ -1,4 +1,7 @@
+import { useProgramStore } from "@/store/program";
 import { SmallsignalParameters, TimeDomainParameters } from "@/types/elements";
+import { useQuery } from "@tanstack/react-query";
+import { invoke } from "@tauri-apps/api/core";
 import { ComponentType } from "react";
 
 export interface Port {
@@ -55,6 +58,7 @@ export const REQUIRED_ICVS_VALUES: Array<keyof ICVSData> = ["value", "src"];
 
 export type BipolarJunctionTransistorModel = {
   name: string;
+  polarity: BipolarJunctionTransistorPolarity;
 
   // Transport saturation current
   is: string;
@@ -114,20 +118,22 @@ export type BipolarJunctionTransistorModel = {
   rb: string;
 };
 
-export enum BipolarJunctionTransistorType {
+export enum BipolarJunctionTransistorPolarity {
   Npn = "NPN",
   Pnp = "PNP"
 }
 
-export enum BipolarJunctionTransistorTypeDisplay {
+export enum BipolarJunctionTransistorPolarityDisplay {
   NPN = "NPN",
   PNP = "PNP"
 }
 
 export interface BipolarJunctionTransistorData {
-  t_type: BipolarJunctionTransistorType;
-  model?: BipolarJunctionTransistorModel;
+  model: Partial<BipolarJunctionTransistorModel>;
 }
+export const REQUIRED_BJT_VALUES: Array<
+  UnionNestedKeysOf<BipolarJunctionTransistorData>
+> = ["model", "model.name", "model.polarity"];
 
 export type PowerSourceData = {
   time_domain: TimeDomainParameters;
@@ -224,4 +230,23 @@ export const SpiceNodeDisplayName: { [key in SpiceInstanceName]: string } = {
   [SpiceInstanceName.ICIS]: "Current-Controlled Current Source",
   [SpiceInstanceName.ICVS]: "Current-Controlled Voltage Source",
   [SpiceInstanceName.BJT]: "Bipolar Junction Transistor"
+};
+
+export const useInitializeModels = (): { isLoading: boolean } => {
+  const setBjtModels = useProgramStore.use.setBjtModels();
+
+  const { isPending: isLoadingBjtModels } = useQuery({
+    queryKey: ["bjt-models"],
+    queryFn: () =>
+      invoke<BipolarJunctionTransistorModel[]>("load_bjt_models").then(
+        (bjtModels) => {
+          console.log("MODELS ----------", bjtModels);
+          setBjtModels(bjtModels);
+          return null;
+        }
+      ),
+    refetchOnMount: true
+  });
+
+  return { isLoading: isLoadingBjtModels };
 };

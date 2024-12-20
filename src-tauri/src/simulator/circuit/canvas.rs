@@ -1,7 +1,7 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::simulator::circuit::element::{
-    BjtModel as ContractBjtModel, BjtType as ContractBjtType,
+    BjtModel as ContractBjtModel, BjtPolarity as ContractBjtPolarity,
 };
 
 #[derive(Deserialize, Clone)]
@@ -50,9 +50,10 @@ pub enum TimeDomainConfig {
     },
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct BjtModel {
     pub name: String,
+    pub polarity: BjtPolarity,
 
     pub is: Option<String>,  // Transport saturation current
     pub xti: Option<String>, // IS temperature effect exponent
@@ -85,22 +86,22 @@ pub struct BjtModel {
 }
 
 impl BjtModel {
-    pub fn to_contract(&self) -> ContractBjtModel {
+    pub fn to_domain(&self) -> ContractBjtModel {
         ContractBjtModel::from_canvas(&self)
     }
 }
 
-#[derive(Deserialize, Clone)]
-pub enum BjtType {
+#[derive(Serialize, Deserialize, Clone)]
+pub enum BjtPolarity {
     NPN,
     PNP,
 }
 
-impl BjtType {
-    pub fn to_contract(&self) -> ContractBjtType {
+impl BjtPolarity {
+    pub fn to_domain(&self) -> ContractBjtPolarity {
         match self {
-            BjtType::NPN => ContractBjtType::Npn,
-            BjtType::PNP => ContractBjtType::Pnp,
+            BjtPolarity::NPN => ContractBjtPolarity::Npn,
+            BjtPolarity::PNP => ContractBjtPolarity::Pnp,
         }
     }
 }
@@ -156,8 +157,7 @@ pub enum NodeData {
     },
     Q {
         name: String,
-        t_type: BjtType,
-        model: Option<BjtModel>,
+        model: BjtModel,
     },
     Node {},
     Gnd {},
@@ -173,5 +173,5 @@ pub struct CanvasNode {
 pub struct CanvasEdge {
     pub target: String,
     pub source: String,
-    pub source_port: String
+    pub source_port: String,
 }

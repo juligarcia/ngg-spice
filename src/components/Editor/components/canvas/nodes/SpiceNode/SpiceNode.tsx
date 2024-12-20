@@ -7,6 +7,7 @@ import SpiceAttributes from "./components/SpiceAttributes/SpiceAttributes";
 import SpiceHandles from "./components/SpiceHandles";
 import { match, P } from "ts-pattern";
 import SpiceTag from "./components/SpiceTag/SpiceTag";
+import { get } from "lodash";
 
 export type SpiceNodeProps = NodeProps<SpiceNodeType>;
 
@@ -93,9 +94,7 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data, dragging }) => {
           >
             {match(symbol)
               .with({ variants: P.nonNullable }, ({ key, variants }) => {
-                const keyValue = data.data[
-                  key as keyof typeof data.data
-                ] as keyof typeof variants;
+                const keyValue = get(data.data, key) as keyof typeof variants;
 
                 if (keyValue) {
                   const Icon = variants[keyValue];

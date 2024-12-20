@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 pub trait Unit {
     fn format(&self) -> String;
 
@@ -12,7 +14,7 @@ pub enum UnitOfMagnitudeError {
     IncorrectMagnitudePassed,
 }
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum UnitOfMagnitude<U: Unit> {
     Tera(U),
     Giga(U),

@@ -1,4 +1,4 @@
-use cinnamon::{ngspice::types::*, spice::manager::SpiceManager};
+use super::paprika::{ngspice::types::*, spice::manager::SpiceManager};
 use colored::Colorize;
 use std::{
     collections::VecDeque,

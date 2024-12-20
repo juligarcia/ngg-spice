@@ -25,7 +25,6 @@ import Nodes, { tagNode } from "./components/canvas/nodes/utils";
 import { ConnectionNodeType } from "./components/canvas/nodes/ConnectionNode/types";
 import { SpiceNodeType } from "./components/canvas/nodes/SpiceNode/types";
 import {
-  BipolarJunctionTransistorType,
   SpiceData,
   SpiceInstanceName,
   SpiceNodeDefinition
@@ -210,14 +209,7 @@ const Editor: FC = () => {
     if (counter === undefined) refCounter.current.set(SpiceInstanceName.BJT, 1);
     else refCounter.current.set(SpiceInstanceName.BJT, counter + 1);
 
-    const newComponentNode = createNewSpiceNode({
-      ...Q,
-      // Override to allow for type check of initial values
-      instance_name: SpiceInstanceName.BJT,
-      data: {
-        t_type: BipolarJunctionTransistorType.Npn
-      }
-    });
+    const newComponentNode = createNewSpiceNode(Q);
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });

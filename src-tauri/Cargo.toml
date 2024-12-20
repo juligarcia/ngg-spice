@@ -8,8 +8,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "cinnamon"
-path = "src/cinnamon/lib.rs"
+name = "gspice"
+path = "src/lib.rs"
 crate-type = ["lib", "staticlib", "cdylib"]
 
 [build-dependencies]
@@ -31,6 +31,10 @@ tauri-plugin-fs = "=2.2.0"
 tokio = { version = "1", features = ["full"] }
 tauri-plugin-log = "=2.2.0"
 log = "0.4"
+native_db = "0.8.1"
+native_model = "0.4.20"
+once_cell = "1.19.0"
+itertools = "0.13"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

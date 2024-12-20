@@ -1,4 +1,4 @@
-use cinnamon::ngspice::types::PkVecvaluesall;
+use super::paprika::ngspice::types::PkVecvaluesall;
 
 // the payload type must implement `Serialize` and `Clone`.
 #[derive(Clone, serde::Serialize)]

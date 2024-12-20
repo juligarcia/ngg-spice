@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use super::unit_of_magnitude::Unit;
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Frequency {
     base: i16,
 }
@@ -15,7 +17,7 @@ impl Unit for Frequency {
     }
 }
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Time {
     base: i16,
 }
@@ -30,7 +32,7 @@ impl Unit for Time {
     }
 }
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Resistance {
     base: i16,
 }
@@ -45,8 +47,7 @@ impl Unit for Resistance {
     }
 }
 
-#[derive(Clone)]
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Capacitance {
     base: i16,
 }
@@ -61,8 +62,7 @@ impl Unit for Capacitance {
     }
 }
 
-#[derive(Clone)]
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Inductance {
     base: i16,
 }
@@ -77,8 +77,7 @@ impl Unit for Inductance {
     }
 }
 
-#[derive(Clone)]
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Voltage {
     base: i16,
 }
@@ -93,8 +92,7 @@ impl Unit for Voltage {
     }
 }
 
-#[derive(Clone)]
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Current {
     base: i16,
 }
@@ -109,8 +107,7 @@ impl Unit for Current {
     }
 }
 
-#[derive(Clone)]
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Phase {
     base: i16,
 }
@@ -125,8 +122,7 @@ impl Unit for Phase {
     }
 }
 
-#[derive(Clone)]
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Dimensionless {
     base: i16,
 }
@@ -141,8 +137,7 @@ impl Unit for Dimensionless {
     }
 }
 
-#[derive(Clone)]
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Energy {
     base: i16,
 }
@@ -157,8 +152,7 @@ impl Unit for Energy {
     }
 }
 
-#[derive(Clone)]
-
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Conductance {
     base: i16,
 }

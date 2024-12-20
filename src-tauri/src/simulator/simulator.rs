@@ -8,7 +8,7 @@ use std::{
     ffi::OsStr,
 };
 
-use cinnamon::spice::spice::Spice;
+use super::paprika::spice::spice::Spice;
 use colored::Colorize;
 
 use super::commands::{SecondaryThreadStatus, SimulationThreadOrchestrator};
@@ -338,19 +338,14 @@ impl Simulator {
                     }
                 }
 
-                NodeData::Q {
-                    name,
-                    t_type,
-                    model,
-                } => {
+                NodeData::Q { name, model } => {
                     if let Some([c_node, b_node, e_node]) = &node_connections.get(0..3) {
                         schematic.insert(Element::Q(
                             name,
                             c_node.1.to_owned(),
                             b_node.1.to_owned(),
                             e_node.1.to_owned(),
-                            t_type.to_contract(),
-                            model.and_then(|model| Some(model.to_contract())),
+                            model.to_domain(),
                         ));
                     } else {
                         return Err(SimulatorError::FloatingNode);

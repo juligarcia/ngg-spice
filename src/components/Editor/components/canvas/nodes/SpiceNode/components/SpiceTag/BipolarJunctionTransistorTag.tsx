@@ -18,9 +18,9 @@ const BipolarJunctionTransistorTag: FC<BipolarJunctionTransistorTagProps> = ({
       <Typography className="overflow-hidden text-ellipsis" variant="h4">
         {name || "???"}
       </Typography>
-      {!isEmpty(data) && (
+      {!isEmpty(data.model) && (
         <Badge className="flex gap-2 items-center">
-          <Typography variant="h4">{data.t_type}</Typography>
+          <Typography variant="h4">{data.model?.polarity}</Typography>
           {data.model?.name && (
             <Typography variant="h4">{data.model?.name}</Typography>
           )}

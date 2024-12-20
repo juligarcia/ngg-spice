@@ -191,6 +191,7 @@ const SpiceAttributes: FC<SpiceAttributesProps> = ({
                 ),
                 () => 550
               )
+              .with(SpiceInstanceName.BJT, () => 850)
               .otherwise(() => 350)
           }}
         >
