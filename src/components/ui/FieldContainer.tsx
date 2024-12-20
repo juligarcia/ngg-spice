@@ -25,7 +25,7 @@ const FieldContainer: FC<FieldContainerProps> = ({
     <div className="flex items-center">
       {prefix && (
         <Typography
-          className="mr-2 grow w-full text-muted-foreground whitespace-nowrap font-bold"
+          className="mr-2 w-24 text-muted-foreground whitespace-nowrap font-bold"
           variant="small"
         >
           {prefix}

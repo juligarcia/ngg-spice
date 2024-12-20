@@ -13,7 +13,6 @@ use colored::Colorize;
 
 use super::commands::{SecondaryThreadStatus, SimulationThreadOrchestrator};
 use super::simulation::Simulation;
-use super::units::{Conductance, Dimensionless};
 use super::{
     circuit::{
         canvas::{CanvasEdge, CanvasNode, NodeData},
@@ -23,7 +22,6 @@ use super::{
     manager::NGGSpiceManager,
     simulator_error::SimulatorError,
     unit_of_magnitude::UnitOfMagnitude,
-    units::{Capacitance, Inductance, Resistance},
 };
 use libloading::Library;
 
@@ -175,7 +173,7 @@ impl Simulator {
             match node.data {
                 NodeData::R { value, name } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::<Resistance>::from(value)
+                        let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
                         schematic.insert(Element::R(name, unit, n1.1.to_owned(), n2.1.to_owned()))
@@ -186,7 +184,7 @@ impl Simulator {
 
                 NodeData::C { value, name } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::<Capacitance>::from(value)
+                        let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
                         schematic.insert(Element::C(name, unit, n1.1.to_owned(), n2.1.to_owned()))
@@ -197,7 +195,7 @@ impl Simulator {
 
                 NodeData::L { value, name } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::<Inductance>::from(value)
+                        let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
                         schematic.insert(Element::L(name, unit, n1.1.to_owned(), n2.1.to_owned()))
@@ -270,7 +268,7 @@ impl Simulator {
 
                 NodeData::E { name, value } => {
                     if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
-                        let unit = UnitOfMagnitude::<Dimensionless>::from(value)
+                        let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
                         schematic.insert(Element::E(
@@ -288,7 +286,7 @@ impl Simulator {
 
                 NodeData::F { name, value, src } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::<Dimensionless>::from(value)
+                        let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
                         schematic.insert(Element::F(
@@ -305,7 +303,7 @@ impl Simulator {
 
                 NodeData::G { name, value } => {
                     if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
-                        let unit = UnitOfMagnitude::<Conductance>::from(value)
+                        let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
                         schematic.insert(Element::G(
@@ -323,7 +321,7 @@ impl Simulator {
 
                 NodeData::H { name, value, src } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::<Resistance>::from(value)
+                        let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
                         schematic.insert(Element::H(

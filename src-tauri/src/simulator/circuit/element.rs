@@ -4,11 +4,7 @@ use crate::simulator::{
         SmallSignalConfig as CanvasSmallSignalConfig, TimeDomainConfig as CanvasTimeDomainConfig,
     },
     simulator_error::SimulatorError,
-    unit_of_magnitude::{Unit as UnitTrait, UnitOfMagnitude as Unit},
-    units::{
-        Capacitance, Conductance, Current, Dimensionless, Energy, Frequency, Inductance, Phase,
-        Resistance, Time, Voltage,
-    },
+    unit_of_magnitude::UnitOfMagnitude as Unit,
 };
 use native_db::{native_db, ToKey};
 use native_model::{native_model, Model};
@@ -16,58 +12,57 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 #[derive(Clone)]
-pub enum TimeDomainConfig<T: UnitTrait> {
+pub enum TimeDomainConfig {
     Dc {
-        value: Unit<T>,
+        value: Unit,
     },
     Pulse {
-        initial_value: Unit<T>,
-        final_value: Unit<T>,
-        delay: Option<Unit<Time>>,
-        rise_time: Option<Unit<Time>>,
-        fall_time: Option<Unit<Time>>,
-        pulse_width: Option<Unit<Time>>,
-        period: Option<Unit<Time>>,
+        initial_value: Unit,
+        final_value: Unit,
+        delay: Option<Unit>,
+        rise_time: Option<Unit>,
+        fall_time: Option<Unit>,
+        pulse_width: Option<Unit>,
+        period: Option<Unit>,
     },
     Sin {
-        offset: Unit<T>,
-        amplitude: Unit<T>,
-        frequency: Option<Unit<Frequency>>,
-        delay: Option<Unit<Time>>,
-        damping_factor: Option<Unit<Time>>,
+        offset: Unit,
+        amplitude: Unit,
+        frequency: Option<Unit>,
+        delay: Option<Unit>,
+        damping_factor: Option<Unit>,
     },
     Exp {
-        initial_value: Unit<T>,
-        final_value: Unit<T>,
-        rise_delay: Option<Unit<Time>>,
-        rise_time: Option<Unit<Time>>,
-        fall_delay: Option<Unit<Time>>,
-        fall_time: Option<Unit<Time>>,
+        initial_value: Unit,
+        final_value: Unit,
+        rise_delay: Option<Unit>,
+        rise_time: Option<Unit>,
+        fall_delay: Option<Unit>,
+        fall_time: Option<Unit>,
     },
     Sffm {
-        offset: Unit<T>,
-        amplitude: Unit<T>,
-        carrier_frequency: Option<Unit<Frequency>>,
+        offset: Unit,
+        amplitude: Unit,
+        carrier_frequency: Option<Unit>,
         modulation_index: Option<i16>,
-        signal_frequency: Option<Unit<Frequency>>,
+        signal_frequency: Option<Unit>,
     },
     Am {
-        amplitude: Unit<T>,
-        offset: Unit<T>,
-        modulating_frequency: Unit<Frequency>,
-        carrier_frequency: Option<Unit<Frequency>>,
-        delay: Option<Unit<Time>>,
+        amplitude: Unit,
+        offset: Unit,
+        modulating_frequency: Unit,
+        carrier_frequency: Option<Unit>,
+        delay: Option<Unit>,
     },
 }
 
-impl<T: UnitTrait> TimeDomainConfig<T> {
+impl TimeDomainConfig {
     pub fn from_canvas(
         canvas_time_domain_config: CanvasTimeDomainConfig,
     ) -> Result<Self, SimulatorError> {
         match canvas_time_domain_config {
             CanvasTimeDomainConfig::Dc { value } => {
-                let value =
-                    Unit::<T>::from(value).map_err(|error| SimulatorError::UnitError(error))?;
+                let value = Unit::from(value).map_err(|error| SimulatorError::UnitError(error))?;
 
                 Ok(TimeDomainConfig::Dc { value })
             }
@@ -81,30 +76,30 @@ impl<T: UnitTrait> TimeDomainConfig<T> {
                 pulse_width,
                 period,
             } => {
-                let initial_value = Unit::<T>::from(initial_value)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let initial_value =
+                    Unit::from(initial_value).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let final_value = Unit::<T>::from(final_value)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let final_value =
+                    Unit::from(final_value).map_err(|error| SimulatorError::UnitError(error))?;
 
                 if let Some(delay) = delay {
-                    let delay = Unit::<Time>::from(delay)
-                        .map_err(|error| SimulatorError::UnitError(error))?;
+                    let delay =
+                        Unit::from(delay).map_err(|error| SimulatorError::UnitError(error))?;
 
                     if let Some(rise_time) = rise_time {
-                        let rise_time = Unit::<Time>::from(rise_time)
+                        let rise_time = Unit::from(rise_time)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
                         if let Some(fall_time) = fall_time {
-                            let fall_time = Unit::<Time>::from(fall_time)
+                            let fall_time = Unit::from(fall_time)
                                 .map_err(|error| SimulatorError::UnitError(error))?;
 
                             if let Some(pulse_width) = pulse_width {
-                                let pulse_width = Unit::<Time>::from(pulse_width)
+                                let pulse_width = Unit::from(pulse_width)
                                     .map_err(|error| SimulatorError::UnitError(error))?;
 
                                 if let Some(period) = period {
-                                    let period = Unit::<Time>::from(period)
+                                    let period = Unit::from(period)
                                         .map_err(|error| SimulatorError::UnitError(error))?;
 
                                     Ok(TimeDomainConfig::Pulse {
@@ -181,26 +176,26 @@ impl<T: UnitTrait> TimeDomainConfig<T> {
                 fall_delay,
                 fall_time,
             } => {
-                let initial_value = Unit::<T>::from(initial_value)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let initial_value =
+                    Unit::from(initial_value).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let final_value = Unit::<T>::from(final_value)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                let final_value =
+                    Unit::from(final_value).map_err(|error| SimulatorError::UnitError(error))?;
 
                 if let Some(rise_delay) = rise_delay {
-                    let rise_delay = Unit::<Time>::from(rise_delay)
-                        .map_err(|error| SimulatorError::UnitError(error))?;
+                    let rise_delay =
+                        Unit::from(rise_delay).map_err(|error| SimulatorError::UnitError(error))?;
 
                     if let Some(rise_time) = rise_time {
-                        let rise_time = Unit::<Time>::from(rise_time)
+                        let rise_time = Unit::from(rise_time)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
                         if let Some(fall_delay) = fall_delay {
-                            let fall_delay = Unit::<Time>::from(fall_delay)
+                            let fall_delay = Unit::from(fall_delay)
                                 .map_err(|error| SimulatorError::UnitError(error))?;
 
                             if let Some(fall_time) = fall_time {
-                                let fall_time = Unit::<Time>::from(fall_time)
+                                let fall_time = Unit::from(fall_time)
                                     .map_err(|error| SimulatorError::UnitError(error))?;
 
                                 Ok(TimeDomainConfig::Exp {
@@ -261,21 +256,21 @@ impl<T: UnitTrait> TimeDomainConfig<T> {
                 damping_factor,
             } => {
                 let offset =
-                    Unit::<T>::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
+                    Unit::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
 
                 let amplitude =
-                    Unit::<T>::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
+                    Unit::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
 
                 if let Some(frequency) = frequency {
-                    let frequency = Unit::<Frequency>::from(frequency)
-                        .map_err(|error| SimulatorError::UnitError(error))?;
+                    let frequency =
+                        Unit::from(frequency).map_err(|error| SimulatorError::UnitError(error))?;
 
                     if let Some(delay) = delay {
-                        let delay = Unit::<Time>::from(delay)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                        let delay =
+                            Unit::from(delay).map_err(|error| SimulatorError::UnitError(error))?;
 
                         if let Some(damping_factor) = damping_factor {
-                            let damping_factor = Unit::<Time>::from(damping_factor)
+                            let damping_factor = Unit::from(damping_factor)
                                 .map_err(|error| SimulatorError::UnitError(error))?;
 
                             Ok(TimeDomainConfig::Sin {
@@ -322,18 +317,18 @@ impl<T: UnitTrait> TimeDomainConfig<T> {
                 signal_frequency,
             } => {
                 let offset =
-                    Unit::<T>::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
+                    Unit::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
 
                 let amplitude =
-                    Unit::<T>::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
+                    Unit::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
 
                 if let Some(carrier_frequency) = carrier_frequency {
-                    let carrier_frequency = Unit::<Frequency>::from(carrier_frequency)
+                    let carrier_frequency = Unit::from(carrier_frequency)
                         .map_err(|error| SimulatorError::UnitError(error))?;
 
                     if let Some(modulation_index) = modulation_index {
                         if let Some(signal_frequency) = signal_frequency {
-                            let signal_frequency = Unit::<Frequency>::from(signal_frequency)
+                            let signal_frequency = Unit::from(signal_frequency)
                                 .map_err(|error| SimulatorError::UnitError(error))?;
 
                             Ok(TimeDomainConfig::Sffm {
@@ -380,21 +375,21 @@ impl<T: UnitTrait> TimeDomainConfig<T> {
                 delay,
             } => {
                 let offset =
-                    Unit::<T>::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
+                    Unit::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
 
                 let amplitude =
-                    Unit::<T>::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
+                    Unit::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let modulating_frequency = Unit::<Frequency>::from(modulating_frequency)
+                let modulating_frequency = Unit::from(modulating_frequency)
                     .map_err(|error| SimulatorError::UnitError(error))?;
 
                 if let Some(carrier_frequency) = carrier_frequency {
-                    let carrier_frequency = Unit::<Frequency>::from(carrier_frequency)
+                    let carrier_frequency = Unit::from(carrier_frequency)
                         .map_err(|error| SimulatorError::UnitError(error))?;
 
                     if let Some(delay) = delay {
-                        let delay = Unit::<Time>::from(delay)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                        let delay =
+                            Unit::from(delay).map_err(|error| SimulatorError::UnitError(error))?;
 
                         Ok(TimeDomainConfig::Am {
                             amplitude,
@@ -579,21 +574,20 @@ impl<T: UnitTrait> TimeDomainConfig<T> {
 }
 
 #[derive(Clone)]
-pub struct SmallSignalConfig<T: UnitTrait> {
-    amplitude: Unit<T>,
-    phase: Option<Unit<Phase>>,
+pub struct SmallSignalConfig {
+    amplitude: Unit,
+    phase: Option<Unit>,
 }
 
-impl<T: UnitTrait> SmallSignalConfig<T> {
+impl SmallSignalConfig {
     pub fn from_canvas(
         small_signal_config: CanvasSmallSignalConfig,
-    ) -> Result<SmallSignalConfig<T>, SimulatorError> {
-        let amplitude = Unit::<T>::from(small_signal_config.amplitude)
+    ) -> Result<SmallSignalConfig, SimulatorError> {
+        let amplitude = Unit::from(small_signal_config.amplitude)
             .map_err(|error| SimulatorError::UnitError(error))?;
 
         if let Some(phase) = small_signal_config.phase {
-            let phase =
-                Unit::<Phase>::from(phase).map_err(|error| SimulatorError::UnitError(error))?;
+            let phase = Unit::from(phase).map_err(|error| SimulatorError::UnitError(error))?;
 
             return Ok(SmallSignalConfig {
                 amplitude,
@@ -649,34 +643,34 @@ pub struct BjtModel {
 
     pub polarity: BjtPolarity,
 
-    pub is: Option<Unit<Current>>, // Transport saturation current
-    pub xti: Option<Unit<Dimensionless>>, // IS temperature effect exponent
-    pub eg: Option<Unit<Energy>>,  // Bandgap voltage (barrier height)
-    pub vaf: Option<Unit<Voltage>>, // Forward Early voltage
-    pub bf: Option<Unit<Dimensionless>>, // Ideal maximum forward beta
-    pub ise: Option<Unit<Current>>, // Base-emitter leakage saturation current
-    pub ne: Option<Unit<Dimensionless>>, // Base-emitter leakage emission coefficient
-    pub ikf: Option<Unit<Current>>, // Corner for forward-beta high-current roll-off
-    pub nk: Option<Unit<Dimensionless>>, // High-current roll-off coefficient
-    pub xtb: Option<Unit<Dimensionless>>, // Forward and reverse beta temperature coefficient
-    pub br: Option<Unit<Dimensionless>>, // Ideal maximum reverse beta
-    pub isc: Option<Unit<Current>>, // Base-collector leakage saturation current
-    pub nc: Option<Unit<Dimensionless>>, // Base-collector leakage emission coefficient
-    pub ikr: Option<Unit<Current>>, // Corner for reverse-beta high-current roll-off
-    pub rc: Option<Unit<Resistance>>, // Collector ohmic resistance
-    pub cjc: Option<Unit<Capacitance>>, // Base-collector zero-bias p-n capacitance
-    pub mjc: Option<Unit<Dimensionless>>, // Base-collector p-n grading factor
-    pub vjc: Option<Unit<Voltage>>, // Base-collector built-in potential
-    pub fc: Option<Unit<Dimensionless>>, // Forward-bias depletion capacitor coefficient
-    pub cje: Option<Unit<Capacitance>>, // Base-emitter zero-bias p-n capacitance
-    pub mje: Option<Unit<Dimensionless>>, // Base-emitter p-n grading factor
-    pub vje: Option<Unit<Voltage>>, // Base-emitter built-in potential
-    pub tr: Option<Unit<Time>>,    // Ideal reverse transit time
-    pub tf: Option<Unit<Time>>,    // Ideal forward transit time
-    pub itf: Option<Unit<Current>>, // Transit time dependency on Ic
-    pub xtf: Option<Unit<Dimensionless>>, // Transit time bias dependence coefficient
-    pub vtf: Option<Unit<Voltage>>, // Transit time dependency on Vbc
-    pub rb: Option<Unit<Resistance>>, // Zero-bias (maximum) base resistance
+    pub is: Option<Unit>,  // Transport saturation current
+    pub xti: Option<Unit>, // IS temperature effect exponent
+    pub eg: Option<Unit>,  // Bandgap voltage (barrier height)
+    pub vaf: Option<Unit>, // Forward Early voltage
+    pub bf: Option<Unit>,  // Ideal maximum forward beta
+    pub ise: Option<Unit>, // Base-emitter leakage saturation current
+    pub ne: Option<Unit>,  // Base-emitter leakage emission coefficient
+    pub ikf: Option<Unit>, // Corner for forward-beta high-current roll-off
+    pub nk: Option<Unit>,  // High-current roll-off coefficient
+    pub xtb: Option<Unit>, // Forward and reverse beta temperature coefficient
+    pub br: Option<Unit>,  // Ideal maximum reverse beta
+    pub isc: Option<Unit>, // Base-collector leakage saturation current
+    pub nc: Option<Unit>,  // Base-collector leakage emission coefficient
+    pub ikr: Option<Unit>, // Corner for reverse-beta high-current roll-off
+    pub rc: Option<Unit>,  // Collector ohmic resistance
+    pub cjc: Option<Unit>, // Base-collector zero-bias p-n capacitance
+    pub mjc: Option<Unit>, // Base-collector p-n grading factor
+    pub vjc: Option<Unit>, // Base-collector built-in potential
+    pub fc: Option<Unit>,  // Forward-bias depletion capacitor coefficient
+    pub cje: Option<Unit>, // Base-emitter zero-bias p-n capacitance
+    pub mje: Option<Unit>, // Base-emitter p-n grading factor
+    pub vje: Option<Unit>, // Base-emitter built-in potential
+    pub tr: Option<Unit>,  // Ideal reverse transit time
+    pub tf: Option<Unit>,  // Ideal forward transit time
+    pub itf: Option<Unit>, // Transit time dependency on Ic
+    pub xtf: Option<Unit>, // Transit time bias dependence coefficient
+    pub vtf: Option<Unit>, // Transit time dependency on Vbc
+    pub rb: Option<Unit>,  // Zero-bias (maximum) base resistance
 }
 
 impl BjtModel {
@@ -836,115 +830,115 @@ impl BjtModel {
             is: canvas_model
                 .is
                 .clone()
-                .and_then(|is| Unit::<Current>::from(is).map_or(None, |is| Some(is))),
+                .and_then(|is| Unit::from(is).map_or(None, |is| Some(is))),
             xti: canvas_model
                 .xti
                 .clone()
-                .and_then(|xti| Unit::<Dimensionless>::from(xti).map_or(None, |xti| Some(xti))),
+                .and_then(|xti| Unit::from(xti).map_or(None, |xti| Some(xti))),
             eg: canvas_model
                 .eg
                 .clone()
-                .and_then(|eg| Unit::<Energy>::from(eg).map_or(None, |eg| Some(eg))),
+                .and_then(|eg| Unit::from(eg).map_or(None, |eg| Some(eg))),
             vaf: canvas_model
                 .vaf
                 .clone()
-                .and_then(|vaf| Unit::<Voltage>::from(vaf).map_or(None, |vaf| Some(vaf))),
+                .and_then(|vaf| Unit::from(vaf).map_or(None, |vaf| Some(vaf))),
             bf: canvas_model
                 .bf
                 .clone()
-                .and_then(|bf| Unit::<Dimensionless>::from(bf).map_or(None, |bf| Some(bf))),
+                .and_then(|bf| Unit::from(bf).map_or(None, |bf| Some(bf))),
             ise: canvas_model
                 .ise
                 .clone()
-                .and_then(|ise| Unit::<Current>::from(ise).map_or(None, |ise| Some(ise))),
+                .and_then(|ise| Unit::from(ise).map_or(None, |ise| Some(ise))),
             ne: canvas_model
                 .ne
                 .clone()
-                .and_then(|ne| Unit::<Dimensionless>::from(ne).map_or(None, |ne| Some(ne))),
+                .and_then(|ne| Unit::from(ne).map_or(None, |ne| Some(ne))),
             ikf: canvas_model
                 .ikf
                 .clone()
-                .and_then(|ikf| Unit::<Current>::from(ikf).map_or(None, |ikf| Some(ikf))),
+                .and_then(|ikf| Unit::from(ikf).map_or(None, |ikf| Some(ikf))),
             nk: canvas_model
                 .nk
                 .clone()
-                .and_then(|nk| Unit::<Dimensionless>::from(nk).map_or(None, |nk| Some(nk))),
+                .and_then(|nk| Unit::from(nk).map_or(None, |nk| Some(nk))),
             xtb: canvas_model
                 .xtb
                 .clone()
-                .and_then(|xtb| Unit::<Dimensionless>::from(xtb).map_or(None, |xtb| Some(xtb))),
+                .and_then(|xtb| Unit::from(xtb).map_or(None, |xtb| Some(xtb))),
             br: canvas_model
                 .br
                 .clone()
-                .and_then(|br| Unit::<Dimensionless>::from(br).map_or(None, |br| Some(br))),
+                .and_then(|br| Unit::from(br).map_or(None, |br| Some(br))),
             isc: canvas_model
                 .isc
                 .clone()
-                .and_then(|isc| Unit::<Current>::from(isc).map_or(None, |isc| Some(isc))),
+                .and_then(|isc| Unit::from(isc).map_or(None, |isc| Some(isc))),
             nc: canvas_model
                 .nc
                 .clone()
-                .and_then(|nc| Unit::<Dimensionless>::from(nc).map_or(None, |nc| Some(nc))),
+                .and_then(|nc| Unit::from(nc).map_or(None, |nc| Some(nc))),
             ikr: canvas_model
                 .ikr
                 .clone()
-                .and_then(|ikr| Unit::<Current>::from(ikr).map_or(None, |ikr| Some(ikr))),
+                .and_then(|ikr| Unit::from(ikr).map_or(None, |ikr| Some(ikr))),
             rc: canvas_model
                 .rc
                 .clone()
-                .and_then(|rc| Unit::<Resistance>::from(rc).map_or(None, |rc| Some(rc))),
+                .and_then(|rc| Unit::from(rc).map_or(None, |rc| Some(rc))),
             cjc: canvas_model
                 .cjc
                 .clone()
-                .and_then(|cjc| Unit::<Capacitance>::from(cjc).map_or(None, |cjc| Some(cjc))),
+                .and_then(|cjc| Unit::from(cjc).map_or(None, |cjc| Some(cjc))),
             mjc: canvas_model
                 .mjc
                 .clone()
-                .and_then(|mjc| Unit::<Dimensionless>::from(mjc).map_or(None, |mjc| Some(mjc))),
+                .and_then(|mjc| Unit::from(mjc).map_or(None, |mjc| Some(mjc))),
             vjc: canvas_model
                 .vjc
                 .clone()
-                .and_then(|vjc| Unit::<Voltage>::from(vjc).map_or(None, |vjc| Some(vjc))),
+                .and_then(|vjc| Unit::from(vjc).map_or(None, |vjc| Some(vjc))),
             fc: canvas_model
                 .fc
                 .clone()
-                .and_then(|fc| Unit::<Dimensionless>::from(fc).map_or(None, |fc| Some(fc))),
+                .and_then(|fc| Unit::from(fc).map_or(None, |fc| Some(fc))),
             cje: canvas_model
                 .cje
                 .clone()
-                .and_then(|cje| Unit::<Capacitance>::from(cje).map_or(None, |cje| Some(cje))),
+                .and_then(|cje| Unit::from(cje).map_or(None, |cje| Some(cje))),
             mje: canvas_model
                 .mje
                 .clone()
-                .and_then(|mje| Unit::<Dimensionless>::from(mje).map_or(None, |mje| Some(mje))),
+                .and_then(|mje| Unit::from(mje).map_or(None, |mje| Some(mje))),
             vje: canvas_model
                 .vje
                 .clone()
-                .and_then(|vje| Unit::<Voltage>::from(vje).map_or(None, |vje| Some(vje))),
+                .and_then(|vje| Unit::from(vje).map_or(None, |vje| Some(vje))),
             tr: canvas_model
                 .tr
                 .clone()
-                .and_then(|tr| Unit::<Time>::from(tr).map_or(None, |tr| Some(tr))),
+                .and_then(|tr| Unit::from(tr).map_or(None, |tr| Some(tr))),
             tf: canvas_model
                 .tf
                 .clone()
-                .and_then(|tf| Unit::<Time>::from(tf).map_or(None, |tf| Some(tf))),
+                .and_then(|tf| Unit::from(tf).map_or(None, |tf| Some(tf))),
             itf: canvas_model
                 .itf
                 .clone()
-                .and_then(|itf| Unit::<Current>::from(itf).map_or(None, |itf| Some(itf))),
+                .and_then(|itf| Unit::from(itf).map_or(None, |itf| Some(itf))),
             xtf: canvas_model
                 .xtf
                 .clone()
-                .and_then(|xtf| Unit::<Dimensionless>::from(xtf).map_or(None, |xtf| Some(xtf))),
+                .and_then(|xtf| Unit::from(xtf).map_or(None, |xtf| Some(xtf))),
             vtf: canvas_model
                 .vtf
                 .clone()
-                .and_then(|vtf| Unit::<Voltage>::from(vtf).map_or(None, |vtf| Some(vtf))),
+                .and_then(|vtf| Unit::from(vtf).map_or(None, |vtf| Some(vtf))),
             rb: canvas_model
                 .rb
                 .clone()
-                .and_then(|rb| Unit::<Resistance>::from(rb).map_or(None, |rb| Some(rb))),
+                .and_then(|rb| Unit::from(rb).map_or(None, |rb| Some(rb))),
         }
     }
 
@@ -1069,27 +1063,27 @@ impl BjtModel {
 
 #[derive(Clone)]
 pub enum Element {
-    R(String, Unit<Resistance>, String, String),
-    C(String, Unit<Capacitance>, String, String),
-    L(String, Unit<Inductance>, String, String),
+    R(String, Unit, String, String),
+    C(String, Unit, String, String),
+    L(String, Unit, String, String),
     V(
         String,
-        TimeDomainConfig<Voltage>,
-        Option<SmallSignalConfig<Voltage>>,
+        TimeDomainConfig,
+        Option<SmallSignalConfig>,
         String,
         String,
     ),
     I(
         String,
-        TimeDomainConfig<Current>,
-        Option<SmallSignalConfig<Current>>,
+        TimeDomainConfig,
+        Option<SmallSignalConfig>,
         String,
         String,
     ),
-    E(String, Unit<Dimensionless>, String, String, String, String),
-    F(String, Unit<Dimensionless>, String, String, String),
-    G(String, Unit<Conductance>, String, String, String, String),
-    H(String, Unit<Resistance>, String, String, String),
+    E(String, Unit, String, String, String, String),
+    F(String, Unit, String, String, String),
+    G(String, Unit, String, String, String, String),
+    H(String, Unit, String, String, String),
     Q(String, String, String, String, BjtModel),
 }
 

@@ -1,11 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-pub trait Unit {
-    fn format(&self) -> String;
-
-    fn new(base: i16) -> Self;
-}
-
 #[derive(Debug)]
 pub enum UnitOfMagnitudeError {
     FailedToParseBase,
@@ -15,46 +9,56 @@ pub enum UnitOfMagnitudeError {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum UnitOfMagnitude<U: Unit> {
-    Tera(U),
-    Giga(U),
-    Mega(U),
-    Kilo(U),
-    Mil(U),
-    Mili(U),
-    Micro(U),
-    Nano(U),
-    Pico(U),
-    Femto(U),
-    Base(U),
+pub enum UnitOfMagnitude {
+    Tera(f64),
+    Giga(f64),
+    Mega(f64),
+    Kilo(f64),
+    Mil(f64),
+    Mili(f64),
+    Micro(f64),
+    Nano(f64),
+    Pico(f64),
+    Femto(f64),
+    Base(f64),
 }
 
-impl<U: Unit> UnitOfMagnitude<U> {
+impl UnitOfMagnitude {
     pub fn format(&self) -> String {
         match &self {
-            UnitOfMagnitude::Tera(unit) => format!("{}T", unit.format()),
-            UnitOfMagnitude::Giga(unit) => format!("{}G", unit.format()),
-            UnitOfMagnitude::Mega(unit) => format!("{}Meg", unit.format()),
-            UnitOfMagnitude::Kilo(unit) => format!("{}K", unit.format()),
-            UnitOfMagnitude::Mil(unit) => format!("{}mil", unit.format()),
-            UnitOfMagnitude::Mili(unit) => format!("{}m", unit.format()),
-            UnitOfMagnitude::Micro(unit) => format!("{}u", unit.format()),
-            UnitOfMagnitude::Nano(unit) => format!("{}n", unit.format()),
-            UnitOfMagnitude::Pico(unit) => format!("{}p", unit.format()),
-            UnitOfMagnitude::Femto(unit) => format!("{}f", unit.format()),
-            UnitOfMagnitude::Base(unit) => format!("{}", unit.format()),
+            UnitOfMagnitude::Tera(base) => format!("{}T", base.to_string()),
+            UnitOfMagnitude::Giga(base) => format!("{}G", base.to_string()),
+            UnitOfMagnitude::Mega(base) => format!("{}Meg", base.to_string()),
+            UnitOfMagnitude::Kilo(base) => format!("{}K", base.to_string()),
+            UnitOfMagnitude::Mil(base) => format!("{}mil", base.to_string()),
+            UnitOfMagnitude::Mili(base) => format!("{}m", base.to_string()),
+            UnitOfMagnitude::Micro(base) => format!("{}u", base.to_string()),
+            UnitOfMagnitude::Nano(base) => format!("{}n", base.to_string()),
+            UnitOfMagnitude::Pico(base) => format!("{}p", base.to_string()),
+            UnitOfMagnitude::Femto(base) => format!("{}f", base.to_string()),
+            UnitOfMagnitude::Base(base) => {
+                format!("{}", UnitOfMagnitude::format_with_exponential(base))
+            }
         }
     }
 
-    fn parse_base_unit(input: String) -> Result<U, UnitOfMagnitudeError> {
-        let unit_base: i16 = input
+    fn format_with_exponential(base: &f64) -> String {
+        if *base >= 10e3 || *base <= 1e-3 {
+            format!("{:e}", base)
+        } else {
+            base.to_string()
+        }
+    }
+
+    fn parse_base_unit(input: String) -> Result<f64, UnitOfMagnitudeError> {
+        let unit_base: f64 = input
             .parse()
             .map_err(|_| UnitOfMagnitudeError::FailedToParseBase)?;
 
-        return Ok(U::new(unit_base));
+        return Ok(unit_base);
     }
 
-    fn parse_unit(input: String, uom: &str) -> Result<U, UnitOfMagnitudeError> {
+    fn parse_unit(input: String, uom: &str) -> Result<f64, UnitOfMagnitudeError> {
         let lowercase_input = input.to_lowercase();
         let uom_split: Vec<&str> = lowercase_input.split(&uom.to_lowercase()).collect();
 
@@ -67,17 +71,17 @@ impl<U: Unit> UnitOfMagnitude<U> {
                 return Err(UnitOfMagnitudeError::IncorrectMagnitudePassed);
             }
 
-            let unit_base: i16 = maybe_base
+            let unit_base: f64 = maybe_base
                 .parse()
                 .map_err(|_| UnitOfMagnitudeError::FailedToParseBase)?;
 
-            return Ok(U::new(unit_base));
+            return Ok(unit_base);
         }
 
         Err(UnitOfMagnitudeError::IncorrectValuePassed)
     }
 
-    pub fn from(formatted: String) -> Result<UnitOfMagnitude<U>, UnitOfMagnitudeError> {
+    pub fn from(formatted: String) -> Result<UnitOfMagnitude, UnitOfMagnitudeError> {
         if let Ok(unit) = UnitOfMagnitude::parse_unit(formatted.clone(), "T") {
             return Ok(UnitOfMagnitude::Tera(unit));
         }

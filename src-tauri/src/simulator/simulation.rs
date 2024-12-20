@@ -1,8 +1,4 @@
-use super::{
-    simulator_error::SimulatorError,
-    unit_of_magnitude::UnitOfMagnitude as Unit,
-    units::{Dimensionless, Frequency, Time},
-};
+use super::{simulator_error::SimulatorError, unit_of_magnitude::UnitOfMagnitude as Unit};
 use std::fmt::Display;
 
 #[derive(serde::Deserialize, Debug, Clone)]
@@ -153,33 +149,33 @@ pub enum SimulationConfig {
 
 pub enum Simulation {
     Tran {
-        tstep: Unit<Time>,
-        tstop: Unit<Time>,
-        tstart: Option<Unit<Time>>,
-        tmax: Option<Unit<Time>>,
+        tstep: Unit,
+        tstop: Unit,
+        tstart: Option<Unit>,
+        tmax: Option<Unit>,
         uic: Option<bool>,
     },
     Op,
     Ac {
-        fstart: Unit<Frequency>,
-        fstop: Unit<Frequency>,
+        fstart: Unit,
+        fstop: Unit,
         variation: FrequencyVariation,
         nx: i32,
     },
     Dc {
         srcnam: String,
-        vstart: Unit<Dimensionless>,
-        vstop: Unit<Dimensionless>,
-        vincr: Unit<Dimensionless>,
+        vstart: Unit,
+        vstop: Unit,
+        vincr: Unit,
 
         src2: Option<String>,
-        start2: Option<Unit<Dimensionless>>,
-        stop2: Option<Unit<Dimensionless>>,
-        incr2: Option<Unit<Dimensionless>>,
+        start2: Option<Unit>,
+        stop2: Option<Unit>,
+        incr2: Option<Unit>,
     },
     Disto {
-        fstart: Unit<Frequency>,
-        fstop: Unit<Frequency>,
+        fstart: Unit,
+        fstop: Unit,
         variation: FrequencyVariation,
         nx: i32,
         f2overf1: Option<f32>,
@@ -190,8 +186,8 @@ pub enum Simulation {
         src: String,
         variation: FrequencyVariation,
         pts: i32,
-        fstart: Unit<Frequency>,
-        fstop: Unit<Frequency>,
+        fstart: Unit,
+        fstop: Unit,
         pts_per_summary: Option<i32>,
     },
     Pz {
@@ -206,8 +202,8 @@ pub enum Simulation {
         output_type: CurrentOrVoltage,
         output: String,
         analysis_type: SensitivityAnalysisType,
-        fstart: Option<Unit<Frequency>>,
-        fstop: Option<Unit<Frequency>>,
+        fstart: Option<Unit>,
+        fstop: Option<Unit>,
         variation: Option<FrequencyVariation>,
         nx: Option<i32>,
     },
@@ -420,10 +416,10 @@ impl Simulation {
                 variation,
                 nx,
             } => {
-                let fstart = Unit::<Frequency>::from(fstart)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let fstop = Unit::<Frequency>::from(fstop)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let fstart =
+                    Unit::from(fstart).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let fstop =
+                    Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
 
                 return Ok(Simulation::Ac {
                     fstart,
@@ -440,10 +436,10 @@ impl Simulation {
                 nx,
                 f2overf1,
             } => {
-                let fstart = Unit::<Frequency>::from(fstart)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let fstop = Unit::<Frequency>::from(fstop)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let fstart =
+                    Unit::from(fstart).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let fstop =
+                    Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
 
                 if let Some(f2overf1) = f2overf1 {
                     if f2overf1 >= 1.0 || f2overf1 <= 0.0 {
@@ -470,10 +466,10 @@ impl Simulation {
                 fstop,
                 pts_per_summary,
             } => {
-                let fstart = Unit::<Frequency>::from(fstart)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let fstop = Unit::<Frequency>::from(fstop)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let fstart =
+                    Unit::from(fstart).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let fstop =
+                    Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
 
                 return Ok(Simulation::Noise {
                     output,
@@ -494,14 +490,14 @@ impl Simulation {
                 tmax,
                 uic,
             } => {
-                let tstep = Unit::<Time>::from(tstep)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let tstop = Unit::<Time>::from(tstop)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let tstep =
+                    Unit::from(tstep).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let tstop =
+                    Unit::from(tstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
 
                 let maybe_tstart = match tstart {
                     Some(time) => {
-                        let time_unit = Unit::<Time>::from(time)
+                        let time_unit = Unit::from(time)
                             .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
 
                         Some(time_unit)
@@ -512,7 +508,7 @@ impl Simulation {
 
                 let maybe_tmax = match tmax {
                     Some(time) => {
-                        let time_unit = Unit::<Time>::from(time)
+                        let time_unit = Unit::from(time)
                             .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
 
                         Some(time_unit)
@@ -540,20 +536,20 @@ impl Simulation {
                 stop2,
                 incr2,
             } => {
-                let vstart = Unit::<Dimensionless>::from(vstart)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let vstop = Unit::<Dimensionless>::from(vstop)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let vincr = Unit::<Dimensionless>::from(vincr)
-                    .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let vstart =
+                    Unit::from(vstart).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let vstop =
+                    Unit::from(vstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                let vincr =
+                    Unit::from(vincr).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
 
                 if let Some(src2) = src2 {
                     if let (Some(start2), Some(stop2), Some(incr2)) = (start2, stop2, incr2) {
-                        let start2 = Unit::<Dimensionless>::from(start2)
+                        let start2 = Unit::from(start2)
                             .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                        let stop2 = Unit::<Dimensionless>::from(stop2)
+                        let stop2 = Unit::from(stop2)
                             .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                        let incr2 = Unit::<Dimensionless>::from(incr2)
+                        let incr2 = Unit::from(incr2)
                             .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
 
                         return Ok(Simulation::Dc {
@@ -622,9 +618,9 @@ impl Simulation {
                     if let (Some(fstart), Some(fstop), Some(variation), Some(nx)) =
                         (fstart, fstop, variation, nx)
                     {
-                        let fstart = Unit::<Frequency>::from(fstart)
+                        let fstart = Unit::from(fstart)
                             .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                        let fstop = Unit::<Frequency>::from(fstop)
+                        let fstop = Unit::from(fstop)
                             .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
 
                         Ok(Simulation::Sens {

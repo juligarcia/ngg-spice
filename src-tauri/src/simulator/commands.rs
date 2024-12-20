@@ -56,7 +56,7 @@ impl ThreadOperationInfo {
     pub fn has_threshold_elapsed(&self, threshold: u128) -> bool {
         if let Some(timer) = &self.current_timer {
             if let Ok(elapsed) = timer.elapsed() {
-                if (elapsed.as_millis() > threshold) {
+                if elapsed.as_millis() > threshold {
                     log::info!("Elapsed {}", elapsed.as_millis())
                 }
 

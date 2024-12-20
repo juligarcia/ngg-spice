@@ -136,7 +136,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
               }
             }}
             render={({ field }) => (
-              <FieldContainer>
+              <FieldContainer prefix="Polarity" postfix={Units.Unitless}>
                 <Select
                   value={field.value}
                   defaultValue={model?.polarity}
@@ -176,7 +176,11 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             )}
           />
 
-          <FieldContainer error={errors["name"]} postfix={Units.Unitless}>
+          <FieldContainer
+            prefix="Name"
+            error={errors["name"]}
+            postfix={Units.Unitless}
+          >
             <Input
               defaultValue={model?.name}
               placeholder="Model name"
@@ -186,6 +190,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="IS"
             tooltip="Transport saturation current"
             error={errors["is"]}
             postfix={Units.Current}
@@ -202,6 +207,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="XTI"
             tooltip="IS temperature effect exponent"
             error={errors["xti"]}
             postfix={Units.Unitless}
@@ -218,6 +224,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="EG"
             tooltip="Bandgap voltage"
             error={errors["eg"]}
             postfix={Units.ElectronVolt}
@@ -234,6 +241,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="VAF"
             tooltip="Forward Early voltage"
             error={errors["vaf"]}
             postfix={Units.Voltage}
@@ -250,6 +258,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="BF"
             postfix={Units.Unitless}
             tooltip="Ideal maximum forward beta"
             error={errors["bf"]}
@@ -266,6 +275,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="ISE"
             tooltip="Base-emitter leakage saturation current"
             error={errors["ise"]}
             postfix={Units.Current}
@@ -282,6 +292,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="NE"
             postfix={Units.Unitless}
             tooltip="Base-emitter leakage emission coefficient"
             error={errors["ne"]}
@@ -298,6 +309,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="IKF"
             tooltip="Corner for forward-beta high-current roll-off"
             error={errors["ikf"]}
             postfix={Units.Current}
@@ -314,6 +326,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="NK"
             tooltip="High-current roll-off coefficient"
             error={errors["nk"]}
             postfix={Units.Unitless}
@@ -330,6 +343,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="XTB"
             tooltip="Forward and reverse beta temperature coefficient"
             error={errors["xtb"]}
             postfix={Units.Unitless}
@@ -346,6 +360,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="BR"
             postfix={Units.Unitless}
             tooltip="Ideal maximum reverse beta"
             error={errors["br"]}
@@ -362,6 +377,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="ISC"
             tooltip="Base-collector leakage saturation current"
             error={errors["isc"]}
             postfix={Units.Current}
@@ -378,6 +394,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="NC"
             tooltip="Base-collector leakage emission coefficient"
             error={errors["nc"]}
             postfix={Units.Unitless}
@@ -394,6 +411,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="IKR"
             postfix={Units.Current}
             tooltip="Corner for reverse-beta high-current roll-off"
             error={errors["ikr"]}
@@ -410,6 +428,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="RC"
             postfix={Units.Resistance}
             tooltip="Collector ohmic resistance"
             error={errors["rc"]}
@@ -426,6 +445,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="CJC"
             postfix={Units.Capacitance}
             tooltip="Base-collector zero-bias capacitance"
             error={errors["cjc"]}
@@ -442,6 +462,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="MJC"
             tooltip="Base-collector grading factor"
             error={errors["mjc"]}
             postfix={Units.Unitless}
@@ -458,6 +479,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="VJC"
             postfix={Units.Voltage}
             tooltip="Base-collector built-in potential"
             error={errors["vjc"]}
@@ -474,6 +496,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="TR"
             postfix={Units.Time}
             tooltip="Ideal reverse transit time"
             error={errors["tr"]}
@@ -490,6 +513,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="TF"
             postfix={Units.Time}
             tooltip="Ideal forward transit time"
             error={errors["tf"]}
@@ -506,6 +530,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="ITF"
             postfix={Units.Current}
             tooltip="Transit time dependency on Ic"
             error={errors["itf"]}
@@ -522,6 +547,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="XTF"
             tooltip="Transit time bias dependence coefficient"
             error={errors["xtf"]}
             postfix={Units.Unitless}
@@ -538,6 +564,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="VTF"
             postfix={Units.Voltage}
             tooltip="Transit time dependency on Vbc"
             error={errors["vtf"]}
@@ -554,6 +581,7 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
             />
           </FieldContainer>
           <FieldContainer
+            prefix="RB"
             postfix={Units.Resistance}
             tooltip="Zero-bias (maximum) base resistance"
             error={errors["rb"]}

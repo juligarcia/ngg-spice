@@ -7,5 +7,4 @@ pub mod simulation_status;
 pub mod simulator;
 pub mod simulator_error;
 pub mod unit_of_magnitude;
-pub mod units;
 use super::paprika;
