@@ -15,7 +15,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "createUpdaterArtifacts": "v1Compatible",
     "resources": {
       "./resources/bjt/models_seed_data.txt": "models/bjt/models_seed_data.txt"
     }

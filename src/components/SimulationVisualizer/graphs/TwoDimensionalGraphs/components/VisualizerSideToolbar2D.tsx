@@ -13,7 +13,7 @@ import { SimulationBasis } from "@/types/simulation";
 import { Waypoints } from "lucide-react";
 import { Series } from "../LinearGraph/LinearGraph";
 import EditSeries from "./EditSeries";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog } from "@/components/ui/dialog";
 
 interface VisualizerSideToolbar2DProps {
   simulationId: string;

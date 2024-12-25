@@ -36,8 +36,6 @@ import { osHotkeys } from "@/utils/hotkeys";
 import { useOs } from "../context/OsContext";
 import { spiceNodes } from "../context/SpiceContext/nodes/nodes";
 import { getBySelector, getCenter } from "@/utils/dom";
-import { Button } from "../ui/Button";
-import toast from "react-hot-toast";
 
 const Editor: FC = () => {
   const { theme } = useTheme();
@@ -228,7 +226,7 @@ const Editor: FC = () => {
     const diffY = Math.abs(target.y - source.y);
 
     const xOffsetSign = Math.sign(target.x - source.x);
-    const yOffsetSign = Math.sign(target.y - source.y);
+    // const yOffsetSign = Math.sign(target.y - source.y);
 
     console.log(target.x - source.x, target.y - source.y);
 
