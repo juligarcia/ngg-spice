@@ -39,7 +39,7 @@
     "fs:allow-write-file",
     "fs:allow-write-text-file",
     "log:default",
-    "log:default",
-    "log:default"
+    "dialog:allow-save",
+    "dialog:allow-open"
   ]
 }

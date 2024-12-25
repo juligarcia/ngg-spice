@@ -8,7 +8,9 @@ import {
   useNodesState,
   OnConnect,
   ConnectionMode,
-  useStoreApi
+  useStoreApi,
+  useReactFlow,
+  XYPosition
 } from "@xyflow/react";
 import { FC, useRef } from "react";
 import { useTheme } from "../ThemeProvider";
@@ -33,11 +35,15 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { osHotkeys } from "@/utils/hotkeys";
 import { useOs } from "../context/OsContext";
 import { spiceNodes } from "../context/SpiceContext/nodes/nodes";
+import { getBySelector, getCenter } from "@/utils/dom";
+import { Button } from "../ui/Button";
+import toast from "react-hot-toast";
 
 const Editor: FC = () => {
   const { theme } = useTheme();
 
   const { getState } = useStoreApi();
+  const { getNode, screenToFlowPosition } = useReactFlow();
 
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(
     getState().nodes as AppNode[]
@@ -214,29 +220,70 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
+  const calculateConnectionNodePosition = (
+    source: XYPosition,
+    target: XYPosition
+  ): XYPosition => {
+    const diffX = Math.abs(target.x - source.x);
+    const diffY = Math.abs(target.y - source.y);
+
+    const xOffsetSign = Math.sign(target.x - source.x);
+    const yOffsetSign = Math.sign(target.y - source.y);
+
+    console.log(target.x - source.x, target.y - source.y);
+
+    return {
+      x:
+        diffY > diffX
+          ? target.x - xOffsetSign * 20
+          : source.x + xOffsetSign * 20,
+      y: diffX > diffY ? target.y : source.y
+    };
+  };
+
   const onConnect: OnConnect = ({ ...params }) => {
     const { source, target, sourceHandle, targetHandle } = params;
 
-    const sourceNode = Nodes.findNode(nodes, "id", source);
-    const targetNode = Nodes.findNode(nodes, "id", target);
+    const sourceNode = getNode(source);
+    const targetNode = getNode(target);
+
+    const sourceHandleNode =
+      sourceHandle &&
+      (getBySelector("data-handleid", sourceHandle) as HTMLElement);
+
+    const targetHandleNode =
+      targetHandle &&
+      (getBySelector("data-handleid", targetHandle) as HTMLElement);
 
     const isSourceElement = Nodes.isOfCategory(source, NodeCategory.Element);
     const isTargetElement = Nodes.isOfCategory(target, NodeCategory.Element);
 
     const uuid = uniqueId();
 
-    if (sourceNode && targetNode && isSourceElement && isTargetElement) {
-      const [centerXSource, centerYSource] =
-        Nodes.calculateNodeCenter(sourceNode);
+    if (
+      sourceNode &&
+      sourceHandleNode &&
+      targetNode &&
+      targetHandleNode &&
+      isSourceElement &&
+      isTargetElement
+    ) {
+      const centerSource = screenToFlowPosition({
+        x: getCenter(sourceHandleNode).x,
+        y: getCenter(sourceHandleNode).y
+      });
 
-      const [centerXTarget, centerYTarget] =
-        Nodes.calculateNodeCenter(targetNode);
+      const centerTarget = screenToFlowPosition({
+        x: getCenter(targetHandleNode).x,
+        y: getCenter(targetHandleNode).y
+      });
 
-      let centerX = Math.round((centerXSource + centerXTarget) / 2);
-      centerX = centerX - (centerX % 10);
+      const position = calculateConnectionNodePosition(
+        centerSource,
+        centerTarget
+      );
 
-      let centerY = Math.round((centerYSource + centerYTarget) / 2);
-      centerY = centerY - (centerY % 10);
+      console.log(centerSource, centerTarget, position);
 
       const newConnectionNodeId = tagNode(uuid);
 
@@ -244,7 +291,7 @@ const Editor: FC = () => {
         type: NodeType.ConnectionNode,
         data: {},
         id: newConnectionNodeId,
-        position: { x: centerX, y: centerY }
+        position
       };
 
       const newEdge1: AppEdge = {
@@ -277,9 +324,6 @@ const Editor: FC = () => {
 
   // TODO: Limitar self connections
   // TODO: permitir cambiar la conexíon de un nodo
-  // TODO: habrá algún layout que me re ordene las cosas optimas para un circuito?
-  // TODO: Elementos que le falta conexiones
-  // TODO: Elementos que no están totalmente configurados
 
   return (
     <div

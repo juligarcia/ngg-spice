@@ -1,12 +1,19 @@
 use std::{
     collections::HashMap,
+    fs::File,
+    io::BufWriter,
     sync::{Arc, Mutex},
     thread::{self, sleep},
-    time::{Duration, SystemTime},
+    time::{Duration, Instant, SystemTime},
 };
+use tauri::{Manager, State};
+
+use tauri_plugin_dialog::DialogExt;
+
+use crate::app_state::{instance::InstanceState, AppState};
 
 use super::{
-    circuit::canvas::{CanvasEdge, CanvasNode},
+    circuit::canvas::{CanvasData, CanvasEdge, CanvasNode},
     simulation::SimulationConfig,
     simulation_data::SimulationData,
     simulator::Simulator,
@@ -229,7 +236,48 @@ pub async fn simulate(
     edges: Vec<CanvasEdge>,
     config: HashMap<String, SimulationConfig>,
     app_handle: tauri::AppHandle,
-) {
+) -> Result<(), ()> {
+    let app_state: State<AppState, '_> = app_handle.state();
+
+    let instance_state_guard = app_state.instance_state.lock().unwrap();
+    let mut instance_state = (*instance_state_guard).clone();
+    drop(instance_state_guard);
+
+    if let InstanceState::NotSaved = instance_state {
+        log::info!("Instance - NOT SAVED, initializing file picker");
+
+        let file_dialog_builder = app_handle.dialog().file();
+
+        let file_path = file_dialog_builder
+            .set_file_name(".json")
+            .blocking_save_file();
+
+        if let Some(file_path) = file_path {
+            let canvas_data = CanvasData {
+                nodes: nodes.clone(),
+                edges: edges.clone(),
+                config: config.clone(),
+            };
+
+            instance_state = InstanceState::Saved {
+                last_saved_to_file: Instant::now(),
+                path: file_path.clone(),
+                last_saved_to_state: None,
+                canvas_data: Some(canvas_data),
+            };
+
+            let file = File::create(file_path.to_string()).unwrap();
+            let mut writer = BufWriter::new(file);
+            serde_json::to_writer(&mut writer, &instance_state.get_canvas_data()).unwrap();
+        } else {
+            return Err(());
+        }
+    }
+
+    let mut instance_state_guard = app_state.instance_state.lock().unwrap();
+    *instance_state_guard = instance_state;
+    drop(instance_state_guard);
+
     log::info!("Starts simulate command");
     let mut simulation_handles: Vec<thread::JoinHandle<()>> = Vec::default();
 
@@ -307,4 +355,6 @@ pub async fn simulate(
     }
 
     log::info!("All threads joined");
+
+    Ok(())
 }

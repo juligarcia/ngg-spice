@@ -1,11 +1,13 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
-use crate::simulator::circuit::element::{
-    BjtModel as ContractBjtModel, BjtPolarity as ContractBjtPolarity,
+use crate::simulator::{
+    circuit::element::{BjtModel as ContractBjtModel, BjtPolarity as ContractBjtPolarity},
+    simulation::SimulationConfig,
 };
 
-#[derive(Deserialize, Clone)]
-
+#[derive(Deserialize, Clone, Serialize)]
 pub enum TimeDomainConfig {
     Dc {
         value: String,
@@ -106,14 +108,13 @@ impl BjtPolarity {
     }
 }
 
-#[derive(Deserialize, Clone)]
-
+#[derive(Deserialize, Clone, Serialize)]
 pub struct SmallSignalConfig {
     pub amplitude: String,
     pub phase: Option<String>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Serialize)]
 pub enum NodeData {
     R {
         value: String,
@@ -163,15 +164,22 @@ pub enum NodeData {
     Gnd {},
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Serialize)]
 pub struct CanvasNode {
     pub id: String,
     pub data: NodeData,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Serialize)]
 pub struct CanvasEdge {
     pub target: String,
     pub source: String,
     pub source_port: String,
+}
+
+#[derive(Deserialize, Clone, Serialize)]
+pub struct CanvasData {
+    pub nodes: Vec<CanvasNode>,
+    pub edges: Vec<CanvasEdge>,
+    pub config: HashMap<String, SimulationConfig>,
 }

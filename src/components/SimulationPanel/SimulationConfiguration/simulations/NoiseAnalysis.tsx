@@ -103,8 +103,10 @@ export const Content: FC = () => {
           [
             NodeType.Spice,
             {
-              // TODO: Agregar fuentes de corriente también
-              instance_name: P.union(SpiceInstanceName.VoltageSource)
+              instance_name: P.union(
+                SpiceInstanceName.VoltageSource,
+                SpiceInstanceName.CurrentSource
+              )
             }
           ],
           () => true

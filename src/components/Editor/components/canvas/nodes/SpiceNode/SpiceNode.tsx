@@ -35,7 +35,6 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data, dragging }) => {
   });
 
   // If rotated:
-  // TODO: bug with css transform when node is rotated and user zooms out
   const attributesOffset = match(TOP)
     .with(P.union(Position.Left, Position.Right), () =>
       dimensions.width > dimensions.height

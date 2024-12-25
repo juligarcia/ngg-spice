@@ -1,7 +1,7 @@
 use super::{simulator_error::SimulatorError, unit_of_magnitude::UnitOfMagnitude as Unit};
 use std::fmt::Display;
 
-#[derive(serde::Deserialize, Debug, Clone)]
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub enum FrequencyVariation {
     Dec,
     Oct,
@@ -22,7 +22,7 @@ impl Display for FrequencyVariation {
     }
 }
 
-#[derive(serde::Deserialize, Debug, Clone)]
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub enum TransferFunction {
     Vol,
     Cur,
@@ -41,7 +41,7 @@ impl Display for TransferFunction {
     }
 }
 
-#[derive(serde::Deserialize, Debug, Clone)]
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub enum PoleZerAnalysis {
     Pol,
     Zer,
@@ -62,7 +62,7 @@ impl Display for PoleZerAnalysis {
     }
 }
 
-#[derive(serde::Deserialize, Debug, Clone)]
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub enum CurrentOrVoltage {
     V,
     I,
@@ -77,13 +77,13 @@ impl CurrentOrVoltage {
     }
 }
 
-#[derive(serde::Deserialize, Debug, Clone)]
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub enum SensitivityAnalysisType {
     Ac,
     Dc,
 }
 
-#[derive(serde::Deserialize, Debug, Clone)]
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub enum SimulationConfig {
     Tran {
         tstep: String,
@@ -232,7 +232,6 @@ impl Simulation {
                 tmax,
                 uic,
             } => {
-                // TODO: enganchar las otras variables
                 let mut formatted = format!(".tran {} {}", tstep.format(), tstop.format());
 
                 if let Some(tstart) = tstart {

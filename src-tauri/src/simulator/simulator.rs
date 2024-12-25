@@ -1,5 +1,3 @@
-use std::fs::File;
-use std::io::Write;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
@@ -87,7 +85,7 @@ impl Simulator {
 
                         drop(orch_guard);
 
-                        self.simulate(simulation, new_simulation_id);
+                        self.simulate(simulation);
                     } else {
                         let mut orch_guard = self.thread_orchestrator.lock().unwrap();
                         log::info!("Thread {}: {:?}", self.id, SecondaryThreadStatus::Done);
@@ -358,18 +356,7 @@ impl Simulator {
         Ok(schematic)
     }
 
-    fn create_temp_cir_file(contents: &[u8], id: &String) -> Result<File, SimulatorError> {
-        let mut temp_cir = File::create(&format!("temp/{}.cir", id))
-            .map_err(|_| SimulatorError::FailedToCreateTempCircuitFile)?;
-
-        temp_cir
-            .write_all(contents)
-            .map_err(|_| SimulatorError::FailedToWriteToTempCircuitFile)?;
-
-        Ok(temp_cir)
-    }
-
-    pub fn simulate(&mut self, sim_config: Simulation, id: String) -> Result<(), SimulatorError> {
+    pub fn simulate(&mut self, sim_config: Simulation) -> Result<(), SimulatorError> {
         let netlist = match &self.schematic {
             Some(schematic) => schematic.build_netlist(sim_config),
             None => return Err(SimulatorError::NoSchematicFound),
@@ -377,9 +364,9 @@ impl Simulator {
 
         log::info!("{}", netlist.green());
 
-        let temp_file = Simulator::create_temp_cir_file(&netlist.into_bytes(), &id)?;
-
-        self.spice.command(&format!("source temp/{}.cir", &id));
+        for line in netlist.lines() {
+            self.spice.command(&format!("circbyline {}", line));
+        }
 
         self.spice.command("bg_run");
 

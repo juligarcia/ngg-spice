@@ -58,7 +58,11 @@ function App() {
               <TooltipProvider>
                 <ThemeProvider>
                   <Layout>
-                    <Toaster />
+                    <Toaster
+                      toastOptions={{
+                        position: "top-right"
+                      }}
+                    />
                     <div className="h-full w-full flex bg-gradient-to-br from-primary to-secondary">
                       <div className="h-full flex flex-col items-center pt-8">
                         <IconSidebar
