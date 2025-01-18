@@ -12,7 +12,7 @@ import {
   useReactFlow,
   XYPosition
 } from "@xyflow/react";
-import { FC, useRef } from "react";
+import { FC, useEffect, useRef } from "react";
 import { useTheme } from "../ThemeProvider";
 import { nodeTypes } from "@/components/Editor/components/canvas/nodes";
 import {
@@ -22,7 +22,6 @@ import {
 } from "./components/canvas/nodes/types";
 import { edgeTypes } from "./components/canvas/edges";
 import { AppEdge } from "./components/canvas/edges/types";
-import { uniqueId } from "lodash";
 import Nodes, { tagNode } from "./components/canvas/nodes/utils";
 import { ConnectionNodeType } from "./components/canvas/nodes/ConnectionNode/types";
 import { SpiceNodeType } from "./components/canvas/nodes/SpiceNode/types";
@@ -36,9 +35,13 @@ import { osHotkeys } from "@/utils/hotkeys";
 import { useOs } from "../context/OsContext";
 import { spiceNodes } from "../context/SpiceContext/nodes/nodes";
 import { getBySelector, getCenter } from "@/utils/dom";
+import { v4 as uuidv4 } from "uuid";
+import { useMouse } from "@uidotdev/usehooks";
 
 const Editor: FC = () => {
   const { theme } = useTheme();
+
+  const [mousePosition] = useMouse();
 
   const { getState } = useStoreApi();
   const { getNode, screenToFlowPosition } = useReactFlow();
@@ -52,6 +55,25 @@ const Editor: FC = () => {
 
   const refCounter = useRef<Map<string, number>>(new Map());
 
+  useEffect(() => {
+    nodes.forEach((node) => {
+      if (node.type === NodeType.Spice) {
+        const instanceName = node.data.instance_name;
+
+        const counter = refCounter.current.get(instanceName);
+
+        if (counter === undefined) refCounter.current.set(instanceName, 1);
+        else refCounter.current.set(instanceName, counter + 1);
+      } else if (node.type === NodeType.ConnectionNode) {
+        const counter = refCounter.current.get(NodeType.ConnectionNode);
+
+        if (counter === undefined)
+          refCounter.current.set(NodeType.ConnectionNode, 1);
+        else refCounter.current.set(NodeType.ConnectionNode, counter + 1);
+      }
+    });
+  }, []);
+
   const { R, C, L, Gnd, V, I, G, E, F, H, Q } = spiceNodes;
 
   const { os } = useOs();
@@ -60,14 +82,23 @@ const Editor: FC = () => {
     node: SpiceNodeDefinition & Partial<SpiceData>
   ): SpiceNodeType => ({
     type: NodeType.Spice,
-    id: Nodes.tagElement(uniqueId()),
-    position: { x: 0, y: 0 },
+    id: Nodes.tagElement(uuidv4()),
+    position: screenToFlowPosition({ x: mousePosition.x, y: mousePosition.y }),
     data: {
       ...node,
       name: `${node.instance_name}${refCounter.current.get(
         node.instance_name
       )}`,
       data: node.data || {}
+    }
+  });
+
+  const createNewConnectionNode = (): ConnectionNodeType => ({
+    type: NodeType.ConnectionNode,
+    id: uuidv4(),
+    position: screenToFlowPosition({ x: mousePosition.x, y: mousePosition.y }),
+    data: {
+      name: `Node${refCounter.current.get(NodeType.ConnectionNode)}`
     }
   });
 
@@ -218,6 +249,18 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
+  useHotkeys(osHotkeys({ macos: "t", windows: "t", linux: "t" }, os), () => {
+    const counter = refCounter.current.get(NodeType.ConnectionNode);
+
+    if (counter === undefined)
+      refCounter.current.set(NodeType.ConnectionNode, 1);
+    else refCounter.current.set(NodeType.ConnectionNode, counter + 1);
+
+    const newComponentNode = createNewConnectionNode();
+
+    setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
+  });
+
   const calculateConnectionNodePosition = (
     source: XYPosition,
     target: XYPosition
@@ -227,8 +270,6 @@ const Editor: FC = () => {
 
     const xOffsetSign = Math.sign(target.x - source.x);
     // const yOffsetSign = Math.sign(target.y - source.y);
-
-    console.log(target.x - source.x, target.y - source.y);
 
     return {
       x:
@@ -253,10 +294,9 @@ const Editor: FC = () => {
       targetHandle &&
       (getBySelector("data-handleid", targetHandle) as HTMLElement);
 
+    // TODO: Allow node to node connections
     const isSourceElement = Nodes.isOfCategory(source, NodeCategory.Element);
     const isTargetElement = Nodes.isOfCategory(target, NodeCategory.Element);
-
-    const uuid = uniqueId();
 
     if (
       sourceNode &&
@@ -266,6 +306,13 @@ const Editor: FC = () => {
       isSourceElement &&
       isTargetElement
     ) {
+      const counter = refCounter.current.get(NodeType.ConnectionNode);
+
+      if (counter === undefined)
+        refCounter.current.set(NodeType.ConnectionNode, 1);
+      else refCounter.current.set(NodeType.ConnectionNode, counter + 1);
+
+      const uuid = uuidv4();
       const centerSource = screenToFlowPosition({
         x: getCenter(sourceHandleNode).x,
         y: getCenter(sourceHandleNode).y
@@ -281,13 +328,13 @@ const Editor: FC = () => {
         centerTarget
       );
 
-      console.log(centerSource, centerTarget, position);
-
       const newConnectionNodeId = tagNode(uuid);
 
       const newConnectionNode: ConnectionNodeType = {
         type: NodeType.ConnectionNode,
-        data: {},
+        data: {
+          name: `Node${refCounter.current.get(NodeType.ConnectionNode)}`
+        },
         id: newConnectionNodeId,
         position
       };

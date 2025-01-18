@@ -34,8 +34,6 @@ const EditSeries: FC<EditSeriesProps> = ({
     defaultValues: series
   });
 
-  console.log(errors);
-
   return (
     <DialogContent className="w-[400px]">
       <DialogHeader>

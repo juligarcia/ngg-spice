@@ -20,7 +20,8 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data, dragging }) => {
     instance_name,
     symbol,
     dimensions,
-    name
+    name,
+    rotation: initialRotation
   } = data;
 
   const [rotation, [TOP, RIGHT, BOTTOM, LEFT]] = useRotation({
@@ -31,7 +32,8 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data, dragging }) => {
       right: right_ports,
       bottom: bottom_ports,
       left: left_ports
-    }
+    },
+    initialRotation
   });
 
   // If rotated:
@@ -51,13 +53,13 @@ const SpiceNode: FC<SpiceNodeProps> = ({ id, selected, data, dragging }) => {
     match(BOTTOM)
       .with(P.union(Position.Left, Position.Right), () =>
         dimensions.width > dimensions.height
-          ? dimensions.height - dimensions.width + 30
-          : 30
+          ? dimensions.height - dimensions.width + 15
+          : 15
       )
       .otherwise(() =>
         dimensions.height > dimensions.width
-          ? dimensions.width - dimensions.height + 30
-          : 30
+          ? dimensions.width - dimensions.height + 15
+          : 15
       )
   );
 

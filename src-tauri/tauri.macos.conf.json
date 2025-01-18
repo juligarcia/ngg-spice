@@ -1,0 +1,10 @@
+{
+  "bundle": {
+    "resources": {
+      "../libngspice/macos/libngspice.0.dylib": "lib/libngspice.0.dylib",
+      "../libngspice/macos/libngspice.1.dylib": "lib/libngspice.1.dylib",
+      "../libngspice/macos/libngspice.2.dylib": "lib/libngspice.2.dylib",
+      "../libngspice/macos/libngspice.3.dylib": "lib/libngspice.3.dylib"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { NodeTypes } from "@xyflow/react";
 import { NodeType } from "./types";
-import ConnectionNode from "./ConnectionNode";
+import ConnectionNode from "./ConnectionNode/ConnectionNode";
 import SpiceNode from "./SpiceNode/SpiceNode";
 
 export const nodeTypes: NodeTypes = {

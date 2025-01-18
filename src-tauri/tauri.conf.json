@@ -21,14 +21,14 @@
   },
   "productName": "Graphic Spice",
   "version": "0.0.0",
-  "identifier": "com.graphic.spice.dev",
+  "identifier": "com.graphic.spice",
   "plugins": {},
   "app": {
     "security": {
       "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": ["$RESOURCE/**", "$TEMP/**"]
+        "scope": ["$RESOURCE/**"]
       }
     },
     "windows": [

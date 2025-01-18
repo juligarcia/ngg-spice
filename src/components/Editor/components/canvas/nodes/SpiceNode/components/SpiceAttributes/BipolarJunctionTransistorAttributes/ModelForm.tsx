@@ -101,9 +101,11 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
     });
   });
 
+  const error = Object.values(errors)[0]?.message;
+
   return (
     <>
-      <div className="flex items-center gap-4 w-full mb-6 px-1">
+      <div className="flex items-center gap-4 w-full mb-4 px-1">
         <Input
           placeholder=".MODEL"
           onChange={(e) => setMaybeModel(e.currentTarget.value)}
@@ -123,6 +125,11 @@ const ModelForm: FC<ModelFormProps> = ({ id, model, handleClose }) => {
           Parse
         </Button>
       </div>
+      {error && (
+        <div className="bg-destructive/15 border-destructive border p-2 rounded-md mb-4">
+          <Typography className="text-destructive">{error}</Typography>
+        </div>
+      )}
       <form onSubmit={onSaveAndUse} className="flex flex-col gap-4 w-full px-1">
         <div className="grid grid-cols-3 gap-2">
           <Controller

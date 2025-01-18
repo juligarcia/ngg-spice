@@ -2,12 +2,16 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::simulator::{
-    circuit::element::{BjtModel as ContractBjtModel, BjtPolarity as ContractBjtPolarity},
-    simulation::SimulationConfig,
+use crate::{
+    common::numbers::position::Position,
+    simulator::{
+        circuit::element::{BjtModel as ContractBjtModel, BjtPolarity as ContractBjtPolarity},
+        simulation::SimulationConfig,
+        unit_of_magnitude::UnitOfMagnitude,
+    },
 };
 
-#[derive(Deserialize, Clone, Serialize)]
+#[derive(Deserialize, Clone, Serialize, Debug)]
 pub enum TimeDomainConfig {
     Dc {
         value: String,
@@ -52,7 +56,117 @@ pub enum TimeDomainConfig {
     },
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+impl TimeDomainConfig {
+    pub fn from_string(value: &str) -> TimeDomainConfig {
+        if let Ok(unit) = UnitOfMagnitude::from(value.to_string()) {
+            return TimeDomainConfig::Dc {
+                value: unit.format(),
+            };
+        }
+
+        let mut parts = value.split("(");
+        let kind = parts.next().unwrap().to_lowercase();
+        let value = parts.next().unwrap().replace(")", "");
+
+        match kind.as_str() {
+            "pulse" => {
+                let mut parts = value.split_whitespace();
+                let initial_value = parts.next().or(Some("0")).unwrap();
+                let final_value = parts.next().or(Some("0")).unwrap();
+                let delay = parts.next();
+                let rise_time = parts.next();
+                let fall_time = parts.next();
+                let pulse_width = parts.next();
+                let period = parts.next();
+
+                TimeDomainConfig::Pulse {
+                    initial_value: initial_value.to_string(),
+                    final_value: final_value.to_string(),
+                    delay: delay.map(|s| s.to_string()),
+                    rise_time: rise_time.map(|s| s.to_string()),
+                    fall_time: fall_time.map(|s| s.to_string()),
+                    pulse_width: pulse_width.map(|s| s.to_string()),
+                    period: period.map(|s| s.to_string()),
+                }
+            }
+            "sine" => {
+                let mut parts = value.split_whitespace();
+                let offset = parts.next().or(Some("0")).unwrap();
+                let amplitude = parts.next().or(Some("0")).unwrap();
+                let frequency = parts.next();
+                let delay = parts.next();
+                let damping_factor = parts.next();
+
+                TimeDomainConfig::Sin {
+                    offset: offset.to_string(),
+                    amplitude: amplitude.to_string(),
+                    frequency: frequency.map(|s| s.to_string()),
+                    delay: delay.map(|s| s.to_string()),
+                    damping_factor: damping_factor.map(|s| s.to_string()),
+                }
+            }
+            "exp" => {
+                let mut parts = value.split_whitespace();
+                let initial_value = parts.next().or(Some("0")).unwrap();
+                let final_value = parts.next().or(Some("0")).unwrap();
+                let rise_delay = parts.next();
+                let rise_time = parts.next();
+                let fall_delay = parts.next();
+                let fall_time = parts.next();
+
+                TimeDomainConfig::Exp {
+                    initial_value: initial_value.to_string(),
+                    final_value: final_value.to_string(),
+                    rise_delay: rise_delay.map(|s| s.to_string()),
+                    rise_time: rise_time.map(|s| s.to_string()),
+                    fall_delay: fall_delay.map(|s| s.to_string()),
+                    fall_time: fall_time.map(|s| s.to_string()),
+                }
+            }
+            "sffm" => {
+                let mut parts = value.split_whitespace();
+                let offset = parts.next().or(Some("0")).unwrap();
+                let amplitude = parts.next().or(Some("0")).unwrap();
+                let carrier_frequency = parts.next();
+                let modulation_index = parts.next();
+                let signal_frequency = parts.next();
+
+                TimeDomainConfig::Sffm {
+                    offset: offset.to_string(),
+                    amplitude: amplitude.to_string(),
+                    carrier_frequency: carrier_frequency.map(|s| s.to_string()),
+                    modulation_index: modulation_index.map(|s| s.parse().unwrap()),
+                    signal_frequency: signal_frequency.map(|s| s.to_string()),
+                }
+            }
+            "am" => {
+                let mut parts = value.split_whitespace();
+                let amplitude = parts.next().or(Some("0")).unwrap();
+                let offset = parts.next().or(Some("0")).unwrap();
+                let modulating_frequency = parts.next().or(Some("0")).unwrap();
+                let carrier_frequency = parts.next();
+                let delay = parts.next();
+
+                TimeDomainConfig::Am {
+                    amplitude: amplitude.to_string(),
+                    offset: offset.to_string(),
+                    modulating_frequency: modulating_frequency.to_string(),
+                    carrier_frequency: carrier_frequency.map(|s| s.to_string()),
+                    delay: delay.map(|s| s.to_string()),
+                }
+            }
+
+            dc => TimeDomainConfig::Dc {
+                value: UnitOfMagnitude::from(dc.to_string())
+                    .or::<Result<UnitOfMagnitude, ()>>(Ok(UnitOfMagnitude::Base(0.0)))
+                    .unwrap()
+                    .format(),
+            },
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BjtModel {
     pub name: String,
     pub polarity: BjtPolarity,
@@ -93,7 +207,7 @@ impl BjtModel {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum BjtPolarity {
     NPN,
     PNP,
@@ -108,65 +222,96 @@ impl BjtPolarity {
     }
 }
 
-#[derive(Deserialize, Clone, Serialize)]
+#[derive(Deserialize, Clone, Serialize, Debug)]
 pub struct SmallSignalConfig {
     pub amplitude: String,
     pub phase: Option<String>,
 }
 
-#[derive(Deserialize, Clone, Serialize)]
+impl SmallSignalConfig {
+    pub fn from_string(value: &str) -> SmallSignalConfig {
+        let mut parts = value.split_whitespace();
+        // Read AC prefix
+        let _ac = parts.next().unwrap();
+        let amplitude = parts.next().or(Some("0")).unwrap();
+        let phase = parts.next();
+
+        SmallSignalConfig {
+            amplitude: amplitude.to_string(),
+            phase: phase.map(|s| s.to_string()),
+        }
+    }
+}
+
+#[derive(Deserialize, Clone, Serialize, Debug)]
 pub enum NodeData {
     R {
         value: String,
         name: String,
+        position: Position,
     },
     C {
         value: String,
         name: String,
+        position: Position,
     },
     L {
         value: String,
         name: String,
+        position: Position,
     },
     V {
         name: String,
         time_domain: TimeDomainConfig,
         small_signal: Option<SmallSignalConfig>,
+        position: Position,
     },
     I {
         name: String,
         time_domain: TimeDomainConfig,
         small_signal: Option<SmallSignalConfig>,
+        position: Position,
     },
     E {
         value: String,
         name: String,
+        position: Position,
     },
     F {
         value: String,
         name: String,
         src: String,
+        position: Position,
     },
     G {
         value: String,
         name: String,
+        position: Position,
     },
     H {
         value: String,
         name: String,
         src: String,
+        position: Position,
     },
     Q {
         name: String,
         model: BjtModel,
+        position: Position,
     },
-    Node {},
-    Gnd {},
+    Node {
+        name: String,
+        position: Position,
+    },
+    Gnd {
+        position: Position,
+    },
 }
 
-#[derive(Deserialize, Clone, Serialize)]
+#[derive(Deserialize, Clone, Serialize, Debug)]
 pub struct CanvasNode {
     pub id: String,
+    pub rotation: i32,
     pub data: NodeData,
 }
 
@@ -175,6 +320,7 @@ pub struct CanvasEdge {
     pub target: String,
     pub source: String,
     pub source_port: String,
+    pub target_port: Option<String>,
 }
 
 #[derive(Deserialize, Clone, Serialize)]

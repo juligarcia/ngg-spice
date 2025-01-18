@@ -10,6 +10,7 @@ import {
 import { FC, useMemo, useRef, useState } from "react";
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -24,6 +25,7 @@ import { AppEdge } from "@/components/Editor/components/canvas/edges/types";
 import { Button } from "@/components/ui/Button";
 import clsx from "clsx";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { Input } from "@/components/ui/input";
 
 const columns: ColumnDef<BipolarJunctionTransistorModel>[] = [
   {
@@ -197,6 +199,8 @@ const PickModel: FC<PickModelProps> = ({
   id,
   currentModel
 }) => {
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
   const { setNodes } = useReactFlow<AppNode, AppEdge>();
 
   const [pickedTransistor, setPickedTransistor] =
@@ -238,10 +242,15 @@ const PickModel: FC<PickModelProps> = ({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    state: {
+      columnFilters
+    },
     initialState: {
       pagination: {
         pageSize: models.length
-      }
+      },
+      columnFilters
     }
   });
 
@@ -250,7 +259,7 @@ const PickModel: FC<PickModelProps> = ({
   const scrollableRef = useRef<HTMLDivElement | null>(null);
 
   const virtualizer = useVirtualizer({
-    count: sortedModels.length,
+    count: rows.length,
     getScrollElement: () => scrollableRef.current,
     estimateSize: () => 53,
     overscan: 20
@@ -259,7 +268,15 @@ const PickModel: FC<PickModelProps> = ({
   const isEmpty = sortedModels.length === 0;
 
   return (
-    <div className="flex flex-col grow">
+    <div className="flex flex-col grow px-1">
+      <Input
+        className="mb-2"
+        placeholder="Search by name"
+        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+        onChange={(event) =>
+          table.getColumn("name")?.setFilterValue(event.target.value)
+        }
+      />
       <div
         ref={scrollableRef}
         className="overflow-auto bg-card rounded-lg border-2 max-w-full grow h-[450px]"

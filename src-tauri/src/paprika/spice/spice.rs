@@ -31,7 +31,8 @@ impl<Manager: SpiceManager> Spice<Manager> {
         unsafe {
             let lib = match Library::new(path) {
                 Ok(lib) => lib,
-                Err(_) => {
+                Err(e) => {
+                    log::error!("{:?}", e);
                     return Err(SpiceError::SharedspiceNotFound(path.to_os_string()));
                 }
             };

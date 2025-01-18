@@ -27,7 +27,7 @@ const SpiceTag: FC<SpiceTagProps> = ({ id, nodeData, name, offset }) => {
     <div
       style={{ bottom: -offset }}
       className={clsx(
-        "flex h-fit z-10 bg-accent/50 rounded-sm absolute items-center px-4 py-2 gap-3 w-fit left-2/4 translate-y-[100%] -translate-x-2/4"
+        "flex h-fit z-10 bg-accent/50 rounded-sm absolute items-center px-3 py-1 gap-2 w-fit left-2/4 translate-y-[100%] -translate-x-2/4"
       )}
       id={id}
     >

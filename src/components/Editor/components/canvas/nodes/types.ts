@@ -3,6 +3,7 @@ import { ConnectionNodeType } from "./ConnectionNode/types";
 import { SpiceNodeType } from "./SpiceNode/types";
 
 export type WithRotation = {
+  rotation?: number;
   withRotation?: {
     [key: string]: Position;
   };

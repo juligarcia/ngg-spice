@@ -1,4 +1,4 @@
+pub mod commands;
+pub mod constants;
+pub mod engine;
 pub mod model;
-
-// TODO: Should implement Engine trait
-pub struct LTSpice {}

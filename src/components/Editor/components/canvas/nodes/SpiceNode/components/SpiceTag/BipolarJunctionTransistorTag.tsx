@@ -15,14 +15,24 @@ const BipolarJunctionTransistorTag: FC<BipolarJunctionTransistorTagProps> = ({
 }) => {
   return (
     <>
-      <Typography className="overflow-hidden text-ellipsis" variant="h4">
+      <Typography
+        className="font-semibold tracking-tight overflow-hidden text-ellipsis"
+        variant="xsmall"
+      >
         {name || "???"}
       </Typography>
       {!isEmpty(data.model) && (
         <Badge className="flex gap-2 items-center">
-          <Typography variant="h4">{data.model?.polarity}</Typography>
+          <Typography className="font-semibold tracking-tight" variant="xsmall">
+            {data.model?.polarity}
+          </Typography>
           {data.model?.name && (
-            <Typography variant="h4">{data.model?.name}</Typography>
+            <Typography
+              className="font-semibold tracking-tight"
+              variant="xsmall"
+            >
+              {data.model?.name}
+            </Typography>
           )}
         </Badge>
       )}

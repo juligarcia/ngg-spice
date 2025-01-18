@@ -15,6 +15,7 @@ interface UseRoatationParams {
   selected?: boolean;
   id: string;
   availableHandles?: AvailableHandles;
+  initialRotation?: number;
 }
 
 function arrayRotate<T>(arr: Array<T>, reverse?: boolean) {
@@ -23,20 +24,28 @@ function arrayRotate<T>(arr: Array<T>, reverse?: boolean) {
   return arr;
 }
 
+function arrayRotateN<T>(arr: Array<T>, n: number) {
+  for (let i = 0; i < n; i++) {
+    arr = arrayRotate(arr);
+  }
+  return arr;
+}
+
 type RotatedPositions = [Position, Position, Position, Position];
 
 export const useRotation = ({
   selected,
   id,
-  availableHandles = { top: [], bottom: [], left: [], right: [] }
+  availableHandles = { top: [], bottom: [], left: [], right: [] },
+  initialRotation = 0
 }: UseRoatationParams): [number, Position[]] => {
-  const [rotation, setRotation] = useState(0);
-  const [rotatedPositions, setRotatedPositions] = useState<RotatedPositions>([
-    Position.Top,
-    Position.Right,
-    Position.Bottom,
-    Position.Left
-  ]);
+  const [rotation, setRotation] = useState(initialRotation);
+  const [rotatedPositions, setRotatedPositions] = useState<RotatedPositions>(
+    arrayRotateN(
+      [Position.Top, Position.Right, Position.Bottom, Position.Left],
+      Math.floor(initialRotation / 90)
+    ) as RotatedPositions
+  );
 
   const { os } = useOs();
 
@@ -47,6 +56,7 @@ export const useRotation = ({
     const [top, right, bottom, left] = rotatedPositions;
 
     updateNodeData(id, {
+      rotation,
       withRotation: {
         ...availableHandles.top.reduce<{
           [key: string]: Position;
@@ -90,6 +100,7 @@ export const useRotation = ({
       updateNodeInternals(id);
 
       updateNodeData(id, {
+        rotation: rotation + 90,
         withRotation: {
           ...availableHandles.top.reduce<{
             [key: string]: Position;

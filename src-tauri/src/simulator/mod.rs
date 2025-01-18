@@ -1,6 +1,7 @@
 pub mod circuit;
 pub mod commands;
 pub mod manager;
+pub mod sharedlib;
 pub mod simulation;
 pub mod simulation_data;
 pub mod simulation_status;

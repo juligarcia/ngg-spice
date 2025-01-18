@@ -39,7 +39,7 @@ const SingleEndedFloatingEdge: FC<SingleEndedFloatingEdgeProps> = ({
 
   return (
     <SmoothStepEdge
-      pathOptions={{ offset: 10, borderRadius: 3 }}
+      pathOptions={{ offset: 0, borderRadius: 3 }}
       id={id}
       sourceX={sx}
       sourceY={sy}

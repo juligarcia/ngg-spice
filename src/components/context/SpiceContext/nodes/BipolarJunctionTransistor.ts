@@ -18,8 +18,8 @@ export const BipolarJunctionTransistor: SpiceNodeDefinition = {
   },
   dimensions: { width: 120, height: 120 },
 
-  top_ports: [{ name: "0c", x: 70, y: 0 }],
+  top_ports: [{ name: "0", x: 70, y: 0 }],
   right_ports: [],
-  bottom_ports: [{ name: "2e", x: 70, y: 120 }],
-  left_ports: [{ name: "1b", x: 0, y: 60 }]
+  bottom_ports: [{ name: "2", x: 70, y: 120 }],
+  left_ports: [{ name: "1", x: 0, y: 60 }]
 };

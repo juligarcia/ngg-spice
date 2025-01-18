@@ -1,10 +1,14 @@
-use crate::simulator::{
-    circuit::canvas::{
-        BjtModel as CanvasBjtModel, BjtPolarity as CanvasBjtPolarity,
-        SmallSignalConfig as CanvasSmallSignalConfig, TimeDomainConfig as CanvasTimeDomainConfig,
+use crate::{
+    common::numbers::position::Position,
+    simulator::{
+        circuit::canvas::{
+            BjtModel as CanvasBjtModel, BjtPolarity as CanvasBjtPolarity,
+            SmallSignalConfig as CanvasSmallSignalConfig,
+            TimeDomainConfig as CanvasTimeDomainConfig,
+        },
+        simulator_error::SimulatorError,
+        unit_of_magnitude::UnitOfMagnitude as Unit,
     },
-    simulator_error::SimulatorError,
-    unit_of_magnitude::UnitOfMagnitude as Unit,
 };
 use native_db::{native_db, ToKey};
 use native_model::{native_model, Model};
@@ -1063,15 +1067,16 @@ impl BjtModel {
 
 #[derive(Clone)]
 pub enum Element {
-    R(String, Unit, String, String),
-    C(String, Unit, String, String),
-    L(String, Unit, String, String),
+    R(String, Unit, String, String, Position),
+    C(String, Unit, String, String, Position),
+    L(String, Unit, String, String, Position),
     V(
         String,
         TimeDomainConfig,
         Option<SmallSignalConfig>,
         String,
         String,
+        Position,
     ),
     I(
         String,
@@ -1079,12 +1084,13 @@ pub enum Element {
         Option<SmallSignalConfig>,
         String,
         String,
+        Position,
     ),
-    E(String, Unit, String, String, String, String),
-    F(String, Unit, String, String, String),
-    G(String, Unit, String, String, String, String),
-    H(String, Unit, String, String, String),
-    Q(String, String, String, String, BjtModel),
+    E(String, Unit, String, String, String, String, Position),
+    F(String, Unit, String, String, String, Position),
+    G(String, Unit, String, String, String, String, Position),
+    H(String, Unit, String, String, String, Position),
+    Q(String, String, String, String, BjtModel, Position),
 }
 
 impl Element {
@@ -1106,7 +1112,7 @@ impl Element {
         ground_alias: &HashSet<String>,
     ) -> Result<String, SimulatorError> {
         match &self {
-            Element::R(name, value, node1, node2) => {
+            Element::R(name, value, node1, node2, ..) => {
                 if let [n1, n2] = &Self::replace_ground_alias(&[node1, node2], ground_alias)[0..2] {
                     return Ok(format!("R{} {} {} {}\n", name, n1, n2, value.format()));
                 }
@@ -1114,7 +1120,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::C(name, value, node1, node2) => {
+            Element::C(name, value, node1, node2, ..) => {
                 if let [n1, n2] = &Self::replace_ground_alias(&[node1, node2], ground_alias)[0..2] {
                     return Ok(format!("C{} {} {} {}\n", name, n1, n2, value.format()));
                 }
@@ -1122,7 +1128,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::L(name, value, node1, node2) => {
+            Element::L(name, value, node1, node2, ..) => {
                 if let [n1, n2] = &Self::replace_ground_alias(&[node1, node2], ground_alias)[0..2] {
                     return Ok(format!("L{} {} {} {}\n", name, n1, n2, value.format()));
                 }
@@ -1130,7 +1136,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::V(name, time_domain_config, small_signal_config, node1, node2) => {
+            Element::V(name, time_domain_config, small_signal_config, node1, node2, ..) => {
                 if let [n1, n2] = &Self::replace_ground_alias(&[node1, node2], ground_alias)[0..2] {
                     let mut formatted =
                         format!("V{} {} {} {}", name, n1, n2, time_domain_config.format());
@@ -1147,7 +1153,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::I(name, time_domain_config, small_signal_config, node1, node2) => {
+            Element::I(name, time_domain_config, small_signal_config, node1, node2, ..) => {
                 if let [n1, n2] = &Self::replace_ground_alias(&[node1, node2], ground_alias)[0..2] {
                     let mut formatted =
                         format!("I{} {} {} {}", name, n1, n2, time_domain_config.format());
@@ -1164,7 +1170,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::E(name, value, node1, node2, controll_node1, controll_node2) => {
+            Element::E(name, value, node1, node2, controll_node1, controll_node2, ..) => {
                 if let [n1, n2, cn1, cn2] = &Self::replace_ground_alias(
                     &[node1, node2, controll_node1, controll_node2],
                     ground_alias,
@@ -1186,7 +1192,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::F(name, value, node1, node2, ref_src) => {
+            Element::F(name, value, node1, node2, ref_src, ..) => {
                 if let [n1, n2, ref_src] =
                     &Self::replace_ground_alias(&[node1, node2, ref_src], ground_alias)[0..3]
                 {
@@ -1199,7 +1205,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::G(name, value, node1, node2, controll_node1, controll_node2) => {
+            Element::G(name, value, node1, node2, controll_node1, controll_node2, ..) => {
                 if let [n1, n2, cn1, cn2] = &Self::replace_ground_alias(
                     &[node1, node2, controll_node1, controll_node2],
                     ground_alias,
@@ -1221,7 +1227,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::H(name, value, node1, node2, ref_src) => {
+            Element::H(name, value, node1, node2, ref_src, ..) => {
                 if let [n1, n2, ref_src] =
                     &Self::replace_ground_alias(&[node1, node2, ref_src], ground_alias)[0..3]
                 {
@@ -1234,7 +1240,7 @@ impl Element {
                 Err(SimulatorError::ElementParserError(name.to_owned()))
             }
 
-            Element::Q(name, c_node, b_node, e_node, model) => {
+            Element::Q(name, c_node, b_node, e_node, model, ..) => {
                 if let [c_node, b_node, e_node] =
                     &Self::replace_ground_alias(&[c_node, b_node, e_node], ground_alias)[0..3]
                 {

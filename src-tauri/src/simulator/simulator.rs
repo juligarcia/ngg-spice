@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
@@ -32,17 +33,16 @@ pub struct Simulator {
 }
 
 impl Simulator {
-    // TODO: enrealidad el path deberia venir de una config global
     pub fn init(
         id: usize,
         thread_orchestrator: Arc<Mutex<SimulationThreadOrchestrator>>,
-        lib: &str,
+        lib: PathBuf,
         app_handle: tauri::AppHandle,
     ) -> (Simulator, Library) {
         let manager = NGGSpiceManager::new(id, Arc::clone(&thread_orchestrator), app_handle);
         log::info!("Manager created for thread {}", id);
 
-        let (spice, library) = Spice::init(OsStr::new(lib), manager, id as i32)
+        let (spice, library) = Spice::init(OsStr::new(lib.as_os_str()), manager, id as i32)
             // TODO: Better err handling
             .unwrap();
 
@@ -146,7 +146,7 @@ impl Simulator {
 
             if let Some(source_node) = maybe_source_node {
                 match source_node.data {
-                    NodeData::Gnd {} => {
+                    NodeData::Gnd { .. } => {
                         schematic.insert_ground_alias(&edge.target);
                     }
 
@@ -169,34 +169,64 @@ impl Simulator {
             node_connections.sort_by(|c1, c2| c1.0.cmp(&c2.0));
 
             match node.data {
-                NodeData::R { value, name } => {
+                NodeData::R {
+                    value,
+                    name,
+                    position,
+                } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
                         let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::R(name, unit, n1.1.to_owned(), n2.1.to_owned()))
+                        schematic.insert(Element::R(
+                            name,
+                            unit,
+                            n1.1.to_owned(),
+                            n2.1.to_owned(),
+                            position,
+                        ))
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
                 }
 
-                NodeData::C { value, name } => {
+                NodeData::C {
+                    value,
+                    name,
+                    position,
+                } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
                         let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::C(name, unit, n1.1.to_owned(), n2.1.to_owned()))
+                        schematic.insert(Element::C(
+                            name,
+                            unit,
+                            n1.1.to_owned(),
+                            n2.1.to_owned(),
+                            position,
+                        ))
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
                 }
 
-                NodeData::L { value, name } => {
+                NodeData::L {
+                    value,
+                    name,
+                    position,
+                } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
                         let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::L(name, unit, n1.1.to_owned(), n2.1.to_owned()))
+                        schematic.insert(Element::L(
+                            name,
+                            unit,
+                            n1.1.to_owned(),
+                            n2.1.to_owned(),
+                            position,
+                        ))
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
@@ -206,6 +236,7 @@ impl Simulator {
                     name,
                     time_domain,
                     small_signal,
+                    position,
                 } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
                         if let Some(small_signal) = small_signal {
@@ -218,6 +249,7 @@ impl Simulator {
                                 Some(transformed_small_signal_config),
                                 n1.1.to_owned(),
                                 n2.1.to_owned(),
+                                position,
                             ));
                         } else {
                             schematic.insert(Element::V(
@@ -226,6 +258,7 @@ impl Simulator {
                                 None,
                                 n1.1.to_owned(),
                                 n2.1.to_owned(),
+                                position,
                             ));
                         }
                     } else {
@@ -237,6 +270,7 @@ impl Simulator {
                     name,
                     time_domain,
                     small_signal,
+                    position,
                 } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
                         if let Some(small_signal) = small_signal {
@@ -249,6 +283,7 @@ impl Simulator {
                                 Some(transformed_small_signal_config),
                                 n1.1.to_owned(),
                                 n2.1.to_owned(),
+                                position,
                             ));
                         } else {
                             schematic.insert(Element::I(
@@ -257,6 +292,7 @@ impl Simulator {
                                 None,
                                 n1.1.to_owned(),
                                 n2.1.to_owned(),
+                                position,
                             ));
                         }
                     } else {
@@ -264,7 +300,11 @@ impl Simulator {
                     }
                 }
 
-                NodeData::E { name, value } => {
+                NodeData::E {
+                    name,
+                    value,
+                    position,
+                } => {
                     if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
                         let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
@@ -276,13 +316,19 @@ impl Simulator {
                             n2.1.to_owned(),
                             cn1.1.to_owned(),
                             cn2.1.to_owned(),
+                            position,
                         ))
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
                 }
 
-                NodeData::F { name, value, src } => {
+                NodeData::F {
+                    name,
+                    value,
+                    src,
+                    position,
+                } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
                         let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
@@ -293,13 +339,18 @@ impl Simulator {
                             n1.1.to_owned(),
                             n2.1.to_owned(),
                             src,
+                            position,
                         ));
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
                 }
 
-                NodeData::G { name, value } => {
+                NodeData::G {
+                    name,
+                    value,
+                    position,
+                } => {
                     if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
                         let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
@@ -311,13 +362,19 @@ impl Simulator {
                             n2.1.to_owned(),
                             cn1.1.to_owned(),
                             cn2.1.to_owned(),
+                            position,
                         ))
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
                 }
 
-                NodeData::H { name, value, src } => {
+                NodeData::H {
+                    name,
+                    value,
+                    src,
+                    position,
+                } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
                         let unit = UnitOfMagnitude::from(value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
@@ -328,13 +385,18 @@ impl Simulator {
                             n1.1.to_owned(),
                             n2.1.to_owned(),
                             src,
+                            position,
                         ));
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
                 }
 
-                NodeData::Q { name, model } => {
+                NodeData::Q {
+                    name,
+                    model,
+                    position,
+                } => {
                     if let Some([c_node, b_node, e_node]) = &node_connections.get(0..3) {
                         schematic.insert(Element::Q(
                             name,
@@ -342,14 +404,15 @@ impl Simulator {
                             b_node.1.to_owned(),
                             e_node.1.to_owned(),
                             model.to_domain(),
+                            position,
                         ));
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
                 }
 
-                NodeData::Gnd {} => {}
-                NodeData::Node {} => {}
+                NodeData::Gnd { .. } => {}
+                NodeData::Node { .. } => {}
             }
         }
 

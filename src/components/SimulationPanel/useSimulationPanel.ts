@@ -11,6 +11,11 @@ import {
   SimulationStatusPayload
 } from "@/types/simulation";
 import { useSimulationStore } from "@/store/simulation";
+import {
+  ContractEdge,
+  ContractNode,
+  ContractSimulationsToRun
+} from "@/utils/contract";
 
 const useSimulationPanel = () => {
   const simulationStatus = useSimulationStore.use.simulationStatus();
@@ -56,28 +61,50 @@ const useSimulationPanel = () => {
     const nodes = getNodes();
     const edges = getEdges();
 
+    const connectionNodes = nodes.filter(
+      ({ type }) => type === NodeType.ConnectionNode
+    );
+
+    // Map of connection node id to name, we'll use name to accept tags
+    const connectionNodesMap = new Map<string, string>(
+      connectionNodes.map(({ id, data }) => [id, data.name])
+    );
+
     resetSimulations();
 
-    invoke<void>("simulate", {
-      nodes: nodes.map((node) => ({
-        id: node.id,
-        ...match(node)
-          .with({ type: NodeType.Spice }, ({ data }) => ({
-            data: {
-              [data.instance_name]: { ...data.data, name: data.name }
-            }
-          }))
-          .otherwise(() => ({
-            data: { Node: {} }
-          }))
-      })),
-      edges: edges.map(({ target, sourceHandle, source }) => ({
-        source,
-        source_port: sourceHandle,
-        target
-      })),
-      config: simulationsToRun
-    });
+    const params = {
+      nodes: nodes.map(
+        (node) =>
+          ({
+            id: node.id,
+            ...match(node)
+              .with({ type: NodeType.Spice }, ({ data, position }) => ({
+                data: {
+                  [data.instance_name]: {
+                    ...data.data,
+                    name: data.name,
+                    position
+                  }
+                }
+              }))
+              .otherwise(({ position, data }) => ({
+                data: { Node: { position, name: data.name } }
+              }))
+          } as ContractNode)
+      ),
+      edges: edges.map(
+        ({ target, sourceHandle, source }) =>
+          ({
+            source,
+            source_port: sourceHandle,
+            // Interchange the target (connection node) id with its name for tag functionality
+            target: connectionNodesMap.get(target)
+          } as ContractEdge)
+      ),
+      config: simulationsToRun as ContractSimulationsToRun
+    };
+
+    invoke<void>("simulate", params);
   }, [simulationsToRun]);
 
   return {

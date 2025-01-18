@@ -1,15 +1,17 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{fs, sync::Mutex};
 use std::path::Path;
+use std::{fs, sync::Mutex};
 
+use gspice::compat::spice::lt_spice::commands::open_lt_spice;
 use gspice::{
     app_state::{instance::InstanceState, models::bjt::DATABASE_BJT_MODELS, AppState},
     init::models::init_models,
 };
 
 use log::Level;
+use tauri::menu::{Menu, MenuId, MenuItem, Submenu};
 use tauri::Manager as TauriManager;
 use tauri_plugin_decorum::WebviewWindowExt;
 
@@ -35,6 +37,37 @@ fn main() {
                 .build(),
         )
         .setup(|app| {
+            let main_window = app.get_webview_window("main").unwrap();
+
+            // ----------------- Context Menus -------------------
+
+            // Define custom menu items
+            let open_file = MenuItem::with_id(app, "open_file", "Open", true, None::<&str>)?;
+            let save_file = MenuItem::with_id(app, "save_file", "Save", true, None::<&str>)?;
+
+            let lt_spice_open =
+                MenuItem::with_id(app, "lt_spice_open", "Open", true, None::<&str>)?;
+            let lt_spice_save =
+                MenuItem::with_id(app, "lt_spice_save", "Save", true, None::<&str>)?;
+
+            // Define submenus
+            let lt_spice_menu = Submenu::with_id(app, "lt_spice_compat_menu", "LT Spice", true)?;
+            lt_spice_menu.insert_items(&[&lt_spice_open, &lt_spice_save], 0)?;
+
+            let compat_sub_menu = Submenu::with_id(app, "compat_sub_menu", "Compatibility", true)?;
+            compat_sub_menu.insert(&lt_spice_menu, 0)?;
+
+            let file_menu = Submenu::with_id(app, "file", "File", true)?;
+
+            file_menu.insert_items(&[&open_file, &save_file, &compat_sub_menu], 0)?;
+
+            let app_menu = Menu::default(app.app_handle()).unwrap();
+
+            app_menu.remove_at(1)?;
+            app_menu.insert(&file_menu, 1)?;
+
+            app.set_menu(app_menu)?;
+
             // ----------------- GENERAL SETUP -------------------
 
             let app_data_dir = app
@@ -47,8 +80,6 @@ fn main() {
                 .resource_dir()
                 .expect("Couldn't resolve resource dir");
 
-            log::debug!("{:?}", app_data_dir);
-
             fs::create_dir_all(&app_data_dir).expect("Failed to create AppData directory");
 
             // ----------------- WINDOW SETUP -------------------
@@ -57,7 +88,6 @@ fn main() {
             // Creates a custom titlebar for main window on MacOS
             #[cfg(target_os = "macos")]
             {
-                let main_window = app.get_webview_window("main").unwrap();
                 main_window.create_overlay_titlebar().unwrap();
                 main_window.set_traffic_lights_inset(18.0, 27.0).unwrap();
             }
@@ -93,6 +123,12 @@ fn main() {
             });
 
             Ok(())
+        })
+        .on_menu_event(|app, event| match event.id {
+            MenuId(id) if id == "lt_spice_open" => {
+                open_lt_spice(app);
+            }
+            _ => {}
         })
         .invoke_handler(tauri::generate_handler![
             gspice::simulator::commands::simulate,

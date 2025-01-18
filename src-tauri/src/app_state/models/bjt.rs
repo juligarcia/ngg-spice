@@ -1,7 +1,8 @@
 use super::{simulator::circuit::element::BjtModel as InnerBjtModel, AppState};
 use crate::simulator::circuit::canvas::BjtModel as CanvasBjtModel;
+use bjt_models::BjtModel;
 use itertools::Itertools;
-use native_db::{db_type::Error, Models};
+use native_db::{db_type::Error, Database, Models};
 use once_cell::sync::Lazy;
 
 pub mod bjt_models {
@@ -82,4 +83,11 @@ pub fn save_bjt_model(
     log::info!("Successfully saved BJT model");
 
     return Ok(());
+}
+
+pub fn get_bjt_model(model: &str, db: &Database<'static>) -> Result<Option<BjtModel>, Error> {
+    let r = db.r_transaction()?;
+    let model: Option<BjtModel> = r.get().primary(model)?;
+
+    Ok(model)
 }

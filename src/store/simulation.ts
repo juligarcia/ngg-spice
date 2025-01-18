@@ -12,6 +12,7 @@ import { subscribeWithSelector } from "zustand/middleware";
 
 interface SimulationStore {
   simulationsToRun: Map<string, SimulationConfig>;
+  setSimulationsToRun(simulationsToRun: Map<string, SimulationConfig>): void;
 
   enqueueSimulation<T extends SimulationConfig>(
     newSimulationConfig: T,
@@ -31,6 +32,11 @@ interface SimulationStore {
 const useSimulationStoreBase = create<SimulationStore>()(
   subscribeWithSelector((set) => ({
     simulationsToRun: new Map(),
+    setSimulationsToRun: (simulationsToRun) =>
+      set(() => {
+        return { simulationsToRun: new Map(simulationsToRun) };
+      }),
+
     simulationData: new Map(),
     simulationStatus: new Map(),
 

@@ -240,7 +240,6 @@ export const useInitializeModels = (): { isLoading: boolean } => {
     queryFn: () =>
       invoke<BipolarJunctionTransistorModel[]>("load_bjt_models").then(
         (bjtModels) => {
-          console.log("MODELS ----------", bjtModels);
           setBjtModels(bjtModels);
           return null;
         }

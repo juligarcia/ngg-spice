@@ -14,6 +14,7 @@ use crate::app_state::{instance::InstanceState, AppState};
 
 use super::{
     circuit::canvas::{CanvasData, CanvasEdge, CanvasNode},
+    sharedlib::get_shared_lib_path,
     simulation::SimulationConfig,
     simulation_data::SimulationData,
     simulator::Simulator,
@@ -302,17 +303,12 @@ pub async fn simulate(
 
             log::info!("Init {} thread...", thread_id);
 
-            let (mut simulator, _library) = Simulator::init(
-                thread_id,
-                t_orchestrator,
-                format!(
-                    // TODO: cambiar
-                    "/opt/homebrew/opt/libngspice/lib/libngspice.{}.dylib",
-                    thread_id
-                )
-                .as_str(),
-                t_app_handle,
-            );
+            let path = get_shared_lib_path(&t_app_handle, thread_id);
+
+            log::info!("Opening lib at: {:?}", path.as_os_str());
+
+            let (mut simulator, _library) =
+                Simulator::init(thread_id, t_orchestrator, path, t_app_handle);
 
             simulator.load_schematic(t_schematic);
 

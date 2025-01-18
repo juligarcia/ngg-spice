@@ -45,7 +45,11 @@ const ControlledPowerSourceTag: FC<ControlledPowerSourceTagProps> = ({
     labels
       .filter((maybeLabel) => !!maybeLabel)
       .map((label, index, filteredLabels) => (
-        <Typography key={label?.toString()} variant="h4">{`${label}${
+        <Typography
+          key={label?.toString()}
+          className="font-semibold tracking-tight"
+          variant="xsmall"
+        >{`${label}${
           index < filteredLabels.length - 1 ? "," : ""
         }`}</Typography>
       ));
@@ -72,7 +76,10 @@ const ControlledPowerSourceTag: FC<ControlledPowerSourceTagProps> = ({
 
   return (
     <>
-      <Typography className="overflow-hidden text-ellipsis" variant="h4">
+      <Typography
+        className="font-semibold tracking-tight overflow-hidden text-ellipsis"
+        variant="xsmall"
+      >
         {name || "???"}
       </Typography>
       {!isEmpty(data) && (

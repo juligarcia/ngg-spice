@@ -189,12 +189,6 @@ const LinearGraphLayout: FC<LinearGraphLayoutProps> = ({
     plotState.current.graph.updateOptions({
       file: newDownsampledData,
       labels: [xAccessor, ...Arr.map(series, ({ accessor }) => accessor)],
-      title: `${
-        plotState.current.xAccessor
-      } vs. ${plotState.current.series.reduce((acc, curr) => {
-        if (acc) return `${acc}, ${curr.accessor}`;
-        return curr.accessor;
-      }, "")}`,
       series: Object.fromEntries(series.map((s) => [s.accessor, s]))
     });
   }, [xAccessor, series]);
@@ -265,12 +259,6 @@ const LinearGraphLayout: FC<LinearGraphLayoutProps> = ({
         },
         highlightCircleSize: 5,
         animatedZooms: true,
-        title: `${
-          plotState.current.xAccessor
-        } vs. ${plotState.current.series.reduce((acc, curr) => {
-          if (acc) return `${acc}, ${curr.accessor}`;
-          return curr.accessor;
-        }, "")}`,
         legend: "always",
         gridLineColor: "#D5D7DD",
         axisLineColor: "#D5D7DD",

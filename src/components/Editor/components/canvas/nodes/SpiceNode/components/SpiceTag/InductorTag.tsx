@@ -12,12 +12,18 @@ interface InductorTagProps {
 const ResistorTag: FC<InductorTagProps> = ({ name, data }) => {
   return (
     <>
-      <Typography className="overflow-hidden text-ellipsis" variant="h4">
+      <Typography
+        className="font-semibold tracking-tight overflow-hidden text-ellipsis"
+        variant="xsmall"
+      >
         {name || "???"}
       </Typography>
       {data.value && (
         <Badge>
-          <Typography variant="h4">{`${data.value}${Units.Inductance}`}</Typography>
+          <Typography
+            className="font-semibold tracking-tight"
+            variant="xsmall"
+          >{`${data.value}${Units.Inductance}`}</Typography>
         </Badge>
       )}
     </>

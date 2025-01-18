@@ -13,6 +13,6 @@ export const VoltageSource: SpiceNodeDefinition = {
   left_ports: [],
   right_ports: [],
 
-  top_ports: [{ name: "0+", x: 50, y: 0 }],
-  bottom_ports: [{ name: "1-", x: 50, y: 100 }]
+  top_ports: [{ name: "0", x: 50, y: 0 }],
+  bottom_ports: [{ name: "1", x: 50, y: 100 }]
 };

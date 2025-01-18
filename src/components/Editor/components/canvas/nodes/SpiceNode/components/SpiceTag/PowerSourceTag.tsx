@@ -33,14 +33,21 @@ const PowerSourceTag: FC<PowerSourceTagProps> = ({ name, data, type }) => {
     labels
       .filter((maybeLabel) => !!maybeLabel)
       .map((label, index, filteredLabels) => (
-        <Typography key={label} variant="h4">{`${label}${
+        <Typography
+          key={label}
+          className="font-semibold tracking-tight"
+          variant="xsmall"
+        >{`${label}${
           index !== filteredLabels.length - 1 ? "," : ""
         }`}</Typography>
       ));
 
   return (
-    <div className="flex gap-4 items-center">
-      <Typography className="overflow-hidden text-ellipsis" variant="h4">
+    <div className="flex gap-2 items-center">
+      <Typography
+        className="font-semibold tracking-tight overflow-hidden text-ellipsis"
+        variant="xsmall"
+      >
         {name || "???"}
       </Typography>
       {match(data.time_domain)
@@ -134,8 +141,8 @@ const PowerSourceTag: FC<PowerSourceTagProps> = ({ name, data, type }) => {
               <TooltipTrigger>
                 <Badge className="flex gap-2 items-center">
                   <Typography
-                    variant="h4"
-                    className="border-r-2 border-primary-foreground pr-2"
+                    className="font-semibold tracking-tight border-r-2 border-primary-foreground pr-2"
+                    variant="xsmall"
                   >
                     FM
                   </Typography>
@@ -165,8 +172,8 @@ const PowerSourceTag: FC<PowerSourceTagProps> = ({ name, data, type }) => {
               <TooltipTrigger>
                 <Badge className="flex gap-2 items-center">
                   <Typography
-                    variant="h4"
-                    className="border-r-2 border-primary-foreground pr-2"
+                    className="font-semibold tracking-tight border-r-2 border-primary-foreground pr-2"
+                    variant="xsmall"
                   >
                     FM
                   </Typography>
@@ -193,8 +200,8 @@ const PowerSourceTag: FC<PowerSourceTagProps> = ({ name, data, type }) => {
             <TooltipTrigger>
               <Badge className="flex gap-2 items-center">
                 <Typography
-                  variant="h4"
-                  className="border-r-2 border-primary-foreground pr-2"
+                  className="font-semibold tracking-tight border-r-2 border-primary-foreground pr-2"
+                  variant="xsmall"
                 >
                   AC
                 </Typography>
