@@ -47,12 +47,13 @@ fn main() {
 
             let lt_spice_open =
                 MenuItem::with_id(app, "lt_spice_open", "Open", true, None::<&str>)?;
-            let lt_spice_save =
-                MenuItem::with_id(app, "lt_spice_save", "Save", true, None::<&str>)?;
+            // TODO: Implement
+            // let lt_spice_save =
+            //     MenuItem::with_id(app, "lt_spice_save", "Save", true, None::<&str>)?;
 
             // Define submenus
             let lt_spice_menu = Submenu::with_id(app, "lt_spice_compat_menu", "LT Spice", true)?;
-            lt_spice_menu.insert_items(&[&lt_spice_open, &lt_spice_save], 0)?;
+            lt_spice_menu.insert_items(&[&lt_spice_open], 0)?;
 
             let compat_sub_menu = Submenu::with_id(app, "compat_sub_menu", "Compatibility", true)?;
             compat_sub_menu.insert(&lt_spice_menu, 0)?;

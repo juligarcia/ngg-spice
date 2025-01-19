@@ -91,7 +91,7 @@ const SpiceAlert: FC<SpiceAlertProps> = ({ nodeData }) => {
         <Typography variant="xsmall">{helperText}</Typography>
       </TooltipContent>
       <TooltipTrigger className="min-h-full">
-        <Emoji className="min-w-[25px] w-[25px]" name="warning" />
+        <Emoji className="min-w-[12px] w-[12px]" name="warning" />
       </TooltipTrigger>
     </Tooltip>
   ) : null;

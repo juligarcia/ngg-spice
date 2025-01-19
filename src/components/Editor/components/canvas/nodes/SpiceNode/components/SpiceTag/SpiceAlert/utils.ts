@@ -29,7 +29,7 @@ export const getResistorHelperText = (
   if (!name) return "All elements must have names";
 
   for (let key of REQUIRED_RESISTOR_VALUES) {
-    if (data[key] === undefined) {
+    if (data[key] === undefined || data[key] === null) {
       helperText = "Resistor is not properly configured";
       break;
     }
@@ -47,7 +47,7 @@ export const getCapacitorHelperText = (
   if (!name) return "All elements must have names";
 
   for (let key of REQUIRED_CAPACITOR_VALUES) {
-    if (data[key] === undefined) {
+    if (data[key] === undefined || data[key] === null) {
       helperText = "Capacitor is not properly configured";
       break;
     }
@@ -65,7 +65,7 @@ export const getInductorHelperText = (
   if (!name) return "All elements must have names";
 
   for (let key of REQUIRED_INDUCTOR_VALUES) {
-    if (data[key] === undefined) {
+    if (data[key] === undefined || data[key] === null) {
       helperText = "Inductor is not properly configured";
       break;
     }
@@ -85,18 +85,9 @@ export const getPowerSourceHelperText = (
   if (isEmpty(data)) return "BJT is not properly configured";
 
   for (let key of REQUIRED_POWER_SOURCE_VALUES) {
-    const isComplex = key.includes(".");
+    const datum = get(data, key);
 
-    if (isComplex) {
-      const [parent, category] = key.split(".");
-
-      if (get(data, `${parent}.${category}`) !== undefined) {
-        if (get(data, key) === undefined) {
-          helperText = "Power source is not properly configured";
-          break;
-        }
-      }
-    } else if (get(data, key) === undefined) {
+    if (datum === undefined || datum === null) {
       helperText = "Power source is not properly configured";
       break;
     }
@@ -116,18 +107,9 @@ export const getCurrentSourceHelperText = (
   if (isEmpty(data)) return "Source is not properly configured";
 
   for (let key of REQUIRED_POWER_SOURCE_VALUES) {
-    const isComplex = key.includes(".");
+    const datum = get(data, key);
 
-    if (isComplex) {
-      const [parent, category] = key.split(".");
-
-      if (get(data, `${parent}.${category}`) !== undefined) {
-        if (get(data, key) === undefined) {
-          helperText = "Voltage source is not properly configured";
-          break;
-        }
-      }
-    } else if (get(data, key) === undefined) {
+    if (datum === undefined || datum === null) {
       helperText = "Voltage source is not properly configured";
       break;
     }
@@ -142,7 +124,7 @@ export const getVCVSHelperText = (data: Partial<VCVSData>, name?: string) => {
   if (!name) return "All elements must have names";
 
   for (let key of REQUIRED_VCVS_VALUES) {
-    if (data[key] === undefined) {
+    if (data[key] === undefined || data[key] === null) {
       helperText = "Controlled source is not properly configured";
       break;
     }
@@ -157,7 +139,7 @@ export const getVCISHelperText = (data: Partial<VCISData>, name?: string) => {
   if (!name) return "All elements must have names";
 
   for (let key of REQUIRED_VCIS_VALUES) {
-    if (data[key] === undefined) {
+    if (data[key] === undefined || data[key] === null) {
       helperText = "Controlled source is not properly configured";
       break;
     }
@@ -172,7 +154,7 @@ export const getICISHelperText = (data: Partial<ICISData>, name?: string) => {
   if (!name) return "All elements must have names";
 
   for (let key of REQUIRED_ICIS_VALUES) {
-    if (data[key] === undefined) {
+    if (data[key] === undefined || data[key] === null) {
       helperText = "Controlled source is not properly configured";
       break;
     }
@@ -187,7 +169,7 @@ export const getICVSHelperText = (data: Partial<ICVSData>, name?: string) => {
   if (!name) return "All elements must have names";
 
   for (let key of REQUIRED_ICVS_VALUES) {
-    if (data[key] === undefined) {
+    if (data[key] === undefined || data[key] === null) {
       helperText = "Controlled source is not properly configured";
       break;
     }
@@ -207,18 +189,9 @@ export const getBJTHelperText = (
   if (isEmpty(data)) return "BJT is not properly configured";
 
   for (let key of REQUIRED_BJT_VALUES) {
-    const isComplex = key.includes(".");
+    const datum = get(data, key);
 
-    if (isComplex) {
-      const [parent, category] = key.split(".");
-
-      if (get(data, `${parent}.${category}`) !== undefined) {
-        if (get(data, key) === undefined) {
-          helperText = "BJT is not properly configured";
-          break;
-        }
-      }
-    } else if (get(data, key) === undefined) {
+    if (datum === undefined || datum === null) {
       helperText = "BJT is not properly configured";
       break;
     }

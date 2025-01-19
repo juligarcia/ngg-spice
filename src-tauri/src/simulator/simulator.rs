@@ -174,19 +174,23 @@ impl Simulator {
                     name,
                     position,
                 } => {
-                    if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::from(value)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                    if let Some(value) = value {
+                        if let Some([n1, n2]) = &node_connections.get(0..2) {
+                            let unit = UnitOfMagnitude::from(value)
+                                .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::R(
-                            name,
-                            unit,
-                            n1.1.to_owned(),
-                            n2.1.to_owned(),
-                            position,
-                        ))
+                            schematic.insert(Element::R(
+                                name,
+                                unit,
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
+                                position,
+                            ))
+                        } else {
+                            return Err(SimulatorError::FloatingNode);
+                        }
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
                     }
                 }
 
@@ -195,19 +199,23 @@ impl Simulator {
                     name,
                     position,
                 } => {
-                    if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::from(value)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                    if let Some(value) = value {
+                        if let Some([n1, n2]) = &node_connections.get(0..2) {
+                            let unit = UnitOfMagnitude::from(value)
+                                .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::C(
-                            name,
-                            unit,
-                            n1.1.to_owned(),
-                            n2.1.to_owned(),
-                            position,
-                        ))
+                            schematic.insert(Element::C(
+                                name,
+                                unit,
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
+                                position,
+                            ))
+                        } else {
+                            return Err(SimulatorError::FloatingNode);
+                        }
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
                     }
                 }
 
@@ -216,19 +224,23 @@ impl Simulator {
                     name,
                     position,
                 } => {
-                    if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::from(value)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                    if let Some(value) = value {
+                        if let Some([n1, n2]) = &node_connections.get(0..2) {
+                            let unit = UnitOfMagnitude::from(value)
+                                .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::L(
-                            name,
-                            unit,
-                            n1.1.to_owned(),
-                            n2.1.to_owned(),
-                            position,
-                        ))
+                            schematic.insert(Element::L(
+                                name,
+                                unit,
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
+                                position,
+                            ))
+                        } else {
+                            return Err(SimulatorError::FloatingNode);
+                        }
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
                     }
                 }
 
@@ -239,28 +251,18 @@ impl Simulator {
                     position,
                 } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        if let Some(small_signal) = small_signal {
-                            let transformed_small_signal_config =
-                                SmallSignalConfig::from_canvas(small_signal)?;
-
-                            schematic.insert(Element::V(
-                                name,
-                                TimeDomainConfig::from_canvas(time_domain)?,
-                                Some(transformed_small_signal_config),
-                                n1.1.to_owned(),
-                                n2.1.to_owned(),
-                                position,
-                            ));
-                        } else {
-                            schematic.insert(Element::V(
-                                name,
-                                TimeDomainConfig::from_canvas(time_domain)?,
-                                None,
-                                n1.1.to_owned(),
-                                n2.1.to_owned(),
-                                position,
-                            ));
-                        }
+                        schematic.insert(Element::V(
+                            name,
+                            time_domain
+                                .map(|time_domain| TimeDomainConfig::from_canvas(time_domain))
+                                .transpose()?,
+                            small_signal
+                                .map(|small_signal| SmallSignalConfig::from_canvas(small_signal))
+                                .transpose()?,
+                            n1.1.to_owned(),
+                            n2.1.to_owned(),
+                            position,
+                        ));
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
@@ -273,28 +275,18 @@ impl Simulator {
                     position,
                 } => {
                     if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        if let Some(small_signal) = small_signal {
-                            let transformed_small_signal_config =
-                                SmallSignalConfig::from_canvas(small_signal)?;
-
-                            schematic.insert(Element::I(
-                                name,
-                                TimeDomainConfig::from_canvas(time_domain)?,
-                                Some(transformed_small_signal_config),
-                                n1.1.to_owned(),
-                                n2.1.to_owned(),
-                                position,
-                            ));
-                        } else {
-                            schematic.insert(Element::I(
-                                name,
-                                TimeDomainConfig::from_canvas(time_domain)?,
-                                None,
-                                n1.1.to_owned(),
-                                n2.1.to_owned(),
-                                position,
-                            ));
-                        }
+                        schematic.insert(Element::I(
+                            name,
+                            time_domain
+                                .map(|time_domain| TimeDomainConfig::from_canvas(time_domain))
+                                .transpose()?,
+                            small_signal
+                                .map(|small_signal| SmallSignalConfig::from_canvas(small_signal))
+                                .transpose()?,
+                            n1.1.to_owned(),
+                            n2.1.to_owned(),
+                            position,
+                        ));
                     } else {
                         return Err(SimulatorError::FloatingNode);
                     }
@@ -305,21 +297,25 @@ impl Simulator {
                     value,
                     position,
                 } => {
-                    if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
-                        let unit = UnitOfMagnitude::from(value)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                    if let Some(value) = value {
+                        if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
+                            let unit = UnitOfMagnitude::from(value)
+                                .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::E(
-                            name,
-                            unit,
-                            n1.1.to_owned(),
-                            n2.1.to_owned(),
-                            cn1.1.to_owned(),
-                            cn2.1.to_owned(),
-                            position,
-                        ))
+                            schematic.insert(Element::E(
+                                name,
+                                unit,
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
+                                cn1.1.to_owned(),
+                                cn2.1.to_owned(),
+                                position,
+                            ))
+                        } else {
+                            return Err(SimulatorError::FloatingNode);
+                        }
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
                     }
                 }
 
@@ -329,20 +325,24 @@ impl Simulator {
                     src,
                     position,
                 } => {
-                    if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::from(value)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                    if let (Some(value), Some(src)) = (value, src) {
+                        if let Some([n1, n2]) = &node_connections.get(0..2) {
+                            let unit = UnitOfMagnitude::from(value)
+                                .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::F(
-                            name,
-                            unit,
-                            n1.1.to_owned(),
-                            n2.1.to_owned(),
-                            src,
-                            position,
-                        ));
+                            schematic.insert(Element::F(
+                                name,
+                                unit,
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
+                                src,
+                                position,
+                            ));
+                        } else {
+                            return Err(SimulatorError::FloatingNode);
+                        }
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::UnconfiguredElement(name));
                     }
                 }
 
@@ -351,21 +351,25 @@ impl Simulator {
                     value,
                     position,
                 } => {
-                    if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
-                        let unit = UnitOfMagnitude::from(value)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                    if let Some(value) = value {
+                        if let Some([n1, n2, cn1, cn2]) = &node_connections.get(0..4) {
+                            let unit = UnitOfMagnitude::from(value)
+                                .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::G(
-                            name,
-                            unit,
-                            n1.1.to_owned(),
-                            n2.1.to_owned(),
-                            cn1.1.to_owned(),
-                            cn2.1.to_owned(),
-                            position,
-                        ))
+                            schematic.insert(Element::G(
+                                name,
+                                unit,
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
+                                cn1.1.to_owned(),
+                                cn2.1.to_owned(),
+                                position,
+                            ))
+                        } else {
+                            return Err(SimulatorError::FloatingNode);
+                        }
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
                     }
                 }
 
@@ -375,20 +379,24 @@ impl Simulator {
                     src,
                     position,
                 } => {
-                    if let Some([n1, n2]) = &node_connections.get(0..2) {
-                        let unit = UnitOfMagnitude::from(value)
-                            .map_err(|error| SimulatorError::UnitError(error))?;
+                    if let (Some(value), Some(src)) = (value, src) {
+                        if let Some([n1, n2]) = &node_connections.get(0..2) {
+                            let unit = UnitOfMagnitude::from(value)
+                                .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        schematic.insert(Element::H(
-                            name,
-                            unit,
-                            n1.1.to_owned(),
-                            n2.1.to_owned(),
-                            src,
-                            position,
-                        ));
+                            schematic.insert(Element::H(
+                                name,
+                                unit,
+                                n1.1.to_owned(),
+                                n2.1.to_owned(),
+                                src,
+                                position,
+                            ));
+                        } else {
+                            return Err(SimulatorError::FloatingNode);
+                        }
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::UnconfiguredElement(name));
                     }
                 }
 
@@ -397,17 +405,21 @@ impl Simulator {
                     model,
                     position,
                 } => {
-                    if let Some([c_node, b_node, e_node]) = &node_connections.get(0..3) {
-                        schematic.insert(Element::Q(
-                            name,
-                            c_node.1.to_owned(),
-                            b_node.1.to_owned(),
-                            e_node.1.to_owned(),
-                            model.to_domain(),
-                            position,
-                        ));
+                    if let Some(model) = model {
+                        if let Some([c_node, b_node, e_node]) = &node_connections.get(0..3) {
+                            schematic.insert(Element::Q(
+                                name,
+                                c_node.1.to_owned(),
+                                b_node.1.to_owned(),
+                                e_node.1.to_owned(),
+                                model.to_domain(),
+                                position,
+                            ));
+                        } else {
+                            return Err(SimulatorError::FloatingNode);
+                        }
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::UnconfiguredElement(name));
                     }
                 }
 

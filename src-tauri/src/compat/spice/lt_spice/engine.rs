@@ -8,7 +8,10 @@ use crate::{
     app_state::{models::bjt::get_bjt_model, AppState},
     common::numbers::position::Position,
     compat::{
-        circuit::canvas::{CanvasEdge, CanvasNode, NodeData, SmallSignalConfig, TimeDomainConfig},
+        circuit::{
+            canvas::{CanvasEdge, CanvasNode, NodeData, SmallSignalConfig, TimeDomainConfig},
+            element::BjtModel,
+        },
         engine::Engine,
         simulation::SimulationConfig,
     },
@@ -138,6 +141,10 @@ impl SymbolAttribute {
         let attribute = s.replace("SYMATTR ", "");
 
         if let Some((name, value)) = attribute.split_once(" ") {
+            if value == "\"\"" {
+                return None;
+            }
+
             match name {
                 "InstName" => {
                     return Some(SymbolAttribute::InstName(value.to_string()));
@@ -298,7 +305,7 @@ impl NodeMapper {
                                     _ => None,
                                 });
 
-                            if let (Some(name), Some(value)) = (name, value) {
+                            if let Some(name) = name {
                                 let total_rotation =
                                     rotation.as_number() + transform.rotation.as_number();
 
@@ -337,7 +344,7 @@ impl NodeMapper {
                                     _ => None,
                                 });
 
-                            if let (Some(name), Some(value)) = (name, value) {
+                            if let Some(name) = name {
                                 nodes_map.insert(
                                     id.to_string(),
                                     CanvasNode {
@@ -374,7 +381,7 @@ impl NodeMapper {
                                     _ => None,
                                 });
 
-                            if let (Some(name), Some(value)) = (name, value) {
+                            if let Some(name) = name {
                                 nodes_map.insert(
                                     id.to_string(),
                                     CanvasNode {
@@ -421,7 +428,7 @@ impl NodeMapper {
                                     _ => None,
                                 });
 
-                            if let (Some(name), Some(time_domain)) = (name, time_domain) {
+                            if let Some(name) = name {
                                 nodes_map.insert(
                                     id.to_string(),
                                     CanvasNode {
@@ -430,9 +437,9 @@ impl NodeMapper {
                                         id: id.to_string(),
                                         data: NodeData::V {
                                             name,
-                                            time_domain: TimeDomainConfig::from_string(
-                                                &time_domain,
-                                            ),
+                                            time_domain: time_domain.and_then(|time_domain| {
+                                                TimeDomainConfig::from_string(&time_domain)
+                                            }),
                                             small_signal: small_signal.map(|small_signal| {
                                                 SmallSignalConfig::from_string(&small_signal)
                                             }),
@@ -474,7 +481,7 @@ impl NodeMapper {
                                     _ => None,
                                 });
 
-                            if let (Some(name), Some(time_domain)) = (name, time_domain) {
+                            if let Some(name) = name {
                                 nodes_map.insert(
                                     id.to_string(),
                                     CanvasNode {
@@ -483,9 +490,9 @@ impl NodeMapper {
                                         id: id.to_string(),
                                         data: NodeData::I {
                                             name,
-                                            time_domain: TimeDomainConfig::from_string(
-                                                &time_domain,
-                                            ),
+                                            time_domain: time_domain.and_then(|time_domain| {
+                                                TimeDomainConfig::from_string(&time_domain)
+                                            }),
                                             small_signal: small_signal.map(|small_signal| {
                                                 SmallSignalConfig::from_string(&small_signal)
                                             }),
@@ -518,26 +525,30 @@ impl NodeMapper {
                                     _ => None,
                                 });
 
-                            if let (Some(name), Some(value)) = (name, value) {
-                                if let Ok(Some(model)) = get_bjt_model(&value, bjt_models) {
-                                    nodes_map.insert(
-                                        id.to_string(),
-                                        CanvasNode {
-                                            rotation: rotation.as_number()
-                                                + transform.rotation.as_number(),
-                                            id: id.to_string(),
-                                            data: NodeData::Q {
-                                                name,
-                                                model: model.to_canvas(),
-                                                position: position.add(offset.rotate(
-                                                    &Rotation::from_number(
-                                                        transform.rotation.as_number(),
-                                                    ),
-                                                )),
-                                            },
-                                        },
-                                    );
+                            if let Some(name) = name {
+                                let mut bjt_model: Option<BjtModel> = None;
+
+                                if let Some(value) = value {
+                                    bjt_model = get_bjt_model(&value, bjt_models).unwrap();
                                 }
+
+                                nodes_map.insert(
+                                    id.to_string(),
+                                    CanvasNode {
+                                        rotation: rotation.as_number()
+                                            + transform.rotation.as_number(),
+                                        id: id.to_string(),
+                                        data: NodeData::Q {
+                                            name,
+                                            model: bjt_model.map(|bjt_model| bjt_model.to_canvas()),
+                                            position: position.add(offset.rotate(
+                                                &Rotation::from_number(
+                                                    transform.rotation.as_number(),
+                                                ),
+                                            )),
+                                        },
+                                    },
+                                );
                             }
                         }
                     }
@@ -559,26 +570,30 @@ impl NodeMapper {
                                     _ => None,
                                 });
 
-                            if let (Some(name), Some(value)) = (name, value) {
-                                if let Ok(Some(model)) = get_bjt_model(&value, bjt_models) {
-                                    nodes_map.insert(
-                                        id.to_string(),
-                                        CanvasNode {
-                                            rotation: rotation.as_number()
-                                                + transform.rotation.as_number(),
-                                            id: id.to_string(),
-                                            data: NodeData::Q {
-                                                name,
-                                                model: model.to_canvas(),
-                                                position: position.add(offset.rotate(
-                                                    &Rotation::from_number(
-                                                        transform.rotation.as_number(),
-                                                    ),
-                                                )),
-                                            },
-                                        },
-                                    );
+                            if let Some(name) = name {
+                                let mut bjt_model: Option<BjtModel> = None;
+
+                                if let Some(value) = value {
+                                    bjt_model = get_bjt_model(&value, bjt_models).unwrap();
                                 }
+
+                                nodes_map.insert(
+                                    id.to_string(),
+                                    CanvasNode {
+                                        rotation: rotation.as_number()
+                                            + transform.rotation.as_number(),
+                                        id: id.to_string(),
+                                        data: NodeData::Q {
+                                            name,
+                                            model: bjt_model.map(|bjt_model| bjt_model.to_canvas()),
+                                            position: position.add(offset.rotate(
+                                                &Rotation::from_number(
+                                                    transform.rotation.as_number(),
+                                                ),
+                                            )),
+                                        },
+                                    },
+                                );
                             }
                         }
                     }
@@ -595,7 +610,6 @@ impl NodeMapper {
                             },
                         );
                     }
-                    _ => {}
                 },
                 _ => {}
             }

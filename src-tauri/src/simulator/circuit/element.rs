@@ -18,11 +18,11 @@ use std::collections::HashSet;
 #[derive(Clone)]
 pub enum TimeDomainConfig {
     Dc {
-        value: Unit,
+        value: Option<Unit>,
     },
     Pulse {
-        initial_value: Unit,
-        final_value: Unit,
+        initial_value: Option<Unit>,
+        final_value: Option<Unit>,
         delay: Option<Unit>,
         rise_time: Option<Unit>,
         fall_time: Option<Unit>,
@@ -30,31 +30,31 @@ pub enum TimeDomainConfig {
         period: Option<Unit>,
     },
     Sin {
-        offset: Unit,
-        amplitude: Unit,
+        offset: Option<Unit>,
+        amplitude: Option<Unit>,
         frequency: Option<Unit>,
         delay: Option<Unit>,
         damping_factor: Option<Unit>,
     },
     Exp {
-        initial_value: Unit,
-        final_value: Unit,
+        initial_value: Option<Unit>,
+        final_value: Option<Unit>,
         rise_delay: Option<Unit>,
         rise_time: Option<Unit>,
         fall_delay: Option<Unit>,
         fall_time: Option<Unit>,
     },
     Sffm {
-        offset: Unit,
-        amplitude: Unit,
+        offset: Option<Unit>,
+        amplitude: Option<Unit>,
         carrier_frequency: Option<Unit>,
         modulation_index: Option<i16>,
         signal_frequency: Option<Unit>,
     },
     Am {
-        amplitude: Unit,
-        offset: Unit,
-        modulating_frequency: Unit,
+        amplitude: Option<Unit>,
+        offset: Option<Unit>,
+        modulating_frequency: Option<Unit>,
         carrier_frequency: Option<Unit>,
         delay: Option<Unit>,
     },
@@ -66,9 +66,14 @@ impl TimeDomainConfig {
     ) -> Result<Self, SimulatorError> {
         match canvas_time_domain_config {
             CanvasTimeDomainConfig::Dc { value } => {
-                let value = Unit::from(value).map_err(|error| SimulatorError::UnitError(error))?;
+                if let Some(value) = value {
+                    let value =
+                        Unit::from(value).map_err(|error| SimulatorError::UnitError(error))?;
 
-                Ok(TimeDomainConfig::Dc { value })
+                    return Ok(TimeDomainConfig::Dc { value: Some(value) });
+                }
+
+                Ok(TimeDomainConfig::Dc { value: None })
             }
 
             CanvasTimeDomainConfig::Pulse {
@@ -80,69 +85,94 @@ impl TimeDomainConfig {
                 pulse_width,
                 period,
             } => {
-                let initial_value =
-                    Unit::from(initial_value).map_err(|error| SimulatorError::UnitError(error))?;
+                if let Some(initial_value) = initial_value {
+                    let initial_value = Unit::from(initial_value)
+                        .map_err(|error| SimulatorError::UnitError(error))?;
 
-                let final_value =
-                    Unit::from(final_value).map_err(|error| SimulatorError::UnitError(error))?;
-
-                if let Some(delay) = delay {
-                    let delay =
-                        Unit::from(delay).map_err(|error| SimulatorError::UnitError(error))?;
-
-                    if let Some(rise_time) = rise_time {
-                        let rise_time = Unit::from(rise_time)
+                    if let Some(final_value) = final_value {
+                        let final_value = Unit::from(final_value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        if let Some(fall_time) = fall_time {
-                            let fall_time = Unit::from(fall_time)
+                        if let Some(delay) = delay {
+                            let delay = Unit::from(delay)
                                 .map_err(|error| SimulatorError::UnitError(error))?;
 
-                            if let Some(pulse_width) = pulse_width {
-                                let pulse_width = Unit::from(pulse_width)
+                            if let Some(rise_time) = rise_time {
+                                let rise_time = Unit::from(rise_time)
                                     .map_err(|error| SimulatorError::UnitError(error))?;
 
-                                if let Some(period) = period {
-                                    let period = Unit::from(period)
+                                if let Some(fall_time) = fall_time {
+                                    let fall_time = Unit::from(fall_time)
                                         .map_err(|error| SimulatorError::UnitError(error))?;
 
-                                    Ok(TimeDomainConfig::Pulse {
-                                        initial_value,
-                                        final_value,
-                                        delay: Some(delay),
-                                        rise_time: Some(rise_time),
-                                        fall_time: Some(fall_time),
-                                        pulse_width: Some(pulse_width),
-                                        period: Some(period),
-                                    })
+                                    if let Some(pulse_width) = pulse_width {
+                                        let pulse_width = Unit::from(pulse_width)
+                                            .map_err(|error| SimulatorError::UnitError(error))?;
+
+                                        if let Some(period) = period {
+                                            let period = Unit::from(period).map_err(|error| {
+                                                SimulatorError::UnitError(error)
+                                            })?;
+
+                                            Ok(TimeDomainConfig::Pulse {
+                                                initial_value: Some(initial_value),
+                                                final_value: Some(final_value),
+                                                delay: Some(delay),
+                                                rise_time: Some(rise_time),
+                                                fall_time: Some(fall_time),
+                                                pulse_width: Some(pulse_width),
+                                                period: Some(period),
+                                            })
+                                        } else {
+                                            Ok(TimeDomainConfig::Pulse {
+                                                initial_value: Some(initial_value),
+                                                final_value: Some(final_value),
+                                                delay: Some(delay),
+                                                rise_time: Some(rise_time),
+                                                fall_time: Some(fall_time),
+                                                pulse_width: Some(pulse_width),
+                                                period: None,
+                                            })
+                                        }
+                                    } else {
+                                        Ok(TimeDomainConfig::Pulse {
+                                            initial_value: Some(initial_value),
+                                            final_value: Some(final_value),
+                                            delay: Some(delay),
+                                            rise_time: Some(rise_time),
+                                            fall_time: Some(fall_time),
+                                            pulse_width: None,
+                                            period: None,
+                                        })
+                                    }
                                 } else {
                                     Ok(TimeDomainConfig::Pulse {
-                                        initial_value,
-                                        final_value,
+                                        initial_value: Some(initial_value),
+                                        final_value: Some(final_value),
                                         delay: Some(delay),
                                         rise_time: Some(rise_time),
-                                        fall_time: Some(fall_time),
-                                        pulse_width: Some(pulse_width),
+                                        fall_time: None,
+                                        pulse_width: None,
                                         period: None,
                                     })
                                 }
                             } else {
                                 Ok(TimeDomainConfig::Pulse {
-                                    initial_value,
-                                    final_value,
+                                    initial_value: Some(initial_value),
+                                    final_value: Some(final_value),
                                     delay: Some(delay),
-                                    rise_time: Some(rise_time),
-                                    fall_time: Some(fall_time),
+                                    rise_time: None,
+                                    fall_time: None,
                                     pulse_width: None,
                                     period: None,
                                 })
                             }
                         } else {
                             Ok(TimeDomainConfig::Pulse {
-                                initial_value,
-                                final_value,
-                                delay: Some(delay),
-                                rise_time: Some(rise_time),
+                                initial_value: Some(initial_value),
+                                final_value: Some(final_value),
+                                delay: None,
+                                rise_time: None,
                                 fall_time: None,
                                 pulse_width: None,
                                 period: None,
@@ -150,9 +180,9 @@ impl TimeDomainConfig {
                         }
                     } else {
                         Ok(TimeDomainConfig::Pulse {
-                            initial_value,
-                            final_value,
-                            delay: Some(delay),
+                            initial_value: Some(initial_value),
+                            final_value: None,
+                            delay: None,
                             rise_time: None,
                             fall_time: None,
                             pulse_width: None,
@@ -161,8 +191,8 @@ impl TimeDomainConfig {
                     }
                 } else {
                     Ok(TimeDomainConfig::Pulse {
-                        initial_value,
-                        final_value,
+                        initial_value: None,
+                        final_value: None,
                         delay: None,
                         rise_time: None,
                         fall_time: None,
@@ -180,61 +210,83 @@ impl TimeDomainConfig {
                 fall_delay,
                 fall_time,
             } => {
-                let initial_value =
-                    Unit::from(initial_value).map_err(|error| SimulatorError::UnitError(error))?;
+                if let Some(initial_value) = initial_value {
+                    let initial_value = Unit::from(initial_value)
+                        .map_err(|error| SimulatorError::UnitError(error))?;
 
-                let final_value =
-                    Unit::from(final_value).map_err(|error| SimulatorError::UnitError(error))?;
-
-                if let Some(rise_delay) = rise_delay {
-                    let rise_delay =
-                        Unit::from(rise_delay).map_err(|error| SimulatorError::UnitError(error))?;
-
-                    if let Some(rise_time) = rise_time {
-                        let rise_time = Unit::from(rise_time)
+                    if let Some(final_value) = final_value {
+                        let final_value = Unit::from(final_value)
                             .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        if let Some(fall_delay) = fall_delay {
-                            let fall_delay = Unit::from(fall_delay)
+                        if let Some(rise_delay) = rise_delay {
+                            let rise_delay = Unit::from(rise_delay)
                                 .map_err(|error| SimulatorError::UnitError(error))?;
 
-                            if let Some(fall_time) = fall_time {
-                                let fall_time = Unit::from(fall_time)
+                            if let Some(rise_time) = rise_time {
+                                let rise_time = Unit::from(rise_time)
                                     .map_err(|error| SimulatorError::UnitError(error))?;
 
-                                Ok(TimeDomainConfig::Exp {
-                                    initial_value,
-                                    final_value,
-                                    rise_delay: Some(rise_delay),
-                                    rise_time: Some(rise_time),
-                                    fall_delay: Some(fall_delay),
-                                    fall_time: Some(fall_time),
-                                })
+                                if let Some(fall_delay) = fall_delay {
+                                    let fall_delay = Unit::from(fall_delay)
+                                        .map_err(|error| SimulatorError::UnitError(error))?;
+
+                                    if let Some(fall_time) = fall_time {
+                                        let fall_time = Unit::from(fall_time)
+                                            .map_err(|error| SimulatorError::UnitError(error))?;
+
+                                        Ok(TimeDomainConfig::Exp {
+                                            initial_value: Some(initial_value),
+                                            final_value: Some(final_value),
+                                            rise_delay: Some(rise_delay),
+                                            rise_time: Some(rise_time),
+                                            fall_delay: Some(fall_delay),
+                                            fall_time: Some(fall_time),
+                                        })
+                                    } else {
+                                        Ok(TimeDomainConfig::Exp {
+                                            initial_value: Some(initial_value),
+                                            final_value: Some(final_value),
+                                            rise_delay: Some(rise_delay),
+                                            rise_time: Some(rise_time),
+                                            fall_delay: Some(fall_delay),
+                                            fall_time: None,
+                                        })
+                                    }
+                                } else {
+                                    Ok(TimeDomainConfig::Exp {
+                                        initial_value: Some(initial_value),
+                                        final_value: Some(final_value),
+                                        rise_delay: Some(rise_delay),
+                                        rise_time: Some(rise_time),
+                                        fall_delay: None,
+                                        fall_time: None,
+                                    })
+                                }
                             } else {
                                 Ok(TimeDomainConfig::Exp {
-                                    initial_value,
-                                    final_value,
+                                    initial_value: Some(initial_value),
+                                    final_value: Some(final_value),
                                     rise_delay: Some(rise_delay),
-                                    rise_time: Some(rise_time),
-                                    fall_delay: Some(fall_delay),
+                                    rise_time: None,
+                                    fall_delay: None,
                                     fall_time: None,
                                 })
                             }
                         } else {
                             Ok(TimeDomainConfig::Exp {
-                                initial_value,
-                                final_value,
-                                rise_delay: Some(rise_delay),
-                                rise_time: Some(rise_time),
+                                initial_value: Some(initial_value),
+                                final_value: Some(final_value),
+                                rise_delay: None,
+                                rise_time: None,
                                 fall_delay: None,
                                 fall_time: None,
                             })
                         }
                     } else {
                         Ok(TimeDomainConfig::Exp {
-                            initial_value,
-                            final_value,
-                            rise_delay: Some(rise_delay),
+                            initial_value: Some(initial_value),
+                            final_value: None,
+                            rise_delay: None,
                             rise_time: None,
                             fall_delay: None,
                             fall_time: None,
@@ -242,8 +294,8 @@ impl TimeDomainConfig {
                     }
                 } else {
                     Ok(TimeDomainConfig::Exp {
-                        initial_value,
-                        final_value,
+                        initial_value: None,
+                        final_value: None,
                         rise_delay: None,
                         rise_time: None,
                         fall_delay: None,
@@ -259,53 +311,73 @@ impl TimeDomainConfig {
                 delay,
                 damping_factor,
             } => {
-                let offset =
-                    Unit::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
+                if let Some(offset) = offset {
+                    let offset =
+                        Unit::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let amplitude =
-                    Unit::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
+                    if let Some(amplitude) = amplitude {
+                        let amplitude = Unit::from(amplitude)
+                            .map_err(|error| SimulatorError::UnitError(error))?;
 
-                if let Some(frequency) = frequency {
-                    let frequency =
-                        Unit::from(frequency).map_err(|error| SimulatorError::UnitError(error))?;
-
-                    if let Some(delay) = delay {
-                        let delay =
-                            Unit::from(delay).map_err(|error| SimulatorError::UnitError(error))?;
-
-                        if let Some(damping_factor) = damping_factor {
-                            let damping_factor = Unit::from(damping_factor)
+                        if let Some(frequency) = frequency {
+                            let frequency = Unit::from(frequency)
                                 .map_err(|error| SimulatorError::UnitError(error))?;
 
-                            Ok(TimeDomainConfig::Sin {
-                                offset,
-                                amplitude,
-                                frequency: Some(frequency),
-                                delay: Some(delay),
-                                damping_factor: Some(damping_factor),
-                            })
+                            if let Some(delay) = delay {
+                                let delay = Unit::from(delay)
+                                    .map_err(|error| SimulatorError::UnitError(error))?;
+
+                                if let Some(damping_factor) = damping_factor {
+                                    let damping_factor = Unit::from(damping_factor)
+                                        .map_err(|error| SimulatorError::UnitError(error))?;
+
+                                    Ok(TimeDomainConfig::Sin {
+                                        offset: Some(offset),
+                                        amplitude: Some(amplitude),
+                                        frequency: Some(frequency),
+                                        delay: Some(delay),
+                                        damping_factor: Some(damping_factor),
+                                    })
+                                } else {
+                                    Ok(TimeDomainConfig::Sin {
+                                        offset: Some(offset),
+                                        amplitude: Some(amplitude),
+                                        frequency: Some(frequency),
+                                        delay: Some(delay),
+                                        damping_factor: None,
+                                    })
+                                }
+                            } else {
+                                Ok(TimeDomainConfig::Sin {
+                                    offset: Some(offset),
+                                    amplitude: Some(amplitude),
+                                    frequency: Some(frequency),
+                                    delay: None,
+                                    damping_factor: None,
+                                })
+                            }
                         } else {
                             Ok(TimeDomainConfig::Sin {
-                                offset,
-                                amplitude,
-                                frequency: Some(frequency),
-                                delay: Some(delay),
+                                offset: Some(offset),
+                                amplitude: Some(amplitude),
+                                frequency: None,
+                                delay: None,
                                 damping_factor: None,
                             })
                         }
                     } else {
                         Ok(TimeDomainConfig::Sin {
-                            offset,
-                            amplitude,
-                            frequency: Some(frequency),
+                            offset: Some(offset),
+                            amplitude: None,
+                            frequency: None,
                             delay: None,
                             damping_factor: None,
                         })
                     }
                 } else {
                     Ok(TimeDomainConfig::Sin {
-                        offset,
-                        amplitude,
+                        offset: None,
+                        amplitude: None,
                         frequency: None,
                         delay: None,
                         damping_factor: None,
@@ -320,50 +392,70 @@ impl TimeDomainConfig {
                 modulation_index,
                 signal_frequency,
             } => {
-                let offset =
-                    Unit::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
+                if let Some(offset) = offset {
+                    let offset =
+                        Unit::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let amplitude =
-                    Unit::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
+                    if let Some(amplitude) = amplitude {
+                        let amplitude = Unit::from(amplitude)
+                            .map_err(|error| SimulatorError::UnitError(error))?;
 
-                if let Some(carrier_frequency) = carrier_frequency {
-                    let carrier_frequency = Unit::from(carrier_frequency)
-                        .map_err(|error| SimulatorError::UnitError(error))?;
-
-                    if let Some(modulation_index) = modulation_index {
-                        if let Some(signal_frequency) = signal_frequency {
-                            let signal_frequency = Unit::from(signal_frequency)
+                        if let Some(carrier_frequency) = carrier_frequency {
+                            let carrier_frequency = Unit::from(carrier_frequency)
                                 .map_err(|error| SimulatorError::UnitError(error))?;
 
-                            Ok(TimeDomainConfig::Sffm {
-                                offset,
-                                amplitude,
-                                carrier_frequency: Some(carrier_frequency),
-                                modulation_index: Some(modulation_index),
-                                signal_frequency: Some(signal_frequency),
-                            })
+                            if let Some(modulation_index) = modulation_index {
+                                if let Some(signal_frequency) = signal_frequency {
+                                    let signal_frequency = Unit::from(signal_frequency)
+                                        .map_err(|error| SimulatorError::UnitError(error))?;
+
+                                    Ok(TimeDomainConfig::Sffm {
+                                        offset: Some(offset),
+                                        amplitude: Some(amplitude),
+                                        carrier_frequency: Some(carrier_frequency),
+                                        modulation_index: Some(modulation_index),
+                                        signal_frequency: Some(signal_frequency),
+                                    })
+                                } else {
+                                    Ok(TimeDomainConfig::Sffm {
+                                        offset: Some(offset),
+                                        amplitude: Some(amplitude),
+                                        carrier_frequency: Some(carrier_frequency),
+                                        modulation_index: Some(modulation_index),
+                                        signal_frequency: None,
+                                    })
+                                }
+                            } else {
+                                Ok(TimeDomainConfig::Sffm {
+                                    offset: Some(offset),
+                                    amplitude: Some(amplitude),
+                                    carrier_frequency: Some(carrier_frequency),
+                                    modulation_index: None,
+                                    signal_frequency: None,
+                                })
+                            }
                         } else {
                             Ok(TimeDomainConfig::Sffm {
-                                offset,
-                                amplitude,
-                                carrier_frequency: Some(carrier_frequency),
-                                modulation_index: Some(modulation_index),
+                                offset: Some(offset),
+                                amplitude: Some(amplitude),
+                                carrier_frequency: None,
+                                modulation_index: None,
                                 signal_frequency: None,
                             })
                         }
                     } else {
                         Ok(TimeDomainConfig::Sffm {
-                            offset,
-                            amplitude,
-                            carrier_frequency: Some(carrier_frequency),
+                            offset: Some(offset),
+                            amplitude: None,
+                            carrier_frequency: None,
                             modulation_index: None,
                             signal_frequency: None,
                         })
                     }
                 } else {
                     Ok(TimeDomainConfig::Sffm {
-                        offset,
-                        amplitude,
+                        offset: None,
+                        amplitude: None,
                         carrier_frequency: None,
                         modulation_index: None,
                         signal_frequency: None,
@@ -378,44 +470,74 @@ impl TimeDomainConfig {
                 carrier_frequency,
                 delay,
             } => {
-                let offset =
-                    Unit::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
+                if let Some(amplitude) = amplitude {
+                    let amplitude =
+                        Unit::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let amplitude =
-                    Unit::from(amplitude).map_err(|error| SimulatorError::UnitError(error))?;
+                    if let Some(offset) = offset {
+                        let offset =
+                            Unit::from(offset).map_err(|error| SimulatorError::UnitError(error))?;
 
-                let modulating_frequency = Unit::from(modulating_frequency)
-                    .map_err(|error| SimulatorError::UnitError(error))?;
+                        if let Some(modulating_frequency) = modulating_frequency {
+                            let modulating_frequency = Unit::from(modulating_frequency)
+                                .map_err(|error| SimulatorError::UnitError(error))?;
 
-                if let Some(carrier_frequency) = carrier_frequency {
-                    let carrier_frequency = Unit::from(carrier_frequency)
-                        .map_err(|error| SimulatorError::UnitError(error))?;
+                            if let Some(carrier_frequency) = carrier_frequency {
+                                let carrier_frequency = Unit::from(carrier_frequency)
+                                    .map_err(|error| SimulatorError::UnitError(error))?;
 
-                    if let Some(delay) = delay {
-                        let delay =
-                            Unit::from(delay).map_err(|error| SimulatorError::UnitError(error))?;
+                                if let Some(delay) = delay {
+                                    let delay = Unit::from(delay)
+                                        .map_err(|error| SimulatorError::UnitError(error))?;
 
-                        Ok(TimeDomainConfig::Am {
-                            amplitude,
-                            offset,
-                            modulating_frequency,
-                            carrier_frequency: Some(carrier_frequency),
-                            delay: Some(delay),
-                        })
+                                    Ok(TimeDomainConfig::Am {
+                                        amplitude: Some(amplitude),
+                                        offset: Some(offset),
+                                        modulating_frequency: Some(modulating_frequency),
+                                        carrier_frequency: Some(carrier_frequency),
+                                        delay: Some(delay),
+                                    })
+                                } else {
+                                    Ok(TimeDomainConfig::Am {
+                                        amplitude: Some(amplitude),
+                                        offset: Some(offset),
+                                        modulating_frequency: Some(modulating_frequency),
+                                        carrier_frequency: Some(carrier_frequency),
+                                        delay: None,
+                                    })
+                                }
+                            } else {
+                                Ok(TimeDomainConfig::Am {
+                                    amplitude: Some(amplitude),
+                                    offset: Some(offset),
+                                    modulating_frequency: Some(modulating_frequency),
+                                    carrier_frequency: None,
+                                    delay: None,
+                                })
+                            }
+                        } else {
+                            Ok(TimeDomainConfig::Am {
+                                amplitude: Some(amplitude),
+                                offset: Some(offset),
+                                modulating_frequency: None,
+                                carrier_frequency: None,
+                                delay: None,
+                            })
+                        }
                     } else {
                         Ok(TimeDomainConfig::Am {
-                            amplitude,
-                            offset,
-                            modulating_frequency,
-                            carrier_frequency: Some(carrier_frequency),
+                            amplitude: Some(amplitude),
+                            offset: None,
+                            modulating_frequency: None,
+                            carrier_frequency: None,
                             delay: None,
                         })
                     }
                 } else {
                     Ok(TimeDomainConfig::Am {
-                        amplitude,
-                        offset,
-                        modulating_frequency,
+                        amplitude: None,
+                        offset: None,
+                        modulating_frequency: None,
                         carrier_frequency: None,
                         delay: None,
                     })
@@ -426,7 +548,15 @@ impl TimeDomainConfig {
 
     pub fn format(&self) -> String {
         match self {
-            TimeDomainConfig::Dc { value } => format!("DC {}", value.format()),
+            TimeDomainConfig::Dc { value } => {
+                let mut formatted = format!("DC");
+
+                if let Some(value) = value {
+                    formatted.push_str(&format!("({})", value.format()));
+                }
+
+                formatted
+            }
             TimeDomainConfig::Pulse {
                 initial_value,
                 final_value,
@@ -436,23 +566,30 @@ impl TimeDomainConfig {
                 pulse_width,
                 period,
             } => {
-                let mut formatted =
-                    format!("PULSE({} {}", initial_value.format(), final_value.format());
+                let mut formatted = format!("PULSE");
 
-                if let Some(delay) = delay {
-                    formatted.push_str(&format!(" {}", delay.format()));
+                if let Some(initial_value) = initial_value {
+                    formatted.push_str(&format!("({}", initial_value.format()));
 
-                    if let Some(rise_time) = rise_time {
-                        formatted.push_str(&format!(" {}", rise_time.format()));
+                    if let Some(final_value) = final_value {
+                        formatted.push_str(&format!(" {}", final_value.format()));
 
-                        if let Some(fall_time) = fall_time {
-                            formatted.push_str(&format!(" {}", fall_time.format()));
+                        if let Some(delay) = delay {
+                            formatted.push_str(&format!(" {}", delay.format()));
 
-                            if let Some(pulse_width) = pulse_width {
-                                formatted.push_str(&format!(" {}", pulse_width.format()));
+                            if let Some(rise_time) = rise_time {
+                                formatted.push_str(&format!(" {}", rise_time.format()));
 
-                                if let Some(period) = period {
-                                    formatted.push_str(&format!(" {}", period.format()));
+                                if let Some(fall_time) = fall_time {
+                                    formatted.push_str(&format!(" {}", fall_time.format()));
+
+                                    if let Some(pulse_width) = pulse_width {
+                                        formatted.push_str(&format!(" {}", pulse_width.format()));
+
+                                        if let Some(period) = period {
+                                            formatted.push_str(&format!(" {}", period.format()));
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -470,16 +607,24 @@ impl TimeDomainConfig {
                 delay,
                 damping_factor,
             } => {
-                let mut formatted = format!("SIN({} {}", offset.format(), amplitude.format());
+                let mut formatted = format!("SIN");
 
-                if let Some(frequency) = frequency {
-                    formatted.push_str(&format!(" {}", frequency.format()));
+                if let Some(offset) = offset {
+                    formatted.push_str(&format!("({}", offset.format()));
 
-                    if let Some(delay) = delay {
-                        formatted.push_str(&format!(" {}", delay.format()));
+                    if let Some(amplitude) = amplitude {
+                        formatted.push_str(&format!(" {}", amplitude.format()));
 
-                        if let Some(damping_factor) = damping_factor {
-                            formatted.push_str(&format!(" {}", damping_factor.format()));
+                        if let Some(frequency) = frequency {
+                            formatted.push_str(&format!(" {}", frequency.format()));
+
+                            if let Some(delay) = delay {
+                                formatted.push_str(&format!(" {}", delay.format()));
+
+                                if let Some(damping_factor) = damping_factor {
+                                    formatted.push_str(&format!(" {}", damping_factor.format()));
+                                }
+                            }
                         }
                     }
                 }
@@ -497,20 +642,27 @@ impl TimeDomainConfig {
                 fall_delay,
                 fall_time,
             } => {
-                let mut formatted =
-                    format!("EXP({} {}", initial_value.format(), final_value.format());
+                let mut formatted = format!("EXP");
 
-                if let Some(rise_delay) = rise_delay {
-                    formatted.push_str(&format!(" {}", rise_delay.format()));
+                if let Some(initial_value) = initial_value {
+                    formatted.push_str(&format!("({}", initial_value.format()));
 
-                    if let Some(rise_time) = rise_time {
-                        formatted.push_str(&format!(" {}", rise_time.format()));
+                    if let Some(final_value) = final_value {
+                        formatted.push_str(&format!(" {}", final_value.format()));
 
-                        if let Some(fall_delay) = fall_delay {
-                            formatted.push_str(&format!(" {}", fall_delay.format()));
+                        if let Some(rise_delay) = rise_delay {
+                            formatted.push_str(&format!(" {}", rise_delay.format()));
 
-                            if let Some(fall_time) = fall_time {
-                                formatted.push_str(&format!(" {}", fall_time.format()));
+                            if let Some(rise_time) = rise_time {
+                                formatted.push_str(&format!(" {}", rise_time.format()));
+
+                                if let Some(fall_delay) = fall_delay {
+                                    formatted.push_str(&format!(" {}", fall_delay.format()));
+
+                                    if let Some(fall_time) = fall_time {
+                                        formatted.push_str(&format!(" {}", fall_time.format()));
+                                    }
+                                }
                             }
                         }
                     }
@@ -528,16 +680,24 @@ impl TimeDomainConfig {
                 modulation_index,
                 signal_frequency,
             } => {
-                let mut formatted = format!("SFFM({} {}", offset.format(), amplitude.format());
+                let mut formatted = format!("SFFM");
 
-                if let Some(carrier_frequency) = carrier_frequency {
-                    formatted.push_str(&format!(" {}", carrier_frequency.format()));
+                if let Some(offset) = offset {
+                    formatted.push_str(&format!("({}", offset.format()));
 
-                    if let Some(modulation_index) = modulation_index {
-                        formatted.push_str(&format!(" {}", modulation_index));
+                    if let Some(amplitude) = amplitude {
+                        formatted.push_str(&format!(" {}", amplitude.format()));
 
-                        if let Some(signal_frequency) = signal_frequency {
-                            formatted.push_str(&format!(" {}", signal_frequency.format()));
+                        if let Some(carrier_frequency) = carrier_frequency {
+                            formatted.push_str(&format!(" {}", carrier_frequency.format()));
+
+                            if let Some(modulation_index) = modulation_index {
+                                formatted.push_str(&format!(" {}", modulation_index));
+
+                                if let Some(signal_frequency) = signal_frequency {
+                                    formatted.push_str(&format!(" {}", signal_frequency.format()));
+                                }
+                            }
                         }
                     }
                 }
@@ -554,18 +714,25 @@ impl TimeDomainConfig {
                 carrier_frequency,
                 delay,
             } => {
-                let mut formatted = format!(
-                    "AM({} {} {}",
-                    amplitude.format(),
-                    offset.format(),
-                    modulating_frequency.format()
-                );
+                let mut formatted = format!("AM",);
 
-                if let Some(carrier_frequency) = carrier_frequency {
-                    formatted.push_str(&format!(" {}", carrier_frequency.format()));
+                if let Some(amplitude) = amplitude {
+                    formatted.push_str(&format!("({}", amplitude.format()));
 
-                    if let Some(delay) = delay {
-                        formatted.push_str(&format!(" {}", delay.format()));
+                    if let Some(offset) = offset {
+                        formatted.push_str(&format!(" {}", offset.format()));
+
+                        if let Some(modulating_frequency) = modulating_frequency {
+                            formatted.push_str(&format!(" {}", modulating_frequency.format()));
+
+                            if let Some(carrier_frequency) = carrier_frequency {
+                                formatted.push_str(&format!(" {}", carrier_frequency.format()));
+
+                                if let Some(delay) = delay {
+                                    formatted.push_str(&format!(" {}", delay.format()));
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -1067,12 +1234,13 @@ impl BjtModel {
 
 #[derive(Clone)]
 pub enum Element {
+    // (Name, Value, Node1, Node2, Position)
     R(String, Unit, String, String, Position),
     C(String, Unit, String, String, Position),
     L(String, Unit, String, String, Position),
     V(
         String,
-        TimeDomainConfig,
+        Option<TimeDomainConfig>,
         Option<SmallSignalConfig>,
         String,
         String,
@@ -1080,7 +1248,7 @@ pub enum Element {
     ),
     I(
         String,
-        TimeDomainConfig,
+        Option<TimeDomainConfig>,
         Option<SmallSignalConfig>,
         String,
         String,
@@ -1138,11 +1306,14 @@ impl Element {
 
             Element::V(name, time_domain_config, small_signal_config, node1, node2, ..) => {
                 if let [n1, n2] = &Self::replace_ground_alias(&[node1, node2], ground_alias)[0..2] {
-                    let mut formatted =
-                        format!("V{} {} {} {}", name, n1, n2, time_domain_config.format());
+                    let mut formatted = format!("V{} {} {}", name, n1, n2);
 
-                    if let Some(small_signal_config) = small_signal_config {
-                        formatted.push_str(&format!(" {}", small_signal_config.format()));
+                    if let Some(time_domain_config) = time_domain_config {
+                        formatted.push_str(&format!(" {}", time_domain_config.format()));
+
+                        if let Some(small_signal_config) = small_signal_config {
+                            formatted.push_str(&format!(" {}", small_signal_config.format()));
+                        }
                     }
 
                     formatted.push('\n');
@@ -1155,11 +1326,14 @@ impl Element {
 
             Element::I(name, time_domain_config, small_signal_config, node1, node2, ..) => {
                 if let [n1, n2] = &Self::replace_ground_alias(&[node1, node2], ground_alias)[0..2] {
-                    let mut formatted =
-                        format!("I{} {} {} {}", name, n1, n2, time_domain_config.format());
+                    let mut formatted = format!("I{} {} {}", name, n1, n2);
 
-                    if let Some(small_signal_config) = small_signal_config {
-                        formatted.push_str(&format!(" {}", small_signal_config.format()));
+                    if let Some(time_domain_config) = time_domain_config {
+                        formatted.push_str(&format!(" {}", time_domain_config.format()));
+
+                        if let Some(small_signal_config) = small_signal_config {
+                            formatted.push_str(&format!(" {}", small_signal_config.format()));
+                        }
                     }
 
                     formatted.push('\n');

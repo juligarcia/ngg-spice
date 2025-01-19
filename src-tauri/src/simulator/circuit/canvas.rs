@@ -14,11 +14,11 @@ use crate::{
 #[derive(Deserialize, Clone, Serialize, Debug)]
 pub enum TimeDomainConfig {
     Dc {
-        value: String,
+        value: Option<String>,
     },
     Pulse {
-        initial_value: String,
-        final_value: String,
+        initial_value: Option<String>,
+        final_value: Option<String>,
         delay: Option<String>,
         rise_time: Option<String>,
         fall_time: Option<String>,
@@ -26,42 +26,47 @@ pub enum TimeDomainConfig {
         period: Option<String>,
     },
     Sin {
-        offset: String,
-        amplitude: String,
+        offset: Option<String>,
+        amplitude: Option<String>,
         frequency: Option<String>,
         delay: Option<String>,
         damping_factor: Option<String>,
     },
     Exp {
-        initial_value: String,
-        final_value: String,
+        initial_value: Option<String>,
+        final_value: Option<String>,
         rise_delay: Option<String>,
         rise_time: Option<String>,
         fall_delay: Option<String>,
         fall_time: Option<String>,
     },
     Sffm {
-        offset: String,
-        amplitude: String,
+        offset: Option<String>,
+        amplitude: Option<String>,
         carrier_frequency: Option<String>,
         modulation_index: Option<i16>,
         signal_frequency: Option<String>,
     },
     Am {
-        amplitude: String,
-        offset: String,
-        modulating_frequency: String,
+        amplitude: Option<String>,
+        offset: Option<String>,
+        modulating_frequency: Option<String>,
         carrier_frequency: Option<String>,
         delay: Option<String>,
     },
 }
 
 impl TimeDomainConfig {
-    pub fn from_string(value: &str) -> TimeDomainConfig {
+    pub fn from_string(value: &str) -> Option<TimeDomainConfig> {
+        // Empty string LTSpice representation
+        if value == "\"\"" {
+            return None;
+        }
+
         if let Ok(unit) = UnitOfMagnitude::from(value.to_string()) {
-            return TimeDomainConfig::Dc {
-                value: unit.format(),
-            };
+            return Some(TimeDomainConfig::Dc {
+                value: Some(unit.format()),
+            });
         }
 
         let mut parts = value.split("(");
@@ -71,97 +76,99 @@ impl TimeDomainConfig {
         match kind.as_str() {
             "pulse" => {
                 let mut parts = value.split_whitespace();
-                let initial_value = parts.next().or(Some("0")).unwrap();
-                let final_value = parts.next().or(Some("0")).unwrap();
+                let initial_value = parts.next();
+                let final_value = parts.next();
                 let delay = parts.next();
                 let rise_time = parts.next();
                 let fall_time = parts.next();
                 let pulse_width = parts.next();
                 let period = parts.next();
 
-                TimeDomainConfig::Pulse {
-                    initial_value: initial_value.to_string(),
-                    final_value: final_value.to_string(),
+                Some(TimeDomainConfig::Pulse {
+                    initial_value: initial_value.map(|s| s.to_string()),
+                    final_value: final_value.map(|s| s.to_string()),
                     delay: delay.map(|s| s.to_string()),
                     rise_time: rise_time.map(|s| s.to_string()),
                     fall_time: fall_time.map(|s| s.to_string()),
                     pulse_width: pulse_width.map(|s| s.to_string()),
                     period: period.map(|s| s.to_string()),
-                }
+                })
             }
             "sine" => {
                 let mut parts = value.split_whitespace();
-                let offset = parts.next().or(Some("0")).unwrap();
-                let amplitude = parts.next().or(Some("0")).unwrap();
+                let offset = parts.next();
+                let amplitude = parts.next();
                 let frequency = parts.next();
                 let delay = parts.next();
                 let damping_factor = parts.next();
 
-                TimeDomainConfig::Sin {
-                    offset: offset.to_string(),
-                    amplitude: amplitude.to_string(),
+                Some(TimeDomainConfig::Sin {
+                    offset: offset.map(|s| s.to_string()),
+                    amplitude: amplitude.map(|s| s.to_string()),
                     frequency: frequency.map(|s| s.to_string()),
                     delay: delay.map(|s| s.to_string()),
                     damping_factor: damping_factor.map(|s| s.to_string()),
-                }
+                })
             }
             "exp" => {
                 let mut parts = value.split_whitespace();
-                let initial_value = parts.next().or(Some("0")).unwrap();
-                let final_value = parts.next().or(Some("0")).unwrap();
+                let initial_value = parts.next();
+                let final_value = parts.next();
                 let rise_delay = parts.next();
                 let rise_time = parts.next();
                 let fall_delay = parts.next();
                 let fall_time = parts.next();
 
-                TimeDomainConfig::Exp {
-                    initial_value: initial_value.to_string(),
-                    final_value: final_value.to_string(),
+                Some(TimeDomainConfig::Exp {
+                    initial_value: initial_value.map(|s| s.to_string()),
+                    final_value: final_value.map(|s| s.to_string()),
                     rise_delay: rise_delay.map(|s| s.to_string()),
                     rise_time: rise_time.map(|s| s.to_string()),
                     fall_delay: fall_delay.map(|s| s.to_string()),
                     fall_time: fall_time.map(|s| s.to_string()),
-                }
+                })
             }
             "sffm" => {
                 let mut parts = value.split_whitespace();
-                let offset = parts.next().or(Some("0")).unwrap();
-                let amplitude = parts.next().or(Some("0")).unwrap();
+                let offset = parts.next();
+                let amplitude = parts.next();
                 let carrier_frequency = parts.next();
                 let modulation_index = parts.next();
                 let signal_frequency = parts.next();
 
-                TimeDomainConfig::Sffm {
-                    offset: offset.to_string(),
-                    amplitude: amplitude.to_string(),
+                Some(TimeDomainConfig::Sffm {
+                    offset: offset.map(|s| s.to_string()),
+                    amplitude: amplitude.map(|s| s.to_string()),
                     carrier_frequency: carrier_frequency.map(|s| s.to_string()),
                     modulation_index: modulation_index.map(|s| s.parse().unwrap()),
                     signal_frequency: signal_frequency.map(|s| s.to_string()),
-                }
+                })
             }
             "am" => {
                 let mut parts = value.split_whitespace();
-                let amplitude = parts.next().or(Some("0")).unwrap();
-                let offset = parts.next().or(Some("0")).unwrap();
-                let modulating_frequency = parts.next().or(Some("0")).unwrap();
+                let amplitude = parts.next();
+                let offset = parts.next();
+                let modulating_frequency = parts.next();
                 let carrier_frequency = parts.next();
                 let delay = parts.next();
 
-                TimeDomainConfig::Am {
-                    amplitude: amplitude.to_string(),
-                    offset: offset.to_string(),
-                    modulating_frequency: modulating_frequency.to_string(),
+                Some(TimeDomainConfig::Am {
+                    amplitude: amplitude.map(|s| s.to_string()),
+                    offset: offset.map(|s| s.to_string()),
+                    modulating_frequency: modulating_frequency.map(|s| s.to_string()),
                     carrier_frequency: carrier_frequency.map(|s| s.to_string()),
                     delay: delay.map(|s| s.to_string()),
-                }
+                })
             }
 
-            dc => TimeDomainConfig::Dc {
-                value: UnitOfMagnitude::from(dc.to_string())
-                    .or::<Result<UnitOfMagnitude, ()>>(Ok(UnitOfMagnitude::Base(0.0)))
-                    .unwrap()
-                    .format(),
-            },
+            dc => Some(TimeDomainConfig::Dc {
+                value: Some(
+                    UnitOfMagnitude::from(dc.to_string())
+                        .or::<Result<UnitOfMagnitude, ()>>(Ok(UnitOfMagnitude::Base(0.0)))
+                        .unwrap()
+                        .format(),
+                ),
+            }),
         }
     }
 }
@@ -246,57 +253,57 @@ impl SmallSignalConfig {
 #[derive(Deserialize, Clone, Serialize, Debug)]
 pub enum NodeData {
     R {
-        value: String,
+        value: Option<String>,
         name: String,
         position: Position,
     },
     C {
-        value: String,
+        value: Option<String>,
         name: String,
         position: Position,
     },
     L {
-        value: String,
+        value: Option<String>,
         name: String,
         position: Position,
     },
     V {
         name: String,
-        time_domain: TimeDomainConfig,
+        time_domain: Option<TimeDomainConfig>,
         small_signal: Option<SmallSignalConfig>,
         position: Position,
     },
     I {
         name: String,
-        time_domain: TimeDomainConfig,
+        time_domain: Option<TimeDomainConfig>,
         small_signal: Option<SmallSignalConfig>,
         position: Position,
     },
     E {
-        value: String,
+        value: Option<String>,
         name: String,
         position: Position,
     },
     F {
-        value: String,
+        value: Option<String>,
         name: String,
-        src: String,
+        src: Option<String>,
         position: Position,
     },
     G {
-        value: String,
+        value: Option<String>,
         name: String,
         position: Position,
     },
     H {
-        value: String,
+        value: Option<String>,
         name: String,
-        src: String,
+        src: Option<String>,
         position: Position,
     },
     Q {
         name: String,
-        model: BjtModel,
+        model: Option<BjtModel>,
         position: Position,
     },
     Node {
