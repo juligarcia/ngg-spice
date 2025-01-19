@@ -247,11 +247,9 @@ pub async fn simulate(
     if let InstanceState::NotSaved = instance_state {
         log::info!("Instance - NOT SAVED, initializing file picker");
 
-        let file_dialog_builder = app_handle.dialog().file();
+        let file_dialog_builder = app_handle.dialog().file().add_filter("Only ASC", &["asc"]);
 
-        let file_path = file_dialog_builder
-            .set_file_name(".json")
-            .blocking_save_file();
+        let file_path = file_dialog_builder.blocking_save_file();
 
         if let Some(file_path) = file_path {
             let canvas_data = CanvasData {

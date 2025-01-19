@@ -1,7 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useReactFlow } from "@xyflow/react";
 import { useCallback, useEffect } from "react";
-import { match } from "ts-pattern";
 import { AppNode, NodeType } from "../Editor/components/canvas/nodes/types";
 import { AppEdge } from "../Editor/components/canvas/edges/types";
 import { listen } from "@tauri-apps/api/event";
@@ -72,39 +71,11 @@ const useSimulationPanel = () => {
 
     resetSimulations();
 
-    const params = {
-      nodes: nodes.map(
-        (node) =>
-          ({
-            id: node.id,
-            ...match(node)
-              .with({ type: NodeType.Spice }, ({ data, position }) => ({
-                data: {
-                  [data.instance_name]: {
-                    ...data.data,
-                    name: data.name,
-                    position
-                  }
-                }
-              }))
-              .otherwise(({ position, data }) => ({
-                data: { Node: { position, name: data.name } }
-              }))
-          } as ContractNode)
-      ),
-      edges: edges.map(
-        ({ target, sourceHandle, source }) =>
-          ({
-            source,
-            source_port: sourceHandle,
-            // Interchange the target (connection node) id with its name for tag functionality
-            target: connectionNodesMap.get(target)
-          } as ContractEdge)
-      ),
+    invoke<void>("simulate", {
+      nodes: ContractNode.toContract(nodes),
+      edges: ContractEdge.toContract(edges, connectionNodesMap),
       config: simulationsToRun as ContractSimulationsToRun
-    };
-
-    invoke<void>("simulate", params);
+    });
   }, [simulationsToRun]);
 
   return {

@@ -226,6 +226,10 @@ impl ConnectionTracker {
             self.connections.insert(target, new_connections);
         }
     }
+
+    pub fn get(&self, source: &Uuid) -> Option<&HashSet<Uuid>> {
+        self.connections.get(source)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -263,8 +267,11 @@ impl NodeMapper {
         // Might still need to remove some floating nodes
         // let mut ports_that_are_not_nodes = HashSet::<String>::default();
 
-        let mut nodes = Vec::<CanvasNode>::default();
-        let mut edges = Vec::<CanvasEdge>::default();
+        let mut nodes_map = HashMap::<String, CanvasNode>::default();
+        let mut edges_map = HashMap::<String, CanvasEdge>::default();
+
+        // let mut nodes = Vec::<CanvasNode>::default();
+        // let mut edges = Vec::<CanvasEdge>::default();
 
         for symbol in &symbols {
             match symbol {
@@ -295,17 +302,22 @@ impl NodeMapper {
                                 let total_rotation =
                                     rotation.as_number() + transform.rotation.as_number();
 
-                                nodes.push(CanvasNode {
-                                    rotation: total_rotation,
-                                    id: id.to_string(),
-                                    data: NodeData::R {
-                                        value,
-                                        name,
-                                        position: position.add(offset.rotate(
-                                            &Rotation::from_number(transform.rotation.as_number()),
-                                        )),
+                                nodes_map.insert(
+                                    id.to_string(),
+                                    CanvasNode {
+                                        rotation: total_rotation,
+                                        id: id.to_string(),
+                                        data: NodeData::R {
+                                            value,
+                                            name,
+                                            position: position.add(offset.rotate(
+                                                &Rotation::from_number(
+                                                    transform.rotation.as_number(),
+                                                ),
+                                            )),
+                                        },
                                     },
-                                });
+                                );
                             }
                         }
                     }
@@ -326,17 +338,23 @@ impl NodeMapper {
                                 });
 
                             if let (Some(name), Some(value)) = (name, value) {
-                                nodes.push(CanvasNode {
-                                    rotation: rotation.as_number() + transform.rotation.as_number(),
-                                    id: id.to_string(),
-                                    data: NodeData::C {
-                                        value,
-                                        name,
-                                        position: position.add(offset.rotate(
-                                            &Rotation::from_number(transform.rotation.as_number()),
-                                        )),
+                                nodes_map.insert(
+                                    id.to_string(),
+                                    CanvasNode {
+                                        rotation: rotation.as_number()
+                                            + transform.rotation.as_number(),
+                                        id: id.to_string(),
+                                        data: NodeData::C {
+                                            value,
+                                            name,
+                                            position: position.add(offset.rotate(
+                                                &Rotation::from_number(
+                                                    transform.rotation.as_number(),
+                                                ),
+                                            )),
+                                        },
                                     },
-                                });
+                                );
                             }
                         }
                     }
@@ -357,17 +375,23 @@ impl NodeMapper {
                                 });
 
                             if let (Some(name), Some(value)) = (name, value) {
-                                nodes.push(CanvasNode {
-                                    rotation: rotation.as_number() + transform.rotation.as_number(),
-                                    id: id.to_string(),
-                                    data: NodeData::L {
-                                        value,
-                                        name,
-                                        position: position.add(offset.rotate(
-                                            &Rotation::from_number(transform.rotation.as_number()),
-                                        )),
+                                nodes_map.insert(
+                                    id.to_string(),
+                                    CanvasNode {
+                                        rotation: rotation.as_number()
+                                            + transform.rotation.as_number(),
+                                        id: id.to_string(),
+                                        data: NodeData::L {
+                                            value,
+                                            name,
+                                            position: position.add(offset.rotate(
+                                                &Rotation::from_number(
+                                                    transform.rotation.as_number(),
+                                                ),
+                                            )),
+                                        },
                                     },
-                                });
+                                );
                             }
                         }
                     }
@@ -398,20 +422,28 @@ impl NodeMapper {
                                 });
 
                             if let (Some(name), Some(time_domain)) = (name, time_domain) {
-                                nodes.push(CanvasNode {
-                                    rotation: rotation.as_number() + transform.rotation.as_number(),
-                                    id: id.to_string(),
-                                    data: NodeData::V {
-                                        name,
-                                        time_domain: TimeDomainConfig::from_string(&time_domain),
-                                        small_signal: small_signal.map(|small_signal| {
-                                            SmallSignalConfig::from_string(&small_signal)
-                                        }),
-                                        position: position.add(offset.rotate(
-                                            &Rotation::from_number(transform.rotation.as_number()),
-                                        )),
+                                nodes_map.insert(
+                                    id.to_string(),
+                                    CanvasNode {
+                                        rotation: rotation.as_number()
+                                            + transform.rotation.as_number(),
+                                        id: id.to_string(),
+                                        data: NodeData::V {
+                                            name,
+                                            time_domain: TimeDomainConfig::from_string(
+                                                &time_domain,
+                                            ),
+                                            small_signal: small_signal.map(|small_signal| {
+                                                SmallSignalConfig::from_string(&small_signal)
+                                            }),
+                                            position: position.add(offset.rotate(
+                                                &Rotation::from_number(
+                                                    transform.rotation.as_number(),
+                                                ),
+                                            )),
+                                        },
                                     },
-                                });
+                                );
                             }
                         }
                     }
@@ -443,20 +475,28 @@ impl NodeMapper {
                                 });
 
                             if let (Some(name), Some(time_domain)) = (name, time_domain) {
-                                nodes.push(CanvasNode {
-                                    rotation: rotation.as_number() + transform.rotation.as_number(),
-                                    id: id.to_string(),
-                                    data: NodeData::I {
-                                        name,
-                                        time_domain: TimeDomainConfig::from_string(&time_domain),
-                                        small_signal: small_signal.map(|small_signal| {
-                                            SmallSignalConfig::from_string(&small_signal)
-                                        }),
-                                        position: position.add(offset.rotate(
-                                            &Rotation::from_number(transform.rotation.as_number()),
-                                        )),
+                                nodes_map.insert(
+                                    id.to_string(),
+                                    CanvasNode {
+                                        rotation: rotation.as_number()
+                                            + transform.rotation.as_number(),
+                                        id: id.to_string(),
+                                        data: NodeData::I {
+                                            name,
+                                            time_domain: TimeDomainConfig::from_string(
+                                                &time_domain,
+                                            ),
+                                            small_signal: small_signal.map(|small_signal| {
+                                                SmallSignalConfig::from_string(&small_signal)
+                                            }),
+                                            position: position.add(offset.rotate(
+                                                &Rotation::from_number(
+                                                    transform.rotation.as_number(),
+                                                ),
+                                            )),
+                                        },
                                     },
-                                });
+                                );
                             }
                         }
                     }
@@ -480,20 +520,23 @@ impl NodeMapper {
 
                             if let (Some(name), Some(value)) = (name, value) {
                                 if let Ok(Some(model)) = get_bjt_model(&value, bjt_models) {
-                                    nodes.push(CanvasNode {
-                                        rotation: rotation.as_number()
-                                            + transform.rotation.as_number(),
-                                        id: id.to_string(),
-                                        data: NodeData::Q {
-                                            name,
-                                            model: model.to_canvas(),
-                                            position: position.add(offset.rotate(
-                                                &Rotation::from_number(
-                                                    transform.rotation.as_number(),
-                                                ),
-                                            )),
+                                    nodes_map.insert(
+                                        id.to_string(),
+                                        CanvasNode {
+                                            rotation: rotation.as_number()
+                                                + transform.rotation.as_number(),
+                                            id: id.to_string(),
+                                            data: NodeData::Q {
+                                                name,
+                                                model: model.to_canvas(),
+                                                position: position.add(offset.rotate(
+                                                    &Rotation::from_number(
+                                                        transform.rotation.as_number(),
+                                                    ),
+                                                )),
+                                            },
                                         },
-                                    });
+                                    );
                                 }
                             }
                         }
@@ -518,33 +561,39 @@ impl NodeMapper {
 
                             if let (Some(name), Some(value)) = (name, value) {
                                 if let Ok(Some(model)) = get_bjt_model(&value, bjt_models) {
-                                    nodes.push(CanvasNode {
-                                        rotation: rotation.as_number()
-                                            + transform.rotation.as_number(),
-                                        id: id.to_string(),
-                                        data: NodeData::Q {
-                                            name,
-                                            model: model.to_canvas(),
-                                            position: position.add(offset.rotate(
-                                                &Rotation::from_number(
-                                                    transform.rotation.as_number(),
-                                                ),
-                                            )),
+                                    nodes_map.insert(
+                                        id.to_string(),
+                                        CanvasNode {
+                                            rotation: rotation.as_number()
+                                                + transform.rotation.as_number(),
+                                            id: id.to_string(),
+                                            data: NodeData::Q {
+                                                name,
+                                                model: model.to_canvas(),
+                                                position: position.add(offset.rotate(
+                                                    &Rotation::from_number(
+                                                        transform.rotation.as_number(),
+                                                    ),
+                                                )),
+                                            },
                                         },
-                                    });
+                                    );
                                 }
                             }
                         }
                     }
 
                     SymType::Ground => {
-                        nodes.push(CanvasNode {
-                            rotation: 0,
-                            id: id.to_string(),
-                            data: NodeData::Gnd {
-                                position: position.clone(),
+                        nodes_map.insert(
+                            id.to_string(),
+                            CanvasNode {
+                                rotation: 0,
+                                id: id.to_string(),
+                                data: NodeData::Gnd {
+                                    position: position.clone(),
+                                },
                             },
-                        });
+                        );
                     }
                     _ => {}
                 },
@@ -561,14 +610,18 @@ impl NodeMapper {
                     id: node_id,
                 } => {
                     // Push wire as a node
-                    nodes.push(CanvasNode {
-                        rotation: 0,
-                        id: node_id.to_string(),
-                        data: NodeData::Node {
-                            name: format!("Node{}", nodes.len()),
-                            position: Position::average(start, end).add(Position { x: 5, y: 5 }),
+                    nodes_map.insert(
+                        node_id.to_string(),
+                        CanvasNode {
+                            rotation: 0,
+                            id: node_id.to_string(),
+                            data: NodeData::Node {
+                                name: format!("Node{}", nodes_map.len()),
+                                position: Position::average(start, end)
+                                    .add(Position { x: 5, y: 5 }),
+                            },
                         },
-                    });
+                    );
 
                     for symbol in &symbols {
                         match symbol {
@@ -595,15 +648,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-0", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-0",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
 
                                             if Position::is_between(start, end, relative_port1)
@@ -611,15 +670,21 @@ impl NodeMapper {
                                             {
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-1", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-1",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
                                         }
                                     }
@@ -638,15 +703,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-0", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-0",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
 
                                             if Position::is_between(start, end, relative_port1)
@@ -654,15 +725,21 @@ impl NodeMapper {
                                             {
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-1", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-1",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
                                         }
                                     }
@@ -681,15 +758,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-0", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-0",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
 
                                             if Position::is_between(start, end, relative_port1)
@@ -697,15 +780,21 @@ impl NodeMapper {
                                             {
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-1", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-1",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
                                         }
                                     }
@@ -728,15 +817,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-0", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-0",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
 
                                             if Position::is_between(start, end, relative_port1)
@@ -744,15 +839,21 @@ impl NodeMapper {
                                             {
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-1", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-1",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
                                         }
                                     }
@@ -775,15 +876,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-0", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-0",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
 
                                             if Position::is_between(start, end, relative_port1)
@@ -791,15 +898,21 @@ impl NodeMapper {
                                             {
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-1", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-1",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
                                         }
                                     }
@@ -813,15 +926,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-0", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-0",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
                                         }
                                     }
@@ -842,15 +961,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-0", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-0",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
 
                                             if Position::is_between(start, end, relative_port1)
@@ -859,15 +984,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-1", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-1",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
 
                                             if Position::is_between(start, end, relative_port2)
@@ -876,15 +1007,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-2", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-2",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
                                         }
                                     }
@@ -906,15 +1043,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-0", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-0",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
 
                                             if Position::is_between(start, end, relative_port1)
@@ -923,15 +1066,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-1", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-1",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
 
                                             if Position::is_between(start, end, relative_port2)
@@ -940,15 +1089,21 @@ impl NodeMapper {
                                                 // Assign target as the wire's node representation
                                                 connection_tracker
                                                     .add(node_id.clone(), symbol_id.clone());
-                                                edges.push(CanvasEdge {
-                                                    target: node_id.to_string(),
-                                                    source: symbol_id.to_string(),
-                                                    source_port: format!("port-[{}]-2", symbol_id),
-                                                    target_port: Some(format!(
-                                                        "port-[{}]-0",
-                                                        node_id
-                                                    )),
-                                                });
+                                                edges_map.insert(
+                                                    Uuid::new_v4().to_string(),
+                                                    CanvasEdge {
+                                                        target: node_id.to_string(),
+                                                        source: symbol_id.to_string(),
+                                                        source_port: format!(
+                                                            "port-[{}]-2",
+                                                            symbol_id
+                                                        ),
+                                                        target_port: Some(format!(
+                                                            "port-[{}]-0",
+                                                            node_id
+                                                        )),
+                                                    },
+                                                );
                                             }
                                         }
                                     }
@@ -975,12 +1130,15 @@ impl NodeMapper {
                                     && !connection_tracker.contains(node_id, wire_id)
                                 {
                                     connection_tracker.add(*node_id, *wire_id);
-                                    edges.push(CanvasEdge {
-                                        target: node_id.to_string(),
-                                        source: wire_id.to_string(),
-                                        source_port: format!("port-[{}]-0", wire_id),
-                                        target_port: Some(format!("port-[{}]-0", node_id)),
-                                    });
+                                    edges_map.insert(
+                                        Uuid::new_v4().to_string(),
+                                        CanvasEdge {
+                                            target: node_id.to_string(),
+                                            source: wire_id.to_string(),
+                                            source_port: format!("port-[{}]-0", wire_id),
+                                            target_port: Some(format!("port-[{}]-0", node_id)),
+                                        },
+                                    );
                                     continue;
                                 }
 
@@ -988,12 +1146,15 @@ impl NodeMapper {
                                     && !connection_tracker.contains(node_id, wire_id)
                                 {
                                     connection_tracker.add(*node_id, *wire_id);
-                                    edges.push(CanvasEdge {
-                                        target: node_id.to_string(),
-                                        source: wire_id.to_string(),
-                                        source_port: format!("port-[{}]-0", wire_id),
-                                        target_port: Some(format!("port-[{}]-0", node_id)),
-                                    });
+                                    edges_map.insert(
+                                        Uuid::new_v4().to_string(),
+                                        CanvasEdge {
+                                            target: node_id.to_string(),
+                                            source: wire_id.to_string(),
+                                            source_port: format!("port-[{}]-0", wire_id),
+                                            target_port: Some(format!("port-[{}]-0", node_id)),
+                                        },
+                                    );
                                     continue;
                                 }
                             }
@@ -1006,8 +1167,41 @@ impl NodeMapper {
         }
 
         // TODO: Parse simulations
+        let mut parsed_edges = edges_map.clone();
 
-        (nodes, edges)
+        // Have to remove node to node connections
+        for (edge_id, edge) in edges_map.into_iter() {
+            // If there is a node to node edge
+            if let (Some(source_node), Some(target_node)) = (
+                nodes_map.get(&edge.source).cloned(),
+                nodes_map.get(&edge.target).cloned(),
+            ) {
+                match (&source_node.data, &target_node.data) {
+                    (NodeData::Node { .. }, NodeData::Node { .. }) => {
+                        // Connect all elements from source, to target
+                        // by replacing all references to source with target
+                        for parsed_edge in parsed_edges.values_mut() {
+                            if parsed_edge.target == edge.source {
+                                parsed_edge.target = edge.target.clone();
+                                parsed_edge.target_port = Some(format!("port-[{}]-0", edge.target));
+                            }
+                        }
+
+                        // Remove source as a node
+                        nodes_map.remove(&source_node.id);
+
+                        // Finally, remove the edge
+                        parsed_edges.remove(&edge_id);
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        (
+            nodes_map.values().cloned().collect(),
+            parsed_edges.values().cloned().collect(),
+        )
     }
 }
 

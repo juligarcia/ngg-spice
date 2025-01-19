@@ -26,12 +26,10 @@ impl Schematic {
         self.ground_alias.insert(alias.to_owned());
     }
 
-    // TODO: mejorar
     fn get_netlist_header() -> String {
-        format!("TEMP TITLE\n")
+        format!("TITLE\n")
     }
 
-    // TODO: mejorar
     fn get_netlist_footer() -> String {
         format!(".end\n")
     }

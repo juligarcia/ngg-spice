@@ -45,23 +45,48 @@ export type ContractEdge = {
 export type ContractSimulationsToRun = Map<string, SimulationConfig>;
 
 export const ContractNode = {
+  toContract: (nodes: AppNode[]): ContractNode[] => {
+    return nodes.map((node) => {
+      return match(node)
+        .with(
+          {
+            type: NodeType.ConnectionNode
+          },
+          ({ id, position, data: { name } }) => ({
+            id,
+            rotation: 0,
+            data: { Node: { position, name } }
+          })
+        )
+        .with({ type: NodeType.Spice }, ({ id, data, position }) => ({
+          id,
+          rotation: data.rotation || 0,
+          data: {
+            [data.instance_name]: {
+              ...data.data,
+              name: data.name,
+              position
+            }
+          }
+        }))
+        .run() as ContractNode;
+    });
+  },
+
   toDomain: (contractNodes: ContractNode[], amp: number = 1): AppNode[] => {
     return contractNodes.map(({ id, data, rotation }) => {
       return match(data)
-        .with(
-          P.union({ Node: P.nonNullable }),
-          ({ Node: { name, position } }) => {
-            return {
-              id,
-              type: NodeType.ConnectionNode,
-              position: {
-                x: roundToTheNearestMultiple(position.x * amp, 10),
-                y: roundToTheNearestMultiple(position.y * amp, 10)
-              },
-              data: { name }
-            } as ConnectionNodeType;
-          }
-        )
+        .with({ Node: P.nonNullable }, ({ Node: { name, position } }) => {
+          return {
+            id,
+            type: NodeType.ConnectionNode,
+            position: {
+              x: roundToTheNearestMultiple(position.x * amp, 10),
+              y: roundToTheNearestMultiple(position.y * amp, 10)
+            },
+            data: { name }
+          } as ConnectionNodeType;
+        })
         .otherwise((d) => {
           const instanceName = Object.keys(d)[0] as SpiceInstanceName;
           const { name, position, ...data } = d[instanceName];
@@ -86,6 +111,20 @@ export const ContractNode = {
 };
 
 export const ContractEdge = {
+  toContract: (
+    edges: AppEdge[],
+    connectionNodesMap: Map<string, string>
+  ): ContractEdge[] => {
+    return edges.map(
+      ({ target, sourceHandle, source }) =>
+        ({
+          source,
+          source_port: sourceHandle,
+          // Interchange the target (connection node) id with its name for tag functionality
+          target: connectionNodesMap.get(target)
+        } as ContractEdge)
+    );
+  },
   toDomain: (contractEdges: ContractEdge[]): AppEdge[] => {
     return contractEdges.map(({ source, source_port, target, target_port }) => {
       return {

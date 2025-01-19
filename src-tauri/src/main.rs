@@ -83,8 +83,6 @@ fn main() {
             fs::create_dir_all(&app_data_dir).expect("Failed to create AppData directory");
 
             // ----------------- WINDOW SETUP -------------------
-            // TODO: chequear windows y linux
-
             // Creates a custom titlebar for main window on MacOS
             #[cfg(target_os = "macos")]
             {

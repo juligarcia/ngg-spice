@@ -99,11 +99,11 @@ impl Simulator {
                 }
 
                 SecondaryThreadStatus::Halted => {
-                    // TODO: implement
+                    // TODO: Implement
                 }
 
                 SecondaryThreadStatus::Panic => {
-                    // TODO: implement
+                    // TODO: Implement
                 }
 
                 SecondaryThreadStatus::Done => {

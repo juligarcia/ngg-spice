@@ -96,12 +96,12 @@ impl SpiceManager for NGGSpiceManager {
                 log::info!("{}", msg.blue());
             }
             None => {
-                // TODO: Que hago aca?
+                // TODO: Handle
             }
         }
     }
     fn cb_ctrldexit(&mut self, status: i32, is_immediate: bool, is_quit: bool, id: i32) {
-        // TODO: implementar safe exit y restart
+        // TODO: Safe exit and restart implementation
         /*
         If ngspice has been linked at runtime by dlopen/LoadLibrary (see 19.2.2),
         the callback may close all threads, and then detach ngspice.dll by invoking
