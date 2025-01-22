@@ -7,26 +7,37 @@ import {
 import { listen } from "@tauri-apps/api/event";
 import { useReactFlow } from "@xyflow/react";
 import { useEffect } from "react";
+import { match } from "ts-pattern";
 
 type OpenFile = {
   nodes: ContractNode[];
   edges: ContractEdge[];
   config: ContractSimulationsToRun;
+  platform: "ltSpice" | "graphicSpice";
 };
 
 const useOpenFile = () => {
-  const { setNodes, setEdges } = useReactFlow();
+  const { setNodes, setEdges, fitView } = useReactFlow();
 
   const setSimulationsToRun = useSimulationStore.use.setSimulationsToRun();
 
   useEffect(() => {
     const will_be_unlisten = listen<OpenFile>("open_file", (event) => {
-      console.log(event.payload.edges);
-      console.log(event.payload.nodes);
+      const nodes = ContractNode.toDomain(
+        event.payload.nodes,
+        // Spacing factor for the nodes
+        match(event.payload.platform)
+          .with("ltSpice", () => 2)
+          .with("graphicSpice", () => 1)
+          .otherwise(() => 1)
+      );
 
-      setNodes(ContractNode.toDomain(event.payload.nodes, 2));
+      setNodes(nodes);
       setEdges(ContractEdge.toDomain(event.payload.edges));
       setSimulationsToRun(event.payload.config);
+
+      // Trigger re-center after updating nodes
+      setTimeout(() => fitView({ nodes, duration: 300 }), 10);
     });
 
     return () => {

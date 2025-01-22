@@ -17,7 +17,7 @@ use crate::{
     },
 };
 
-use tauri::State;
+use tauri::{utils::config::parse, State};
 use uuid::Uuid;
 
 use super::constants::{
@@ -438,10 +438,14 @@ impl NodeMapper {
                                         data: NodeData::V {
                                             name,
                                             time_domain: time_domain.and_then(|time_domain| {
-                                                TimeDomainConfig::from_string(&time_domain)
+                                                TimeDomainConfig::from_asc_value_string(
+                                                    &time_domain,
+                                                )
                                             }),
                                             small_signal: small_signal.map(|small_signal| {
-                                                SmallSignalConfig::from_string(&small_signal)
+                                                SmallSignalConfig::from_asc_value_string(
+                                                    &small_signal,
+                                                )
                                             }),
                                             position: position.add(offset.rotate(
                                                 &Rotation::from_number(
@@ -491,10 +495,14 @@ impl NodeMapper {
                                         data: NodeData::I {
                                             name,
                                             time_domain: time_domain.and_then(|time_domain| {
-                                                TimeDomainConfig::from_string(&time_domain)
+                                                TimeDomainConfig::from_asc_value_string(
+                                                    &time_domain,
+                                                )
                                             }),
                                             small_signal: small_signal.map(|small_signal| {
-                                                SmallSignalConfig::from_string(&small_signal)
+                                                SmallSignalConfig::from_asc_value_string(
+                                                    &small_signal,
+                                                )
                                             }),
                                             position: position.add(offset.rotate(
                                                 &Rotation::from_number(
@@ -665,16 +673,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-0",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -687,16 +696,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-1",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -720,16 +730,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-0",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -742,16 +753,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-1",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -775,16 +787,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-0",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -797,16 +810,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-1",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -834,16 +848,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-0",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -856,16 +871,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-1",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -893,16 +909,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-0",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -915,16 +932,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-1",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -943,16 +961,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-0",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -978,16 +997,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-0",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -1001,16 +1021,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-1",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -1024,16 +1045,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-2",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -1060,16 +1082,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-0",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -1083,16 +1106,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-1",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -1106,16 +1130,17 @@ impl NodeMapper {
                                                 edges_map.insert(
                                                     Uuid::new_v4().to_string(),
                                                     CanvasEdge {
+                                                        target_alias: None,
                                                         target: node_id.to_string(),
                                                         source: symbol_id.to_string(),
                                                         source_port: format!(
                                                             "port-[{}]-2",
                                                             symbol_id
                                                         ),
-                                                        target_port: Some(format!(
+                                                        target_port: format!(
                                                             "port-[{}]-0",
                                                             node_id
-                                                        )),
+                                                        ),
                                                     },
                                                 );
                                             }
@@ -1147,10 +1172,11 @@ impl NodeMapper {
                                     edges_map.insert(
                                         Uuid::new_v4().to_string(),
                                         CanvasEdge {
+                                            target_alias: None,
                                             target: node_id.to_string(),
                                             source: wire_id.to_string(),
                                             source_port: format!("port-[{}]-0", wire_id),
-                                            target_port: Some(format!("port-[{}]-0", node_id)),
+                                            target_port: (format!("port-[{}]-0", node_id)),
                                         },
                                     );
                                     continue;
@@ -1163,10 +1189,11 @@ impl NodeMapper {
                                     edges_map.insert(
                                         Uuid::new_v4().to_string(),
                                         CanvasEdge {
+                                            target_alias: None,
                                             target: node_id.to_string(),
                                             source: wire_id.to_string(),
                                             source_port: format!("port-[{}]-0", wire_id),
-                                            target_port: Some(format!("port-[{}]-0", node_id)),
+                                            target_port: (format!("port-[{}]-0", node_id)),
                                         },
                                     );
                                     continue;
@@ -1191,13 +1218,14 @@ impl NodeMapper {
                 nodes_map.get(&edge.target).cloned(),
             ) {
                 match (&source_node.data, &target_node.data) {
-                    (NodeData::Node { .. }, NodeData::Node { .. }) => {
+                    (NodeData::Node { .. }, NodeData::Node { name, .. }) => {
                         // Connect all elements from source, to target
                         // by replacing all references to source with target
                         for parsed_edge in parsed_edges.values_mut() {
                             if parsed_edge.target == edge.source {
                                 parsed_edge.target = edge.target.clone();
-                                parsed_edge.target_port = Some(format!("port-[{}]-0", edge.target));
+                                parsed_edge.target_port = format!("port-[{}]-0", edge.target);
+                                parsed_edge.target_alias = Some(name.clone());
                             }
                         }
 
@@ -1357,5 +1385,14 @@ impl Engine for LTSpice {
         let (nodes, edges) = NodeMapper::from_directives(directives, state);
 
         Ok((nodes, edges, config))
+    }
+
+    fn domain_to_file(
+        nodes: Vec<CanvasNode>,
+        edges: Vec<CanvasEdge>,
+        config: HashMap<String, SimulationConfig>,
+        file: File,
+    ) -> Result<(), ()> {
+        unimplemented!()
     }
 }

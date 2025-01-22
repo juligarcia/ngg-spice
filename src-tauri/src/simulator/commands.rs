@@ -1,7 +1,6 @@
 use std::{
     collections::HashMap,
     fs::File,
-    io::BufWriter,
     sync::{Arc, Mutex},
     thread::{self, sleep},
     time::{Duration, Instant, SystemTime},
@@ -10,7 +9,10 @@ use tauri::{Manager, State};
 
 use tauri_plugin_dialog::DialogExt;
 
-use crate::app_state::{instance::InstanceState, AppState};
+use crate::{
+    app_state::{instance::InstanceState, AppState},
+    compat::{engine::Engine, spice::graphic_spice::engine::GraphicSpice},
+};
 
 use super::{
     circuit::canvas::{CanvasData, CanvasEdge, CanvasNode},
@@ -247,7 +249,7 @@ pub async fn simulate(
     if let InstanceState::NotSaved = instance_state {
         log::info!("Instance - NOT SAVED, initializing file picker");
 
-        let file_dialog_builder = app_handle.dialog().file().add_filter("Only ASC", &["asc"]);
+        let file_dialog_builder = app_handle.dialog().file();
 
         let file_path = file_dialog_builder.blocking_save_file();
 
@@ -266,8 +268,9 @@ pub async fn simulate(
             };
 
             let file = File::create(file_path.to_string()).unwrap();
-            let mut writer = BufWriter::new(file);
-            serde_json::to_writer(&mut writer, &instance_state.get_canvas_data()).unwrap();
+
+            GraphicSpice::domain_to_file(nodes.clone(), edges.clone(), config.clone(), file)
+                .unwrap();
         } else {
             return Err(());
         }

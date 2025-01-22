@@ -74,7 +74,7 @@ const useSimulationPanel = () => {
     invoke<void>("simulate", {
       nodes: ContractNode.toContract(nodes),
       edges: ContractEdge.toContract(edges, connectionNodesMap),
-      config: simulationsToRun as ContractSimulationsToRun
+      config: Object.fromEntries(simulationsToRun) as ContractSimulationsToRun
     });
   }, [simulationsToRun]);
 

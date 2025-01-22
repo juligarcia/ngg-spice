@@ -73,7 +73,7 @@ const PowerSourceTag: FC<PowerSourceTagProps> = ({ name, data, type }) => {
               </TooltipContent>
               <TooltipTrigger>
                 <Badge className="flex gap-2 items-center">
-                  <Pulse className="w-8 h-6 border-r-2 border-primary-foreground pr-2" />
+                  <Pulse className="w-6 h-4 border-r-2 border-primary-foreground pr-2" />
                   {mapTruthyToLabel([
                     `${initial_value}${powerUnit}`,
                     `${final_value}${powerUnit}`,
@@ -93,7 +93,7 @@ const PowerSourceTag: FC<PowerSourceTagProps> = ({ name, data, type }) => {
               </TooltipContent>
               <TooltipTrigger>
                 <Badge className="flex gap-2 items-center">
-                  <Sine className="w-8 h-6 border-r-2 border-primary-foreground pr-2" />
+                  <Sine className="w-6 h-4 border-r-2 border-primary-foreground pr-2" />
                   {mapTruthyToLabel([
                     `${amplitude}${powerUnit}`,
                     `${offset}${powerUnit}`,
@@ -115,7 +115,7 @@ const PowerSourceTag: FC<PowerSourceTagProps> = ({ name, data, type }) => {
               </TooltipContent>
               <TooltipTrigger>
                 <Badge className="flex gap-2 items-center">
-                  <Exp className="w-8 h-6 border-r-2 border-primary-foreground pr-2 py-1" />
+                  <Exp className="w-6 h-4 border-r-2 border-primary-foreground pr-2 py-1" />
                   {mapTruthyToLabel([
                     `${initial_value}${powerUnit}`,
                     rise_time && `${rise_time}${Units.Time}`,

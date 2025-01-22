@@ -85,9 +85,18 @@ export const getPowerSourceHelperText = (
   if (isEmpty(data)) return "BJT is not properly configured";
 
   for (let key of REQUIRED_POWER_SOURCE_VALUES) {
-    const datum = get(data, key);
+    const isComplex = key.includes(".");
 
-    if (datum === undefined || datum === null) {
+    if (isComplex) {
+      const [parent, category] = key.split(".");
+
+      if (get(data, `${parent}.${category}`) !== undefined) {
+        if (get(data, key) === undefined || get(data, key) === null) {
+          helperText = "Power source is not properly configured";
+          break;
+        }
+      }
+    } else if (get(data, key) === undefined || get(data, key) === null) {
       helperText = "Power source is not properly configured";
       break;
     }
@@ -107,9 +116,18 @@ export const getCurrentSourceHelperText = (
   if (isEmpty(data)) return "Source is not properly configured";
 
   for (let key of REQUIRED_POWER_SOURCE_VALUES) {
-    const datum = get(data, key);
+    const isComplex = key.includes(".");
 
-    if (datum === undefined || datum === null) {
+    if (isComplex) {
+      const [parent, category] = key.split(".");
+
+      if (get(data, `${parent}.${category}`) !== undefined) {
+        if (get(data, key) === undefined || get(data, key) === null) {
+          helperText = "Voltage source is not properly configured";
+          break;
+        }
+      }
+    } else if (get(data, key) === undefined || get(data, key) === null) {
       helperText = "Voltage source is not properly configured";
       break;
     }
@@ -189,9 +207,18 @@ export const getBJTHelperText = (
   if (isEmpty(data)) return "BJT is not properly configured";
 
   for (let key of REQUIRED_BJT_VALUES) {
-    const datum = get(data, key);
+    const isComplex = key.includes(".");
 
-    if (datum === undefined || datum === null) {
+    if (isComplex) {
+      const [parent, category] = key.split(".");
+
+      if (get(data, `${parent}.${category}`) !== undefined) {
+        if (get(data, key) === undefined || get(data, key) === null) {
+          helperText = "BJT is not properly configured";
+          break;
+        }
+      }
+    } else if (get(data, key) === undefined || get(data, key) === null) {
       helperText = "BJT is not properly configured";
       break;
     }

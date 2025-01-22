@@ -144,14 +144,17 @@ impl Simulator {
 
             let maybe_source_node = nodes_map.get(&edge.source);
 
-            if let Some(source_node) = maybe_source_node {
+            // Instead of using edge.target / edge.target_port, we use edge.target_alias to add
+            // tag functonality, say having multiple separate nodes be the actual same node
+            if let (Some(source_node), Some(target_alias)) = (maybe_source_node, edge.target_alias)
+            {
                 match source_node.data {
                     NodeData::Gnd { .. } => {
-                        schematic.insert_ground_alias(&edge.target);
+                        schematic.insert_ground_alias(&target_alias);
                     }
 
                     _ => {
-                        node_connections.insert((edge.source_port, edge.target));
+                        node_connections.insert((edge.source_port, target_alias));
                     }
                 };
             }

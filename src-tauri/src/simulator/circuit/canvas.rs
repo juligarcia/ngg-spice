@@ -57,23 +57,197 @@ pub enum TimeDomainConfig {
 }
 
 impl TimeDomainConfig {
-    pub fn from_string(value: &str) -> Option<TimeDomainConfig> {
-        // Empty string LTSpice representation
-        if value == "\"\"" {
-            return None;
+    pub fn to_gsp_string(&self) -> String {
+        match self {
+            TimeDomainConfig::Am {
+                amplitude,
+                offset,
+                modulating_frequency,
+                carrier_frequency,
+                delay,
+            } => {
+                let mut formatted = format!("AM");
+
+                if let Some(amplitude) = amplitude {
+                    formatted.push_str(&format!(" {}", amplitude));
+
+                    if let Some(offset) = offset {
+                        formatted.push_str(&format!(" {}", offset));
+
+                        if let Some(modulating_frequency) = modulating_frequency {
+                            formatted.push_str(&format!(" {}", modulating_frequency));
+
+                            if let Some(carrier_frequency) = carrier_frequency {
+                                formatted.push_str(&format!(" {}", carrier_frequency));
+
+                                if let Some(delay) = delay {
+                                    formatted.push_str(&format!(" {}", delay));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            TimeDomainConfig::Dc { value } => {
+                let mut formatted = format!("DC");
+
+                if let Some(value) = value {
+                    formatted.push_str(&format!(" {}", value));
+                }
+
+                formatted
+            }
+
+            TimeDomainConfig::Exp {
+                initial_value,
+                final_value,
+                rise_delay,
+                rise_time,
+                fall_delay,
+                fall_time,
+            } => {
+                let mut formatted = format!("EXP");
+
+                if let Some(initial_value) = initial_value {
+                    formatted.push_str(&format!(" {}", initial_value));
+
+                    if let Some(final_value) = final_value {
+                        formatted.push_str(&format!(" {}", final_value));
+
+                        if let Some(rise_delay) = rise_delay {
+                            formatted.push_str(&format!(" {}", rise_delay));
+
+                            if let Some(rise_time) = rise_time {
+                                formatted.push_str(&format!(" {}", rise_time));
+
+                                if let Some(fall_delay) = fall_delay {
+                                    formatted.push_str(&format!(" {}", fall_delay));
+
+                                    if let Some(fall_time) = fall_time {
+                                        formatted.push_str(&format!(" {}", fall_time));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            TimeDomainConfig::Pulse {
+                initial_value,
+                final_value,
+                delay,
+                rise_time,
+                fall_time,
+                pulse_width,
+                period,
+            } => {
+                let mut formatted = format!("PULSE");
+
+                if let Some(initial_value) = initial_value {
+                    formatted.push_str(&format!(" {}", initial_value));
+
+                    if let Some(final_value) = final_value {
+                        formatted.push_str(&format!(" {}", final_value));
+
+                        if let Some(delay) = delay {
+                            formatted.push_str(&format!(" {}", delay));
+
+                            if let Some(rise_time) = rise_time {
+                                formatted.push_str(&format!(" {}", rise_time));
+
+                                if let Some(fall_time) = fall_time {
+                                    formatted.push_str(&format!(" {}", fall_time));
+
+                                    if let Some(pulse_width) = pulse_width {
+                                        formatted.push_str(&format!(" {}", pulse_width));
+
+                                        if let Some(period) = period {
+                                            formatted.push_str(&format!(" {}", period));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            TimeDomainConfig::Sffm {
+                offset,
+                amplitude,
+                carrier_frequency,
+                modulation_index,
+                signal_frequency,
+            } => {
+                let mut formatted = format!("SFFM");
+
+                if let Some(offset) = offset {
+                    formatted.push_str(&format!(" {}", offset));
+
+                    if let Some(amplitude) = amplitude {
+                        formatted.push_str(&format!(" {}", amplitude));
+
+                        if let Some(carrier_frequency) = carrier_frequency {
+                            formatted.push_str(&format!(" {}", carrier_frequency));
+
+                            if let Some(modulation_index) = modulation_index {
+                                formatted.push_str(&format!(" {}", modulation_index));
+
+                                if let Some(signal_frequency) = signal_frequency {
+                                    formatted.push_str(&format!(" {}", signal_frequency));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            TimeDomainConfig::Sin {
+                offset,
+                amplitude,
+                frequency,
+                delay,
+                damping_factor,
+            } => {
+                let mut formatted = format!("SINE");
+
+                if let Some(offset) = offset {
+                    formatted.push_str(&format!(" {}", offset));
+
+                    if let Some(amplitude) = amplitude {
+                        formatted.push_str(&format!(" {}", amplitude));
+
+                        if let Some(frequency) = frequency {
+                            formatted.push_str(&format!(" {}", frequency));
+
+                            if let Some(delay) = delay {
+                                formatted.push_str(&format!(" {}", delay));
+
+                                if let Some(damping_factor) = damping_factor {
+                                    formatted.push_str(&format!(" {}", damping_factor));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
         }
+    }
 
-        if let Ok(unit) = UnitOfMagnitude::from(value.to_string()) {
-            return Some(TimeDomainConfig::Dc {
-                value: Some(unit.format()),
-            });
-        }
-
-        let mut parts = value.split("(");
-        let kind = parts.next().unwrap().to_lowercase();
-        let value = parts.next().unwrap().replace(")", "");
-
-        match kind.as_str() {
+    pub fn from_space_separated_string(kind: &str, value: &str) -> Option<TimeDomainConfig> {
+        match kind.to_lowercase().as_str() {
             "pulse" => {
                 let mut parts = value.split_whitespace();
                 let initial_value = parts.next();
@@ -161,15 +335,48 @@ impl TimeDomainConfig {
                 })
             }
 
-            dc => Some(TimeDomainConfig::Dc {
+            "dc" => Some(TimeDomainConfig::Dc {
                 value: Some(
-                    UnitOfMagnitude::from(dc.to_string())
+                    UnitOfMagnitude::from("dc".to_string())
                         .or::<Result<UnitOfMagnitude, ()>>(Ok(UnitOfMagnitude::Base(0.0)))
                         .unwrap()
                         .format(),
                 ),
             }),
+
+            _ => None,
         }
+    }
+
+    pub fn from_gsp_value_string(value: &str) -> Option<TimeDomainConfig> {
+        if value.is_empty() {
+            return None;
+        }
+
+        if let Some((kind, attributes)) = value.split_once(" ") {
+            return TimeDomainConfig::from_space_separated_string(&kind, &attributes);
+        }
+
+        None
+    }
+
+    pub fn from_asc_value_string(value: &str) -> Option<TimeDomainConfig> {
+        // Empty string LTSpice representation
+        if value == "\"\"" || value.is_empty() {
+            return None;
+        }
+
+        if let Ok(unit) = UnitOfMagnitude::from(value.to_string()) {
+            return Some(TimeDomainConfig::Dc {
+                value: Some(unit.format()),
+            });
+        }
+
+        let mut parts = value.split("(");
+        let kind = parts.next().unwrap().to_lowercase();
+        let attributes = parts.next().unwrap().replace(")", "");
+
+        TimeDomainConfig::from_space_separated_string(&kind, &attributes)
     }
 }
 
@@ -236,7 +443,34 @@ pub struct SmallSignalConfig {
 }
 
 impl SmallSignalConfig {
-    pub fn from_string(value: &str) -> SmallSignalConfig {
+    pub fn to_gsp_string(&self) -> String {
+        let mut formatted = format!("AC {}", self.amplitude);
+
+        if let Some(phase) = &self.phase {
+            formatted.push_str(&format!(" {}", phase));
+        }
+
+        formatted
+    }
+
+    pub fn from_gsp_value_string(value: &str) -> Option<SmallSignalConfig> {
+        if value.is_empty() {
+            return None;
+        }
+
+        let mut parts = value.split_whitespace();
+        // Read AC prefix
+        let _ac = parts.next().unwrap();
+        let amplitude = parts.next().or(Some("0")).unwrap();
+        let phase = parts.next();
+
+        Some(SmallSignalConfig {
+            amplitude: amplitude.to_string(),
+            phase: phase.map(|s| s.to_string()),
+        })
+    }
+
+    pub fn from_asc_value_string(value: &str) -> SmallSignalConfig {
         let mut parts = value.split_whitespace();
         // Read AC prefix
         let _ac = parts.next().unwrap();
@@ -327,7 +561,8 @@ pub struct CanvasEdge {
     pub target: String,
     pub source: String,
     pub source_port: String,
-    pub target_port: Option<String>,
+    pub target_port: String,
+    pub target_alias: Option<String>,
 }
 
 #[derive(Deserialize, Clone, Serialize)]

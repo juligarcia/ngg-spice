@@ -1,13 +1,12 @@
 use std::fs::File;
 
-use native_db::Database;
 use tauri::{fs, Emitter, Manager};
 use tauri_plugin_dialog::DialogExt;
 
 use super::engine::LTSpice;
 use crate::{
     app_state::AppState,
-    compat::engine::{Engine, OpenFileEventPaylad},
+    compat::engine::{Engine, OpenFileEventPaylad, SupportedPlatforms},
 };
 
 pub fn open_lt_spice(app_handle: &tauri::AppHandle) {
@@ -31,6 +30,7 @@ pub fn open_lt_spice(app_handle: &tauri::AppHandle) {
                                 nodes,
                                 edges,
                                 config,
+                                platform: SupportedPlatforms::LtSpice,
                             },
                         )
                         .unwrap();

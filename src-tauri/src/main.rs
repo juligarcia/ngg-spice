@@ -4,7 +4,10 @@
 use std::path::Path;
 use std::{fs, sync::Mutex};
 
-use gspice::compat::spice::lt_spice::commands::open_lt_spice;
+use gspice::compat::spice::{
+    graphic_spice::commands::{open_graphic_spice, save_graphic_spice},
+    lt_spice::commands::open_lt_spice,
+};
 use gspice::{
     app_state::{instance::InstanceState, models::bjt::DATABASE_BJT_MODELS, AppState},
     init::models::init_models,
@@ -45,15 +48,15 @@ fn main() {
             let open_file = MenuItem::with_id(app, "open_file", "Open", true, None::<&str>)?;
             let save_file = MenuItem::with_id(app, "save_file", "Save", true, None::<&str>)?;
 
-            let lt_spice_open =
-                MenuItem::with_id(app, "lt_spice_open", "Open", true, None::<&str>)?;
+            let lt_spice_open_file =
+                MenuItem::with_id(app, "lt_spice_open_file", "Open", true, None::<&str>)?;
             // TODO: Implement
             // let lt_spice_save =
             //     MenuItem::with_id(app, "lt_spice_save", "Save", true, None::<&str>)?;
 
             // Define submenus
             let lt_spice_menu = Submenu::with_id(app, "lt_spice_compat_menu", "LT Spice", true)?;
-            lt_spice_menu.insert_items(&[&lt_spice_open], 0)?;
+            lt_spice_menu.insert_items(&[&lt_spice_open_file], 0)?;
 
             let compat_sub_menu = Submenu::with_id(app, "compat_sub_menu", "Compatibility", true)?;
             compat_sub_menu.insert(&lt_spice_menu, 0)?;
@@ -124,16 +127,26 @@ fn main() {
             Ok(())
         })
         .on_menu_event(|app, event| match event.id {
-            MenuId(id) if id == "lt_spice_open" => {
+            MenuId(id) if id == "lt_spice_open_file" => {
                 open_lt_spice(app);
             }
+
+            MenuId(id) if id == "save_file" => {
+                save_graphic_spice(app);
+            }
+
+            MenuId(id) if id == "open_file" => {
+                open_graphic_spice(app);
+            }
+
             _ => {}
         })
         .invoke_handler(tauri::generate_handler![
             gspice::simulator::commands::simulate,
             gspice::app_state::models::bjt::load_bjt_models,
             gspice::app_state::models::bjt::save_bjt_model,
-            gspice::compat::commands::parse_bjt_model_directive
+            gspice::compat::commands::parse_bjt_model_directive,
+            gspice::compat::spice::graphic_spice::commands::save_graphic_spice_from_domain,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

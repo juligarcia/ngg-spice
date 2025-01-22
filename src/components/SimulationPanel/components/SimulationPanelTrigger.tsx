@@ -6,11 +6,16 @@ import clsx from "clsx";
 import { AudioWaveform, ChevronsRight } from "lucide-react";
 import { FC } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { useSimulationStore } from "@/store/simulation";
+import { Badge } from "@/components/ui/badge";
 
 const SimulationPanelTrigger: FC = () => {
   const simulationPanelOpen = useProgramStore.use.simulationPanelOpen();
   const toggleSimulationPanelOpen =
     useProgramStore.use.toggleSimulationPanelOpen();
+
+  const numberOfSimulationsToRun =
+    useSimulationStore.use.simulationsToRun().size;
 
   const { os } = useOs();
 
@@ -40,6 +45,13 @@ const SimulationPanelTrigger: FC = () => {
         size={20}
       />
       <div className="absolute top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4 -rotate-90 flex items-center gap-2">
+        {!!numberOfSimulationsToRun && (
+          <Badge>
+            <Typography className="font-bold">
+              {numberOfSimulationsToRun}
+            </Typography>
+          </Badge>
+        )}
         <Typography className=" text-center whitespace-nowrap">
           Simulation
         </Typography>

@@ -68,6 +68,19 @@ pub enum CurrentOrVoltage {
     I,
 }
 
+impl Display for CurrentOrVoltage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                CurrentOrVoltage::I => "I",
+                CurrentOrVoltage::V => "V",
+            }
+        )
+    }
+}
+
 impl CurrentOrVoltage {
     pub fn format(&self, output: &str) -> String {
         match self {
@@ -83,27 +96,40 @@ pub enum SensitivityAnalysisType {
     Dc,
 }
 
+impl Display for SensitivityAnalysisType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                SensitivityAnalysisType::Ac => "AC",
+                SensitivityAnalysisType::Dc => "DC",
+            }
+        )
+    }
+}
+
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub enum SimulationConfig {
     Tran {
-        tstep: String,
-        tstop: String,
+        tstep: Option<String>,
+        tstop: Option<String>,
         tstart: Option<String>,
         tmax: Option<String>,
         uic: Option<bool>,
     },
     Op {},
     Ac {
-        fstart: String,
-        fstop: String,
-        variation: FrequencyVariation,
-        nx: i32,
+        fstart: Option<String>,
+        fstop: Option<String>,
+        variation: Option<FrequencyVariation>,
+        nx: Option<i32>,
     },
     Dc {
-        srcnam: String,
-        vstart: String,
-        vstop: String,
-        vincr: String,
+        srcnam: Option<String>,
+        vstart: Option<String>,
+        vstop: Option<String>,
+        vincr: Option<String>,
 
         src2: Option<String>,
         start2: Option<String>,
@@ -111,35 +137,35 @@ pub enum SimulationConfig {
         incr2: Option<String>,
     },
     Disto {
-        fstart: String,
-        fstop: String,
-        variation: FrequencyVariation,
-        nx: i32,
+        fstart: Option<String>,
+        fstop: Option<String>,
+        variation: Option<FrequencyVariation>,
+        nx: Option<i32>,
         f2overf1: Option<f32>,
     },
     Noise {
-        output: String,
+        output: Option<String>,
         // Defaults to GND
         oref: Option<String>,
-        src: String,
-        variation: FrequencyVariation,
-        pts: i32,
-        fstart: String,
-        fstop: String,
+        src: Option<String>,
+        variation: Option<FrequencyVariation>,
+        pts: Option<i32>,
+        fstart: Option<String>,
+        fstop: Option<String>,
         pts_per_summary: Option<i32>,
     },
     Pz {
-        node1: String,
-        node2: String,
-        node3: String,
-        node4: String,
-        transfer_function: TransferFunction,
-        analysis_type: PoleZerAnalysis,
+        node1: Option<String>,
+        node2: Option<String>,
+        node3: Option<String>,
+        node4: Option<String>,
+        transfer_function: Option<TransferFunction>,
+        analysis_type: Option<PoleZerAnalysis>,
     },
     Sens {
-        output_type: CurrentOrVoltage,
-        output: String,
-        analysis_type: SensitivityAnalysisType,
+        output_type: Option<CurrentOrVoltage>,
+        output: Option<String>,
+        analysis_type: Option<SensitivityAnalysisType>,
         fstart: Option<String>,
         fstop: Option<String>,
         variation: Option<FrequencyVariation>,
@@ -147,26 +173,481 @@ pub enum SimulationConfig {
     },
 }
 
+impl SimulationConfig {
+    pub fn values_to_string(&self) -> String {
+        match self {
+            SimulationConfig::Tran {
+                tstep,
+                tstop,
+                tstart,
+                tmax,
+                uic,
+            } => {
+                let mut formatted = format!("TRAN");
+
+                if let Some(tstep) = tstep {
+                    formatted.push_str(&format!(" {}", tstep));
+
+                    if let Some(tstop) = tstop {
+                        formatted.push_str(&format!(" {}", tstop));
+
+                        if let Some(tstart) = tstart {
+                            formatted.push_str(&format!(" {}", tstart));
+
+                            if let Some(tmax) = tmax {
+                                formatted.push_str(&format!(" {}", tmax));
+
+                                if let Some(true) = uic {
+                                    formatted.push_str(" uic");
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            SimulationConfig::Op {} => "OP".to_owned(),
+
+            SimulationConfig::Ac {
+                fstart,
+                fstop,
+                variation,
+                nx,
+            } => {
+                let mut formatted = format!("AC");
+
+                if let Some(fstart) = fstart {
+                    formatted.push_str(&format!(" {}", fstart));
+
+                    if let Some(fstop) = fstop {
+                        formatted.push_str(&format!(" {}", fstop));
+
+                        if let Some(variation) = variation {
+                            formatted.push_str(&format!(" {}", variation));
+
+                            if let Some(nx) = nx {
+                                formatted.push_str(&format!(" {}", nx));
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            SimulationConfig::Dc {
+                srcnam,
+                vstart,
+                vstop,
+                vincr,
+                src2,
+                start2,
+                stop2,
+                incr2,
+            } => {
+                let mut formatted = format!("DC");
+
+                if let Some(srcnam) = srcnam {
+                    formatted.push_str(&format!(" {}", srcnam));
+
+                    if let Some(vstart) = vstart {
+                        formatted.push_str(&format!(" {}", vstart));
+
+                        if let Some(vstop) = vstop {
+                            formatted.push_str(&format!(" {}", vstop));
+
+                            if let Some(vincr) = vincr {
+                                formatted.push_str(&format!(" {}", vincr));
+
+                                if let Some(src2) = src2 {
+                                    formatted.push_str(&format!(" {}", src2));
+
+                                    if let Some(start2) = start2 {
+                                        formatted.push_str(&format!(" {}", start2));
+
+                                        if let Some(stop2) = stop2 {
+                                            formatted.push_str(&format!(" {}", stop2));
+
+                                            if let Some(incr2) = incr2 {
+                                                formatted.push_str(&format!(" {}", incr2));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            SimulationConfig::Disto {
+                fstart,
+                fstop,
+                variation,
+                nx,
+                f2overf1,
+            } => {
+                let mut formatted = format!("DISTO");
+
+                if let Some(fstart) = fstart {
+                    formatted.push_str(&format!(" {}", fstart));
+
+                    if let Some(fstop) = fstop {
+                        formatted.push_str(&format!(" {}", fstop));
+
+                        if let Some(variation) = variation {
+                            formatted.push_str(&format!(" {}", variation));
+
+                            if let Some(nx) = nx {
+                                formatted.push_str(&format!(" {}", nx));
+
+                                if let Some(f2overf1) = f2overf1 {
+                                    formatted.push_str(&format!(" {}", f2overf1));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            SimulationConfig::Noise {
+                output,
+                oref,
+                src,
+                variation,
+                pts,
+                fstart,
+                fstop,
+                pts_per_summary,
+            } => {
+                let mut formatted = format!("NOISE");
+
+                if let Some(output) = output {
+                    formatted.push_str(&format!(" {}", output));
+
+                    if let Some(src) = src {
+                        formatted.push_str(&format!(" {}", src));
+
+                        if let Some(variation) = variation {
+                            formatted.push_str(&format!(" {}", variation));
+
+                            if let Some(pts) = pts {
+                                formatted.push_str(&format!(" {}", pts));
+
+                                if let Some(fstart) = fstart {
+                                    formatted.push_str(&format!(" {}", fstart));
+
+                                    if let Some(fstop) = fstop {
+                                        formatted.push_str(&format!(" {}", fstop));
+
+                                        if let Some(pts_per_summary) = pts_per_summary {
+                                            formatted.push_str(&format!(" {}", pts_per_summary));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            SimulationConfig::Pz {
+                node1,
+                node2,
+                node3,
+                node4,
+                transfer_function,
+                analysis_type,
+            } => {
+                let mut formatted = format!("PZ");
+
+                if let Some(node1) = node1 {
+                    formatted.push_str(&format!(" {}", node1));
+
+                    if let Some(node2) = node2 {
+                        formatted.push_str(&format!(" {}", node2));
+
+                        if let Some(node3) = node3 {
+                            formatted.push_str(&format!(" {}", node3));
+
+                            if let Some(node4) = node4 {
+                                formatted.push_str(&format!(" {}", node4));
+
+                                if let Some(transfer_function) = transfer_function {
+                                    formatted.push_str(&format!(" {}", transfer_function));
+
+                                    if let Some(analysis_type) = analysis_type {
+                                        formatted.push_str(&format!(" {}", analysis_type));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+
+            SimulationConfig::Sens {
+                output_type,
+                output,
+                analysis_type,
+                fstart,
+                fstop,
+                variation,
+                nx,
+            } => {
+                let mut formatted = format!("SENS");
+
+                if let Some(output_type) = output_type {
+                    formatted.push_str(&format!(" {}", output_type));
+
+                    if let Some(output) = output {
+                        formatted.push_str(&format!(" {}", output));
+
+                        if let Some(analysis_type) = analysis_type {
+                            formatted.push_str(&format!(" {}", analysis_type));
+
+                            if let Some(fstart) = fstart {
+                                formatted.push_str(&format!(" {}", fstart));
+
+                                if let Some(fstop) = fstop {
+                                    formatted.push_str(&format!(" {}", fstop));
+
+                                    if let Some(variation) = variation {
+                                        formatted.push_str(&format!(" {}", variation));
+
+                                        if let Some(nx) = nx {
+                                            formatted.push_str(&format!(" {}", nx));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted
+            }
+        }
+    }
+
+    pub fn get_kind(&self) -> String {
+        match self {
+            SimulationConfig::Tran { .. } => "TRAN".to_owned(),
+            SimulationConfig::Op { .. } => "OP".to_owned(),
+            SimulationConfig::Ac { .. } => "AC".to_owned(),
+            SimulationConfig::Dc { .. } => "DC".to_owned(),
+            SimulationConfig::Disto { .. } => "DISTO".to_owned(),
+            SimulationConfig::Noise { .. } => "NOISE".to_owned(),
+            SimulationConfig::Pz { .. } => "PZ".to_owned(),
+            SimulationConfig::Sens { .. } => "SENS".to_owned(),
+        }
+    }
+
+    pub fn from_tuple(kind_and_config: (&str, &str)) -> Result<SimulationConfig, SimulatorError> {
+        let (kind, config) = kind_and_config;
+
+        match kind {
+            "TRAN" => {
+                let mut params = config.split(" ");
+
+                return Ok(SimulationConfig::Tran {
+                    tstep: params.next().map(|tstep| tstep.to_owned()),
+                    tstop: params.next().map(|tstop| tstop.to_owned()),
+                    tstart: params.next().map(|tstart| tstart.to_owned()),
+                    tmax: params.next().map(|tmax| tmax.to_owned()),
+                    uic: params.next().map(|uic| uic == "uic"),
+                });
+            }
+            "OP" => {
+                return Ok(SimulationConfig::Op {});
+            }
+            "AC" => {
+                let mut params = config.split(" ");
+
+                return Ok(SimulationConfig::Ac {
+                    fstart: params.next().map(|fstart| fstart.to_owned()),
+                    fstop: params.next().map(|fstop| fstop.to_owned()),
+                    variation: params
+                        .next()
+                        .map(|variation| match variation {
+                            "dec" => Ok(FrequencyVariation::Dec),
+                            "oct" => Ok(FrequencyVariation::Oct),
+                            "lin" => Ok(FrequencyVariation::Lin),
+                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                        })
+                        .transpose()?,
+                    nx: params.next().map(|nx| nx.parse().unwrap()),
+                });
+            }
+            "DC" => {
+                let mut params = config.split(" ");
+
+                return Ok(SimulationConfig::Dc {
+                    srcnam: params.next().map(|srcnam| srcnam.to_owned()),
+                    vstart: params.next().map(|vstart| vstart.to_owned()),
+                    vstop: params.next().map(|vstop| vstop.to_owned()),
+                    vincr: params.next().map(|vincr| vincr.to_owned()),
+
+                    src2: params.next().map(|src2| src2.to_owned()),
+                    start2: params.next().map(|start2| start2.to_owned()),
+                    stop2: params.next().map(|stop2| stop2.to_owned()),
+                    incr2: params.next().map(|incr2| incr2.to_owned()),
+                });
+            }
+            "DISTO" => {
+                let mut params = config.split(" ");
+
+                return Ok(SimulationConfig::Disto {
+                    fstart: params.next().map(|fstart| fstart.to_owned()),
+                    fstop: params.next().map(|fstop| fstop.to_owned()),
+                    variation: params
+                        .next()
+                        .map(|variation| match variation {
+                            "dec" => Ok(FrequencyVariation::Dec),
+                            "oct" => Ok(FrequencyVariation::Oct),
+                            "lin" => Ok(FrequencyVariation::Lin),
+                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                        })
+                        .transpose()?,
+                    nx: params
+                        .next()
+                        .map(|nx| nx.parse::<i32>())
+                        .transpose()
+                        .map_err(|_| SimulatorError::MalformedSimulationConfig)?,
+                    f2overf1: params.next().map(|f2overf1| f2overf1.parse().unwrap()),
+                });
+            }
+            "NOISE" => {
+                let mut params = config.split(" ");
+
+                return Ok(SimulationConfig::Noise {
+                    output: params.next().map(|output| output.to_owned()),
+                    oref: params.next().map(|oref| oref.to_owned()),
+                    src: params.next().map(|src| src.to_owned()),
+                    variation: params
+                        .next()
+                        .map(|variation| match variation {
+                            "dec" => Ok(FrequencyVariation::Dec),
+                            "oct" => Ok(FrequencyVariation::Oct),
+                            "lin" => Ok(FrequencyVariation::Lin),
+                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                        })
+                        .transpose()?,
+                    pts: params
+                        .next()
+                        .map(|pts| pts.parse::<i32>())
+                        .transpose()
+                        .map_err(|_| SimulatorError::MalformedSimulationConfig)?,
+                    fstart: params.next().map(|fstart| fstart.to_owned()),
+                    fstop: params.next().map(|fstop| fstop.to_owned()),
+                    pts_per_summary: params
+                        .next()
+                        .map(|pts_per_summary| pts_per_summary.parse::<i32>())
+                        .transpose()
+                        .map_err(|_| SimulatorError::MalformedSimulationConfig)?,
+                });
+            }
+            "PZ" => {
+                let mut params = config.split(" ");
+
+                return Ok(SimulationConfig::Pz {
+                    node1: params.next().map(|node1| node1.to_owned()),
+                    node2: params.next().map(|node2| node2.to_owned()),
+                    node3: params.next().map(|node3| node3.to_owned()),
+                    node4: params.next().map(|node4| node4.to_owned()),
+                    transfer_function: params
+                        .next()
+                        .map(|transfer_function| match transfer_function {
+                            "vol" => Ok(TransferFunction::Vol),
+                            "cur" => Ok(TransferFunction::Cur),
+                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                        })
+                        .transpose()?,
+                    analysis_type: params
+                        .next()
+                        .map(|analysis_type| match analysis_type {
+                            "pol" => Ok(PoleZerAnalysis::Pol),
+                            "zer" => Ok(PoleZerAnalysis::Zer),
+                            "pz" => Ok(PoleZerAnalysis::Pz),
+                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                        })
+                        .transpose()?,
+                });
+            }
+            "SENS" => {
+                let mut params = config.split(" ");
+
+                return Ok(SimulationConfig::Sens {
+                    output_type: params
+                        .next()
+                        .map(|output_type| match output_type {
+                            "V" => Ok(CurrentOrVoltage::V),
+                            "I" => Ok(CurrentOrVoltage::I),
+                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                        })
+                        .transpose()?,
+                    output: params.next().map(|output| output.to_owned()),
+                    analysis_type: params
+                        .next()
+                        .map(|analysis_type| match analysis_type {
+                            "ac" => Ok(SensitivityAnalysisType::Ac),
+                            "dc" => Ok(SensitivityAnalysisType::Dc),
+                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                        })
+                        .transpose()?,
+                    fstart: params.next().map(|fstart| fstart.to_owned()),
+                    fstop: params.next().map(|fstop| fstop.to_owned()),
+                    variation: params
+                        .next()
+                        .map(|variation| match variation {
+                            "dec" => Ok(FrequencyVariation::Dec),
+                            "oct" => Ok(FrequencyVariation::Oct),
+                            "lin" => Ok(FrequencyVariation::Lin),
+                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                        })
+                        .transpose()?,
+                    nx: params
+                        .next()
+                        .map(|nx| nx.parse::<i32>())
+                        .transpose()
+                        .map_err(|_| SimulatorError::MalformedSimulationConfig)?,
+                });
+            }
+            _ => return Err(SimulatorError::MalformedSimulationConfig),
+        }
+    }
+}
+
 pub enum Simulation {
     Tran {
-        tstep: Unit,
-        tstop: Unit,
+        tstep: Option<Unit>,
+        tstop: Option<Unit>,
         tstart: Option<Unit>,
         tmax: Option<Unit>,
         uic: Option<bool>,
     },
     Op,
     Ac {
-        fstart: Unit,
-        fstop: Unit,
-        variation: FrequencyVariation,
-        nx: i32,
+        fstart: Option<Unit>,
+        fstop: Option<Unit>,
+        variation: Option<FrequencyVariation>,
+        nx: Option<i32>,
     },
     Dc {
-        srcnam: String,
-        vstart: Unit,
-        vstop: Unit,
-        vincr: Unit,
+        srcnam: Option<String>,
+        vstart: Option<Unit>,
+        vstop: Option<Unit>,
+        vincr: Option<Unit>,
 
         src2: Option<String>,
         start2: Option<Unit>,
@@ -174,34 +655,34 @@ pub enum Simulation {
         incr2: Option<Unit>,
     },
     Disto {
-        fstart: Unit,
-        fstop: Unit,
-        variation: FrequencyVariation,
-        nx: i32,
+        fstart: Option<Unit>,
+        fstop: Option<Unit>,
+        variation: Option<FrequencyVariation>,
+        nx: Option<i32>,
         f2overf1: Option<f32>,
     },
     Noise {
-        output: String,
+        output: Option<String>,
         oref: Option<String>,
-        src: String,
-        variation: FrequencyVariation,
-        pts: i32,
-        fstart: Unit,
-        fstop: Unit,
+        src: Option<String>,
+        variation: Option<FrequencyVariation>,
+        pts: Option<i32>,
+        fstart: Option<Unit>,
+        fstop: Option<Unit>,
         pts_per_summary: Option<i32>,
     },
     Pz {
-        node1: String,
-        node2: String,
-        node3: String,
-        node4: String,
-        transfer_function: TransferFunction,
-        analysis_type: PoleZerAnalysis,
+        node1: Option<String>,
+        node2: Option<String>,
+        node3: Option<String>,
+        node4: Option<String>,
+        transfer_function: Option<TransferFunction>,
+        analysis_type: Option<PoleZerAnalysis>,
     },
     Sens {
-        output_type: CurrentOrVoltage,
-        output: String,
-        analysis_type: SensitivityAnalysisType,
+        output_type: Option<CurrentOrVoltage>,
+        output: Option<String>,
+        analysis_type: Option<SensitivityAnalysisType>,
         fstart: Option<Unit>,
         fstop: Option<Unit>,
         variation: Option<FrequencyVariation>,
@@ -232,18 +713,26 @@ impl Simulation {
                 tmax,
                 uic,
             } => {
-                let mut formatted = format!(".tran {} {}", tstep.format(), tstop.format());
+                let mut formatted = format!(".tran");
 
-                if let Some(tstart) = tstart {
-                    formatted.push_str(&format!(" {}", tstart.format()));
+                if let Some(tstep) = tstep {
+                    formatted.push_str(&format!(" {}", tstep.format()));
 
-                    if let Some(tmax) = tmax {
-                        formatted.push_str(&format!(" {}", tmax.format()));
+                    if let Some(tstop) = tstop {
+                        formatted.push_str(&format!(" {}", tstop.format()));
+
+                        if let Some(tstart) = tstart {
+                            formatted.push_str(&format!(" {}", tstart.format()));
+
+                            if let Some(tmax) = tmax {
+                                formatted.push_str(&format!(" {}", tmax.format()));
+
+                                if let Some(true) = uic {
+                                    formatted.push_str(" uic");
+                                }
+                            }
+                        }
                     }
-                }
-
-                if let Some(true) = uic {
-                    formatted.push_str(" uic");
                 }
 
                 formatted.push('\n');
@@ -261,23 +750,37 @@ impl Simulation {
                 stop2,
                 incr2,
             } => {
-                let mut formatted = format!(
-                    ".dc {} {} {} {}",
-                    srcnam,
-                    vstart.format(),
-                    vstop.format(),
-                    vincr.format()
-                );
+                let mut formatted = format!(".dc",);
 
-                if let Some(src2) = src2 {
-                    if let (Some(start2), Some(stop2), Some(incr2)) = (start2, stop2, incr2) {
-                        formatted.push_str(&format!(
-                            "{} {} {} {}",
-                            src2,
-                            start2.format(),
-                            stop2.format(),
-                            incr2.format()
-                        ));
+                if let Some(srcnam) = srcnam {
+                    formatted.push_str(&format!(" {}", srcnam));
+
+                    if let Some(vstart) = vstart {
+                        formatted.push_str(&format!(" {}", vstart.format()));
+
+                        if let Some(vstop) = vstop {
+                            formatted.push_str(&format!(" {}", vstop.format()));
+
+                            if let Some(vincr) = vincr {
+                                formatted.push_str(&format!(" {}", vincr.format()));
+
+                                if let Some(src2) = src2 {
+                                    formatted.push_str(&format!(" {}", src2));
+
+                                    if let Some(start2) = start2 {
+                                        formatted.push_str(&format!(" {}", start2.format()));
+
+                                        if let Some(stop2) = stop2 {
+                                            formatted.push_str(&format!(" {}", stop2.format()));
+
+                                            if let Some(incr2) = incr2 {
+                                                formatted.push_str(&format!(" {}", incr2.format()));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -291,13 +794,29 @@ impl Simulation {
                 fstop,
                 variation,
                 nx,
-            } => format!(
-                ".ac {} {} {} {}\n",
-                variation,
-                nx,
-                fstart.format(),
-                fstop.format()
-            ),
+            } => {
+                let mut formatted = format!(".ac");
+
+                if let Some(variation) = variation {
+                    formatted.push_str(&format!(" {}", variation));
+
+                    if let Some(nx) = nx {
+                        formatted.push_str(&format!(" {}", nx));
+
+                        if let Some(fstart) = fstart {
+                            formatted.push_str(&format!(" {}", fstart.format()));
+
+                            if let Some(fstop) = fstop {
+                                formatted.push_str(&format!(" {}", fstop.format()));
+                            }
+                        }
+                    }
+                }
+
+                formatted.push_str("\n");
+
+                formatted
+            }
 
             Simulation::Noise {
                 output,
@@ -309,26 +828,40 @@ impl Simulation {
                 fstop,
                 pts_per_summary,
             } => {
-                let mut formatted = String::default();
+                let mut formatted = format!(".noise");
 
-                let formatted_output = if let Some(oref) = oref {
-                    format!("v({},{})", output, oref)
-                } else {
-                    format!("v({})", output)
-                };
+                if let Some(output) = output {
+                    let formatted_output = if let Some(oref) = oref {
+                        format!(" v({},{})", output, oref)
+                    } else {
+                        format!(" v({})", output)
+                    };
 
-                formatted.push_str(&formatted_output);
-                formatted.push_str(&format!(
-                    " {} {} {} {} {}",
-                    src,
-                    variation,
-                    pts,
-                    fstart.format(),
-                    fstop.format()
-                ));
+                    formatted.push_str(&formatted_output);
 
-                if let Some(pts_per_summary) = pts_per_summary {
-                    formatted.push_str(&format!(" {}", pts_per_summary));
+                    if let Some(src) = src {
+                        formatted.push_str(&format!(" {}", src));
+
+                        if let Some(variation) = variation {
+                            formatted.push_str(&format!(" {}", variation));
+
+                            if let Some(pts) = pts {
+                                formatted.push_str(&format!(" {}", pts));
+
+                                if let Some(fstart) = fstart {
+                                    formatted.push_str(&format!(" {}", fstart.format()));
+
+                                    if let Some(fstop) = fstop {
+                                        formatted.push_str(&format!(" {}", fstop.format()));
+
+                                        if let Some(pts_per_summary) = pts_per_summary {
+                                            formatted.push_str(&format!(" {}", pts_per_summary));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 formatted.push('\n');
@@ -343,16 +876,26 @@ impl Simulation {
                 nx,
                 f2overf1,
             } => {
-                let mut formatted = format!(
-                    ".disto {} {} {} {}",
-                    variation,
-                    nx,
-                    fstart.format(),
-                    fstop.format()
-                );
+                let mut formatted = format!(".disto",);
 
-                if let Some(f2overf1) = f2overf1 {
-                    formatted.push_str(&format!(" {}", f2overf1));
+                if let Some(variation) = variation {
+                    formatted.push_str(&format!(" {}", variation));
+
+                    if let Some(nx) = nx {
+                        formatted.push_str(&format!(" {}", nx));
+
+                        if let Some(fstart) = fstart {
+                            formatted.push_str(&format!(" {}", fstart.format()));
+
+                            if let Some(fstop) = fstop {
+                                formatted.push_str(&format!(" {}", fstop.format()));
+
+                                if let Some(f2overf1) = f2overf1 {
+                                    formatted.push_str(&format!(" {}", f2overf1));
+                                }
+                            }
+                        }
+                    }
                 }
 
                 formatted.push('\n');
@@ -367,10 +910,37 @@ impl Simulation {
                 node4,
                 transfer_function,
                 analysis_type,
-            } => format!(
-                ".pz {} {} {} {} {} {}\n",
-                node1, node2, node3, node4, transfer_function, analysis_type
-            ),
+            } => {
+                let mut formatted = format!(".pz",);
+
+                if let Some(node1) = node1 {
+                    formatted.push_str(&format!(" {}", node1));
+
+                    if let Some(node2) = node2 {
+                        formatted.push_str(&format!(" {}", node2));
+
+                        if let Some(node3) = node3 {
+                            formatted.push_str(&format!(" {}", node3));
+
+                            if let Some(node4) = node4 {
+                                formatted.push_str(&format!(" {}", node4));
+
+                                if let Some(transfer_function) = transfer_function {
+                                    formatted.push_str(&format!(" {}", transfer_function));
+
+                                    if let Some(analysis_type) = analysis_type {
+                                        formatted.push_str(&format!(" {}", analysis_type));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                formatted.push('\n');
+
+                formatted
+            }
 
             Simulation::Sens {
                 output_type,
@@ -380,28 +950,40 @@ impl Simulation {
                 fstop,
                 variation,
                 nx,
-            } => match analysis_type {
-                SensitivityAnalysisType::Dc => format!(".sens {}\n", output_type.format(output)),
-                SensitivityAnalysisType::Ac => {
-                    let mut formatted = format!(".sens {}", output_type.format(output));
+            } => {
+                let mut formatted = format!(".sens");
 
-                    if let (Some(variation), Some(nx), Some(fstart), Some(fstop)) =
-                        (variation, nx, fstart, fstop)
-                    {
-                        formatted.push_str(&format!(
-                            " {} {} {} {}\n",
-                            variation,
-                            nx,
-                            fstart.format(),
-                            fstop.format()
-                        ));
-                    } else {
-                        formatted.push('\n');
-                    }
+                if let Some(analysis_type) = analysis_type {
+                    match analysis_type {
+                        SensitivityAnalysisType::Dc => {
+                            if let (Some(output_type), Some(output)) = (output_type, output) {
+                                formatted.push_str(&format!(" {}", output_type.format(output)));
+                            }
+                        }
+                        SensitivityAnalysisType::Ac => {
+                            if let (Some(output_type), Some(output)) = (output_type, output) {
+                                formatted.push_str(&format!(" {}", output_type.format(output)));
 
-                    formatted
+                                if let (Some(variation), Some(nx), Some(fstart), Some(fstop)) =
+                                    (variation, nx, fstart, fstop)
+                                {
+                                    formatted.push_str(&format!(
+                                        " {} {} {} {}\n",
+                                        variation,
+                                        nx,
+                                        fstart.format(),
+                                        fstop.format()
+                                    ));
+                                }
+                            }
+                        }
+                    };
                 }
-            },
+
+                formatted.push('\n');
+
+                formatted
+            }
         }
     }
 
@@ -415,14 +997,18 @@ impl Simulation {
                 variation,
                 nx,
             } => {
-                let fstart =
-                    Unit::from(fstart).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let fstop =
-                    Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-
                 return Ok(Simulation::Ac {
-                    fstart,
-                    fstop,
+                    fstart: fstart
+                        .map(|fstart| {
+                            Unit::from(fstart)
+                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    fstop: fstop
+                        .map(|fstop| {
+                            Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
                     variation,
                     nx,
                 });
@@ -435,20 +1021,18 @@ impl Simulation {
                 nx,
                 f2overf1,
             } => {
-                let fstart =
-                    Unit::from(fstart).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let fstop =
-                    Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-
-                if let Some(f2overf1) = f2overf1 {
-                    if f2overf1 >= 1.0 || f2overf1 <= 0.0 {
-                        return Err(SimulatorError::MalformedSimulationConfig);
-                    }
-                }
-
                 return Ok(Simulation::Disto {
-                    fstart,
-                    fstop,
+                    fstart: fstart
+                        .map(|fstart| {
+                            Unit::from(fstart)
+                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    fstop: fstop
+                        .map(|fstop| {
+                            Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
                     variation,
                     nx,
                     f2overf1,
@@ -465,19 +1049,23 @@ impl Simulation {
                 fstop,
                 pts_per_summary,
             } => {
-                let fstart =
-                    Unit::from(fstart).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let fstop =
-                    Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-
                 return Ok(Simulation::Noise {
                     output,
                     oref,
                     src,
                     variation,
                     pts,
-                    fstart,
-                    fstop,
+                    fstart: fstart
+                        .map(|fstart| {
+                            Unit::from(fstart)
+                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    fstop: fstop
+                        .map(|fstop| {
+                            Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
                     pts_per_summary,
                 });
             }
@@ -489,38 +1077,28 @@ impl Simulation {
                 tmax,
                 uic,
             } => {
-                let tstep =
-                    Unit::from(tstep).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let tstop =
-                    Unit::from(tstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-
-                let maybe_tstart = match tstart {
-                    Some(time) => {
-                        let time_unit = Unit::from(time)
-                            .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-
-                        Some(time_unit)
-                    }
-
-                    None => None,
-                };
-
-                let maybe_tmax = match tmax {
-                    Some(time) => {
-                        let time_unit = Unit::from(time)
-                            .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-
-                        Some(time_unit)
-                    }
-
-                    None => None,
-                };
-
                 return Ok(Simulation::Tran {
-                    tstep,
-                    tstop,
-                    tstart: maybe_tstart,
-                    tmax: maybe_tmax,
+                    tstep: tstep
+                        .map(|tstep| {
+                            Unit::from(tstep).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    tstop: tstop
+                        .map(|tstop| {
+                            Unit::from(tstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    tstart: tstart
+                        .map(|tstart| {
+                            Unit::from(tstart)
+                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    tmax: tmax
+                        .map(|tmax| {
+                            Unit::from(tmax).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
                     uic,
                 });
             }
@@ -535,46 +1113,42 @@ impl Simulation {
                 stop2,
                 incr2,
             } => {
-                let vstart =
-                    Unit::from(vstart).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let vstop =
-                    Unit::from(vstop).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                let vincr =
-                    Unit::from(vincr).map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-
-                if let Some(src2) = src2 {
-                    if let (Some(start2), Some(stop2), Some(incr2)) = (start2, stop2, incr2) {
-                        let start2 = Unit::from(start2)
-                            .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                        let stop2 = Unit::from(stop2)
-                            .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                        let incr2 = Unit::from(incr2)
-                            .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-
-                        return Ok(Simulation::Dc {
-                            srcnam,
-                            vstart,
-                            vstop,
-                            vincr,
-                            src2: Some(src2),
-                            start2: Some(start2),
-                            stop2: Some(stop2),
-                            incr2: Some(incr2),
-                        });
-                    } else {
-                        return Err(SimulatorError::MalformedSimulationConfig);
-                    }
-                }
-
                 return Ok(Simulation::Dc {
                     srcnam,
-                    vstart,
-                    vstop,
-                    vincr,
-                    src2: None,
-                    start2: None,
-                    stop2: None,
-                    incr2: None,
+                    vstart: vstart
+                        .map(|vstart| {
+                            Unit::from(vstart)
+                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    vstop: vstop
+                        .map(|vstop| {
+                            Unit::from(vstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    vincr: vincr
+                        .map(|vincr| {
+                            Unit::from(vincr).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+
+                    src2,
+                    start2: start2
+                        .map(|start2| {
+                            Unit::from(start2)
+                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    stop2: stop2
+                        .map(|stop2| {
+                            Unit::from(stop2).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
+                    incr2: incr2
+                        .map(|incr2| {
+                            Unit::from(incr2).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                        })
+                        .transpose()?,
                 });
             }
 
@@ -603,7 +1177,7 @@ impl Simulation {
                 variation,
                 nx,
             } => match analysis_type {
-                SensitivityAnalysisType::Dc => Ok(Simulation::Sens {
+                Some(SensitivityAnalysisType::Dc) => Ok(Simulation::Sens {
                     output_type,
                     output,
                     analysis_type,
@@ -613,7 +1187,7 @@ impl Simulation {
                     nx: None,
                 }),
 
-                SensitivityAnalysisType::Ac => {
+                Some(SensitivityAnalysisType::Ac) => {
                     if let (Some(fstart), Some(fstop), Some(variation), Some(nx)) =
                         (fstart, fstop, variation, nx)
                     {
@@ -635,6 +1209,8 @@ impl Simulation {
                         Err(SimulatorError::MalformedSimulationConfig)
                     }
                 }
+
+                None => Err(SimulatorError::MalformedSimulationConfig),
             },
         }
     }

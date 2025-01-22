@@ -39,10 +39,11 @@ export type ContractEdge = {
   source: string;
   source_port: string;
   target: string;
-  target_port?: string;
+  target_port: string;
+  target_alias: string | null;
 };
 
-export type ContractSimulationsToRun = Map<string, SimulationConfig>;
+export type ContractSimulationsToRun = { [key: string]: SimulationConfig };
 
 export const ContractNode = {
   toContract: (nodes: AppNode[]): ContractNode[] => {
@@ -115,15 +116,25 @@ export const ContractEdge = {
     edges: AppEdge[],
     connectionNodesMap: Map<string, string>
   ): ContractEdge[] => {
-    return edges.map(
-      ({ target, sourceHandle, source }) =>
-        ({
-          source,
-          source_port: sourceHandle,
-          // Interchange the target (connection node) id with its name for tag functionality
-          target: connectionNodesMap.get(target)
-        } as ContractEdge)
-    );
+    return edges.map(({ target, sourceHandle, source, targetHandle }) => {
+      const targetAlias = connectionNodesMap.get(target);
+
+      if (!targetAlias) {
+        throw new Error("Missing node");
+      }
+
+      return {
+        source,
+        source_port: sourceHandle,
+        // Interchange the target (connection node) id with its name for tag functionality
+        // target: id
+        // target_port: port id
+        // target_alias: name
+        target,
+        target_port: targetHandle,
+        target_alias: targetAlias
+      } as ContractEdge;
+    });
   },
   toDomain: (contractEdges: ContractEdge[]): AppEdge[] => {
     return contractEdges.map(({ source, source_port, target, target_port }) => {
