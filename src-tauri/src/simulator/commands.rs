@@ -246,14 +246,46 @@ pub async fn simulate(
     let mut instance_state = (*instance_state_guard).clone();
     drop(instance_state_guard);
 
-    if let InstanceState::NotSaved = instance_state {
-        log::info!("Instance - NOT SAVED, initializing file picker");
+    match instance_state {
+        // If it was not saved, ask for a file path and save the initial file
+        InstanceState::NotSaved => {
+            log::info!("Instance - NOT SAVED, initializing file picker");
 
-        let file_dialog_builder = app_handle.dialog().file();
+            let file_dialog_builder = app_handle.dialog().file();
 
-        let file_path = file_dialog_builder.blocking_save_file();
+            let file_path = file_dialog_builder.blocking_save_file();
 
-        if let Some(file_path) = file_path {
+            if let Some(file_path) = file_path {
+                let canvas_data = CanvasData {
+                    nodes: nodes.clone(),
+                    edges: edges.clone(),
+                    config: config.clone(),
+                };
+
+                instance_state = InstanceState::Saved {
+                    last_saved_to_file: Instant::now(),
+                    path: file_path.clone(),
+                    last_saved_to_state: None,
+                    canvas_data: Some(canvas_data),
+                };
+
+                let mut instance_state_guard = app_state.instance_state.lock().unwrap();
+                *instance_state_guard = instance_state;
+                drop(instance_state_guard);
+
+                let file = File::create(file_path.to_string()).unwrap();
+
+                GraphicSpice::domain_to_file(nodes.clone(), edges.clone(), config.clone(), file)
+                    .unwrap();
+            } else {
+                return Err(());
+            }
+        }
+
+        // If it was previously saved, just save it again every time it simulates
+        InstanceState::Saved { path, .. } => {
+            log::info!("Instance - SAVED, re-saves to file");
+
             let canvas_data = CanvasData {
                 nodes: nodes.clone(),
                 edges: edges.clone(),
@@ -262,23 +294,21 @@ pub async fn simulate(
 
             instance_state = InstanceState::Saved {
                 last_saved_to_file: Instant::now(),
-                path: file_path.clone(),
+                path: path.clone(),
                 last_saved_to_state: None,
                 canvas_data: Some(canvas_data),
             };
 
-            let file = File::create(file_path.to_string()).unwrap();
+            let mut instance_state_guard = app_state.instance_state.lock().unwrap();
+            *instance_state_guard = instance_state;
+            drop(instance_state_guard);
+
+            let file = File::create(path.to_string()).unwrap();
 
             GraphicSpice::domain_to_file(nodes.clone(), edges.clone(), config.clone(), file)
                 .unwrap();
-        } else {
-            return Err(());
         }
     }
-
-    let mut instance_state_guard = app_state.instance_state.lock().unwrap();
-    *instance_state_guard = instance_state;
-    drop(instance_state_guard);
 
     log::info!("Starts simulate command");
     let mut simulation_handles: Vec<thread::JoinHandle<()>> = Vec::default();
