@@ -6,8 +6,8 @@ pub fn get_shared_lib_path(app_handle: &AppHandle, thread_id: usize) -> PathBuf 
     let path = match tauri_plugin_os::platform() {
         "macos" => format!("lib/libngspice.{}.dylib", thread_id),
         // TODO: add windows format
-        "windows" => String::default(),
-        "linux" => format!("lib/libngspice.so.{}", thread_id),
+        "windows" => format!("lib/libngspice.{}.dll", thread_id),
+        "linux" => format!("lib/libngspice.{}.so", thread_id),
 
         _ => panic!("Unsupported platform"),
     };
