@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use tauri::{fs, Emitter, Manager};
+use tauri::{Emitter, Manager};
 use tauri_plugin_dialog::DialogExt;
 
 use super::engine::LTSpice;

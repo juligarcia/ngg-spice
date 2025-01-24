@@ -144,13 +144,16 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "0", windows: "0", linux: "0" }, os), () => {
-    if (!Gnd) return;
+  useHotkeys(
+    osHotkeys({ macos: "meta+g", windows: "alt+g", linux: "alt+g" }, os),
+    () => {
+      if (!Gnd) return;
 
-    const newComponentNode = createNewSpiceNode(Gnd);
+      const newComponentNode = createNewSpiceNode(Gnd);
 
-    setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
-  });
+      setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
+    }
+  );
 
   useHotkeys(osHotkeys({ macos: "v", windows: "v", linux: "v" }, os), () => {
     if (!V) return;

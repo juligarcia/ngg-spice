@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     fs::File,
+    path::PathBuf,
     sync::{Arc, Mutex},
     thread::{self, sleep},
     time::{Duration, Instant, SystemTime},
@@ -256,24 +257,19 @@ pub async fn simulate(
             let file_path = file_dialog_builder.blocking_save_file();
 
             if let Some(file_path) = file_path {
-                let canvas_data = CanvasData {
-                    nodes: nodes.clone(),
-                    edges: edges.clone(),
-                    config: config.clone(),
-                };
+                let mut path = PathBuf::from(file_path.as_path().unwrap());
+                path.set_extension("gsp");
 
                 instance_state = InstanceState::Saved {
-                    last_saved_to_file: Instant::now(),
-                    path: file_path.clone(),
-                    last_saved_to_state: None,
-                    canvas_data: Some(canvas_data),
+                    last_modified: Instant::now(),
+                    path: path.clone(),
                 };
 
                 let mut instance_state_guard = app_state.instance_state.lock().unwrap();
                 *instance_state_guard = instance_state;
                 drop(instance_state_guard);
 
-                let file = File::create(file_path.to_string()).unwrap();
+                let file = File::create(path).unwrap();
 
                 GraphicSpice::domain_to_file(nodes.clone(), edges.clone(), config.clone(), file)
                     .unwrap();
@@ -283,27 +279,36 @@ pub async fn simulate(
         }
 
         // If it was previously saved, just save it again every time it simulates
-        InstanceState::Saved { path, .. } => {
-            log::info!("Instance - SAVED, re-saves to file");
-
-            let canvas_data = CanvasData {
-                nodes: nodes.clone(),
-                edges: edges.clone(),
-                config: config.clone(),
-            };
+        InstanceState::FailedToSave { path, .. } => {
+            log::info!("Instance - FROM FAILED SAVED, re-saves to file");
 
             instance_state = InstanceState::Saved {
-                last_saved_to_file: Instant::now(),
+                last_modified: Instant::now(),
                 path: path.clone(),
-                last_saved_to_state: None,
-                canvas_data: Some(canvas_data),
             };
 
             let mut instance_state_guard = app_state.instance_state.lock().unwrap();
             *instance_state_guard = instance_state;
             drop(instance_state_guard);
 
-            let file = File::create(path.to_string()).unwrap();
+            let file = File::create(path).unwrap();
+
+            GraphicSpice::domain_to_file(nodes.clone(), edges.clone(), config.clone(), file)
+                .unwrap();
+        }
+        InstanceState::Saved { path, .. } => {
+            log::info!("Instance - SAVED, re-saves to file");
+
+            instance_state = InstanceState::Saved {
+                last_modified: Instant::now(),
+                path: path.clone(),
+            };
+
+            let mut instance_state_guard = app_state.instance_state.lock().unwrap();
+            *instance_state_guard = instance_state;
+            drop(instance_state_guard);
+
+            let file = File::create(path).unwrap();
 
             GraphicSpice::domain_to_file(nodes.clone(), edges.clone(), config.clone(), file)
                 .unwrap();
@@ -338,6 +343,7 @@ pub async fn simulate(
 
             log::info!("Opening lib at: {:?}", path.as_os_str());
 
+            // Library needs to live until its done being used
             let (mut simulator, _library) =
                 Simulator::init(thread_id, t_orchestrator, path, t_app_handle);
 

@@ -13,6 +13,7 @@ import { Button } from "../ui/Button";
 import { useSimulationStore } from "@/store/simulation";
 import { useLayoutStore } from "@/store/layout";
 import { simulationConfig2Name } from "./utils";
+import { isOpeartingPoint } from "@/utils/simulation";
 
 interface SimulationVisualizerProps {
   simulationId?: string;
@@ -49,8 +50,11 @@ const SimulationVisualizer: FC<SimulationVisualizerProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent sideOffset={10} side="bottom" align="center">
-            {Array.from(simulationsToRun.entries()).map(
-              ([simulationId, simulationConfig]) => (
+            {Array.from(simulationsToRun.entries())
+              .filter(
+                ([_, simulationConfig]) => !isOpeartingPoint(simulationConfig)
+              )
+              .map(([simulationId, simulationConfig]) => (
                 <DropdownMenuItem
                   key={simulationId}
                   onClick={() =>
@@ -64,8 +68,7 @@ const SimulationVisualizer: FC<SimulationVisualizerProps> = ({
                     {simulationConfig2Name(simulationConfig)}
                   </Typography>
                 </DropdownMenuItem>
-              )
-            )}
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

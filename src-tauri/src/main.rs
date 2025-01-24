@@ -15,7 +15,7 @@ use gspice::{
 
 use log::Level;
 use tauri::menu::{Menu, MenuId, MenuItem, Submenu};
-use tauri::Manager as TauriManager;
+use tauri::{Manager as TauriManager, State};
 use tauri_plugin_decorum::WebviewWindowExt;
 
 fn main() {
@@ -132,10 +132,26 @@ fn main() {
             }
 
             MenuId(id) if id == "save_file" => {
-                save_graphic_spice(app);
+                let app_state: State<AppState> = app.state();
+                let instance_state_guard = app_state.instance_state.lock().unwrap();
+                let instance_state: InstanceState = (*instance_state_guard).clone();
+                drop(instance_state_guard);
+
+                match instance_state {
+                    InstanceState::NotSaved => {
+                        save_graphic_spice(app, None);
+                    }
+                    InstanceState::Saved { path, .. } => {
+                        save_graphic_spice(app, Some(path));
+                    }
+                    InstanceState::FailedToSave { path, .. } => {
+                        save_graphic_spice(app, Some(path));
+                    }
+                }
             }
 
             MenuId(id) if id == "open_file" => {
+                // TODO: Based off of instance state, one could prompt to first save the old file before opening a new one
                 open_graphic_spice(app);
             }
 

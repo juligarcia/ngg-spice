@@ -1,8 +1,7 @@
-use std::{collections::HashMap, fs::File};
+use std::{collections::HashMap, fs::File, path::PathBuf};
 
 use serde::Serialize;
 use tauri::State;
-use tauri_plugin_fs::FilePath;
 
 use crate::app_state::AppState;
 
@@ -56,7 +55,7 @@ pub struct OpenFileEventPaylad {
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RequestCanvasDataEventPayload {
-    pub file_path: FilePath,
+    pub file_path: PathBuf,
 }
 
 #[derive(Clone, Serialize)]

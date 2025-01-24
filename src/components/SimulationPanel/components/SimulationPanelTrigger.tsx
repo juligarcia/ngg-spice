@@ -20,7 +20,7 @@ const SimulationPanelTrigger: FC = () => {
   const { os } = useOs();
 
   useHotkeys(
-    osHotkeys({ macos: "meta+s", windows: "shift+s", linux: "shift+s" }, os),
+    osHotkeys({ macos: "meta+s", windows: "alt+s", linux: "alt+s" }, os),
     toggleSimulationPanelOpen
   );
 
@@ -28,8 +28,7 @@ const SimulationPanelTrigger: FC = () => {
     <div
       onClick={toggleSimulationPanelOpen}
       className={clsx(
-        "bg-accent w-fit relative rounded-r-lg h-full cursor-pointer flex flex-col items-center justify-between px-2 py-6",
-        "transition-[background-color] duration-300",
+        "w-fit relative rounded-r-lg h-full cursor-pointer flex flex-col items-center justify-between px-2 py-6",
         "[&_*]:transition-colors [&_*]:duration-300",
         "hover:bg-primary [&_*]:hover:text-foreground",
         {

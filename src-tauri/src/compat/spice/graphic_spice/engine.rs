@@ -496,6 +496,13 @@ impl GraphicSpice {
                                 };
 
                                 directives.push(simconfig_directive);
+                            } else if config == "OP" {
+                                let simconfig_directive = Directives::SimConfig {
+                                    id: id.to_owned(),
+                                    config: SimulationConfig::Op {},
+                                };
+
+                                directives.push(simconfig_directive);
                             }
                         } else {
                             return Err(());

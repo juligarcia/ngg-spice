@@ -19,7 +19,9 @@ const SimulationStatusBadge: FC<SimulationStatusBadgeProps> = ({
   icon,
   compact
 }) => {
-  return (
+  return compact ? (
+    icon
+  ) : (
     <div
       className={clsx(
         "flex flex-col w-full bg-background rounded-sm relative overflow-hidden",
@@ -28,21 +30,19 @@ const SimulationStatusBadge: FC<SimulationStatusBadgeProps> = ({
         }
       )}
     >
-      {!compact && (
-        <div className={clsx("flex flex-row gap-8 grow w-full p-4")}>
-          <div className="flex gap-2 w-full items-center justify-between">
-            <div className="flex flex-col gap-2 grow w-20">
-              <Typography variant="small">Status</Typography>
-              <div className="flex items-center gap-4">
-                <Typography variant="xsmall" className="text-muted-foreground">
-                  {status}
-                </Typography>
-              </div>
+      <div className={clsx("flex flex-row gap-8 grow w-full p-4")}>
+        <div className="flex gap-2 w-full items-center justify-between">
+          <div className="flex flex-col gap-2 grow w-20">
+            <Typography variant="small">Status</Typography>
+            <div className="flex items-center gap-4">
+              <Typography variant="xsmall" className="text-muted-foreground">
+                {status}
+              </Typography>
             </div>
-            {icon}
           </div>
+          {icon}
         </div>
-      )}
+      </div>
       <Progress className="rounded-none" value={progress} />
     </div>
   );
@@ -57,7 +57,7 @@ const SimulationStatus: FC<SimulationStatusProps> = ({ status, compact }) => {
   return (
     <div
       className={clsx("w-full mt-4", {
-        "mt-0 absolute bottom-0 -left-[16px] !w-[calc(100%_+_32px)]": compact
+        "!mt-0  ": compact
       })}
     >
       {match(status)
@@ -66,7 +66,7 @@ const SimulationStatus: FC<SimulationStatusProps> = ({ status, compact }) => {
             compact={compact}
             icon={
               <Bolt
-                size={compact ? 15 : 25}
+                size={compact ? 20 : 25}
                 className="stroke-muted-foreground"
               />
             }

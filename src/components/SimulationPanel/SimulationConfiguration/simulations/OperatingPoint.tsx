@@ -20,13 +20,11 @@ import clsx from "clsx";
 export const Trigger: FC = () => {
   const simulationMap = useSimulationStore.use.simulationsToRun();
   const isEnqueued = hasAnyOfType(simulationMap, isOpeartingPoint);
-  const id = getIdOfType(simulationMap, isOpeartingPoint);
-  const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
 
   return (
     <div
       className={clsx(
-        "bg-accent rounded-sm overflow-hidden flex flex-col w-full mr-4"
+        "bg-accent rounded-sm overflow-hidden flex items-center justify-between w-full mr-4"
       )}
     >
       <div className={clsx("flex items-center gap-2")}>
@@ -34,9 +32,6 @@ export const Trigger: FC = () => {
           {SimulationDisplay[Simulation.OperatingPoint]}
         </Typography>
         {isEnqueued && <SquareCheck className="stroke-primary" size={25} />}
-      </div>
-      <div id="status" className="opacity-0 w-full mt-2">
-        <SimulationStatus compact status={status} />
       </div>
     </div>
   );
