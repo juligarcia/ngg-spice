@@ -1,0 +1,10 @@
+{
+  "bundle": {
+    "resources": {
+      "../libngspice/windows/libngspice.0.dll": "lib/libngspice.0.dll",
+      "../libngspice/windows/libngspice.1.dll": "lib/libngspice.1.dll",
+      "../libngspice/windows/libngspice.2.dll": "lib/libngspice.2.dll",
+      "../libngspice/windows/libngspice.3.dll": "lib/libngspice.3.dll"
+    }
+  }
+}

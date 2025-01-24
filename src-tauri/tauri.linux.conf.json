@@ -1,0 +1,10 @@
+{
+  "bundle": {
+    "resources": {
+      "../libngspice/linux/libngspice.0.so": "lib/libngspice.0.so",
+      "../libngspice/linux/libngspice.1.so": "lib/libngspice.1.so",
+      "../libngspice/linux/libngspice.2.so": "lib/libngspice.2.so",
+      "../libngspice/linux/libngspice.3.so": "lib/libngspice.3.so"
+    }
+  }
+}
