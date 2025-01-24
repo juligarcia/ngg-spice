@@ -90,50 +90,53 @@ export const useRotation = ({
     });
   }, []);
 
-  useHotkeys(osHotkeys({ macos: "Meta+r" }, os), () => {
-    if (selected) {
-      const newPositions = arrayRotate(rotatedPositions) as RotatedPositions;
-      const [top, right, bottom, left] = newPositions;
+  useHotkeys(
+    osHotkeys({ macos: "meta+r", windows: "alt+r", linux: "alt+r" }, os),
+    () => {
+      if (selected) {
+        const newPositions = arrayRotate(rotatedPositions) as RotatedPositions;
+        const [top, right, bottom, left] = newPositions;
 
-      setRotation((currentRotation) => currentRotation + 90);
-      setRotatedPositions(newPositions);
-      updateNodeInternals(id);
+        setRotation((currentRotation) => currentRotation + 90);
+        setRotatedPositions(newPositions);
+        updateNodeInternals(id);
 
-      updateNodeData(id, {
-        rotation: rotation + 90,
-        withRotation: {
-          ...availableHandles.top.reduce<{
-            [key: string]: Position;
-          }>((rots, { name }, index) => {
-            rots[Nodes.tagPort(id, name || index)] = top;
+        updateNodeData(id, {
+          rotation: rotation + 90,
+          withRotation: {
+            ...availableHandles.top.reduce<{
+              [key: string]: Position;
+            }>((rots, { name }, index) => {
+              rots[Nodes.tagPort(id, name || index)] = top;
 
-            return rots;
-          }, {}),
-          ...availableHandles.right.reduce<{
-            [key: string]: Position;
-          }>((rots, { name }, index) => {
-            rots[Nodes.tagPort(id, name || index)] = right;
+              return rots;
+            }, {}),
+            ...availableHandles.right.reduce<{
+              [key: string]: Position;
+            }>((rots, { name }, index) => {
+              rots[Nodes.tagPort(id, name || index)] = right;
 
-            return rots;
-          }, {}),
-          ...availableHandles.bottom.reduce<{
-            [key: string]: Position;
-          }>((rots, { name }, index) => {
-            rots[Nodes.tagPort(id, name || index)] = bottom;
+              return rots;
+            }, {}),
+            ...availableHandles.bottom.reduce<{
+              [key: string]: Position;
+            }>((rots, { name }, index) => {
+              rots[Nodes.tagPort(id, name || index)] = bottom;
 
-            return rots;
-          }, {}),
-          ...availableHandles.left.reduce<{
-            [key: string]: Position;
-          }>((rots, { name }, index) => {
-            rots[Nodes.tagPort(id, name || index)] = left;
+              return rots;
+            }, {}),
+            ...availableHandles.left.reduce<{
+              [key: string]: Position;
+            }>((rots, { name }, index) => {
+              rots[Nodes.tagPort(id, name || index)] = left;
 
-            return rots;
-          }, {})
-        }
-      });
+              return rots;
+            }, {})
+          }
+        });
+      }
     }
-  });
+  );
 
   return [rotation, rotatedPositions];
 };

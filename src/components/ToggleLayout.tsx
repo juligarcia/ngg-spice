@@ -36,35 +36,35 @@ const ToggleLayout: FC<ToggleLayoutProps> = ({ minimized }) => {
   const { os } = useOs();
 
   useHotkeys(
-    osHotkeys({ macos: "meta+1", windows: "shift+1", linux: "shift+1" }, os),
+    osHotkeys({ macos: "meta+1", windows: "alt+1", linux: "alt+1" }, os),
     () => {
       setLayout(LayoutOption.Focus);
     }
   );
 
   useHotkeys(
-    osHotkeys({ macos: "meta+2", windows: "shift+2", linux: "shift+2" }, os),
+    osHotkeys({ macos: "meta+2", windows: "alt+2", linux: "alt+2" }, os),
     () => {
       setLayout(LayoutOption.Rows2);
     }
   );
 
   useHotkeys(
-    osHotkeys({ macos: "meta+3", windows: "shift+3", linux: "shift+3" }, os),
+    osHotkeys({ macos: "meta+3", windows: "alt+3", linux: "alt+3" }, os),
     () => {
       setLayout(LayoutOption.Columns2);
     }
   );
 
   useHotkeys(
-    osHotkeys({ macos: "meta+4", windows: "shift+4", linux: "shift+4" }, os),
+    osHotkeys({ macos: "meta+4", windows: "alt+4", linux: "alt+4" }, os),
     () => {
       setLayout(LayoutOption.Columns3);
     }
   );
 
   useHotkeys(
-    osHotkeys({ macos: "meta+5", windows: "shift+5", linux: "shift+5" }, os),
+    osHotkeys({ macos: "meta+5", windows: "alt+5", linux: "alt+5" }, os),
     () => {
       setLayout(LayoutOption.Grid2x2);
     }
