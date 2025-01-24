@@ -16,7 +16,7 @@ use crate::{
 };
 
 use super::{
-    circuit::canvas::{CanvasData, CanvasEdge, CanvasNode},
+    circuit::canvas::{CanvasEdge, CanvasNode},
     sharedlib::get_shared_lib_path,
     simulation::SimulationConfig,
     simulation_data::SimulationData,
@@ -344,12 +344,14 @@ pub async fn simulate(
             log::info!("Opening lib at: {:?}", path.as_os_str());
 
             // Library needs to live until its done being used
-            let (mut simulator, _library) =
+            let (mut simulator, library) =
                 Simulator::init(thread_id, t_orchestrator, path, t_app_handle);
 
             simulator.load_schematic(t_schematic);
 
             simulator.run();
+
+            library.close();
         });
 
         simulation_handles.push(handle);
