@@ -41,9 +41,23 @@ jobs:
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04' # This must match the platform value defined above.
+        # There is a bug with some Linux distros where libwebkit2gtk needs to be downgraded
+        # Thread: https://github.com/gitbutlerapp/gitbutler/issues/5282
+        # PR: https://github.com/gitbutlerapp/gitbutler/pull/5301
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+          sudo apt install -y \
+            libwebkit2gtk-4.0-37=2.36.0-2ubuntu1 \
+            libwebkit2gtk-4.0-dev=2.36.0-2ubuntu1 \
+            libjavascriptcoregtk-4.0-18=2.36.0-2ubuntu1 \
+            libjavascriptcoregtk-4.0-dev=2.36.0-2ubuntu1 \
+            gir1.2-javascriptcoregtk-4.0=2.36.0-2ubuntu1 \
+            gir1.2-webkit2-4.0=2.36.0-2ubuntu1
 
       - name: install frontend dependencies
         run: yarn install # change this to npm, pnpm or bun depending on which one you use.
