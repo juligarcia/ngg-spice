@@ -17,7 +17,7 @@ import ConnectionNodeToolbar from "./ConnectionNodeToolbar";
 import { useSimulationStore } from "@/store/simulation";
 import { isEmpty } from "lodash";
 import { getIdOfType, isOpeartingPoint } from "@/utils/simulation";
-import { getReal, getX } from "@/components/SimulationVisualizer/graphs/utils";
+import { getReal } from "@/components/SimulationVisualizer/graphs/utils";
 import { formatNumberAroundMagnitude } from "@/utils/numbers";
 
 const storeSelector = (state: ReactFlowState) => ({
@@ -92,7 +92,10 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id, data }) => {
             <Typography className="font-semibold tracking-tight">
               {`${formatNumberAroundMagnitude(operatingPoint)}V`}
             </Typography>
-            <Triangle size={15} className="fill-primary !stroke-none absolute rotate-180 left-[50%] -translate-x-2/4" />
+            <Triangle
+              size={15}
+              className="fill-primary !stroke-none absolute rotate-180 left-[50%] -translate-x-2/4"
+            />
           </div>
         )}
         <Waypoints
