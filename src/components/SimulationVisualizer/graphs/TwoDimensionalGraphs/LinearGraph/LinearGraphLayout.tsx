@@ -170,29 +170,6 @@ const LinearGraphLayout: FC<LinearGraphLayoutProps> = ({
 
   const plotState = useRef<PlotState | null>(null);
 
-  useEffect(() => {
-    if (!plotState.current || !plotState.current.graph) return;
-
-    plotState.current.xAccessor = xAccessor;
-    plotState.current.series = series;
-
-    const [newDownsampledData] = downsample(
-      plotState.current.data,
-      plotState.current.estimatedDensity,
-      0,
-      xAccessor,
-      series
-    );
-
-    plotState.current.downSampledData = newDownsampledData;
-
-    plotState.current.graph.updateOptions({
-      file: newDownsampledData,
-      labels: [xAccessor, ...Arr.map(series, ({ accessor }) => accessor)],
-      series: Object.fromEntries(series.map((s) => [s.accessor, s]))
-    });
-  }, [xAccessor, series]);
-
   // Initiate plot state
   useEffect(() => {
     plotState.current = deriveState(
@@ -270,6 +247,29 @@ const LinearGraphLayout: FC<LinearGraphLayoutProps> = ({
 
     return () => dygraph.destroy();
   }, [graphContainerId]);
+
+  useEffect(() => {
+    if (!plotState.current || !plotState.current.graph) return;
+
+    plotState.current.xAccessor = xAccessor;
+    plotState.current.series = series;
+
+    const [newDownsampledData] = downsample(
+      plotState.current.data,
+      plotState.current.estimatedDensity,
+      0,
+      xAccessor,
+      series
+    );
+
+    plotState.current.downSampledData = newDownsampledData;
+
+    plotState.current.graph.updateOptions({
+      file: newDownsampledData,
+      labels: [xAccessor, ...Arr.map(series, ({ accessor }) => accessor)],
+      series: Object.fromEntries(series.map((s) => [s.accessor, s]))
+    });
+  }, [xAccessor, series]);
 
   // Listen to container resize
   const [resizeObserver, target] = useMemo<

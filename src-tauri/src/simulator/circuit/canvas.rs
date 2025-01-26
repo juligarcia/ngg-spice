@@ -335,14 +335,14 @@ impl TimeDomainConfig {
                 })
             }
 
-            "dc" => Some(TimeDomainConfig::Dc {
-                value: Some(
-                    UnitOfMagnitude::from("dc".to_string())
-                        .or::<Result<UnitOfMagnitude, ()>>(Ok(UnitOfMagnitude::Base(0.0)))
-                        .unwrap()
-                        .format(),
-                ),
-            }),
+            "dc" => {
+                let mut parts = value.split_whitespace();
+                let value = parts.next();
+
+                Some(TimeDomainConfig::Dc {
+                    value: value.map(|s| s.to_string()),
+                })
+            }
 
             _ => None,
         }

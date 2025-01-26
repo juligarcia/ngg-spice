@@ -5,9 +5,9 @@ import {
   ReactFlowState,
   useStore
 } from "@xyflow/react";
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { ConnectionNodeType } from "@/components/Editor/components/canvas/nodes/ConnectionNode/types";
-import { Waypoints } from "lucide-react";
+import { Triangle, Waypoints } from "lucide-react";
 import clsx from "clsx";
 import { tagPort } from "../utils";
 import usePointerProximity from "@/hooks/usePointerProximity";
@@ -16,6 +16,9 @@ import { shallow } from "zustand/shallow";
 import ConnectionNodeToolbar from "./ConnectionNodeToolbar";
 import { useSimulationStore } from "@/store/simulation";
 import { isEmpty } from "lodash";
+import { getIdOfType, isOpeartingPoint } from "@/utils/simulation";
+import { getReal, getX } from "@/components/SimulationVisualizer/graphs/utils";
+import { formatNumberAroundMagnitude } from "@/utils/numbers";
 
 const storeSelector = (state: ReactFlowState) => ({
   singleSelection: state.nodes.filter((node) => node.selected).length === 1
@@ -34,6 +37,24 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id, data }) => {
   const { singleSelection } = useStore(storeSelector, shallow);
 
   const isVisible = selected && singleSelection;
+
+  const operatingPointId = useSimulationStore((state) =>
+    getIdOfType(state.simulationsToRun, isOpeartingPoint)
+  );
+
+  const simulationData = useSimulationStore.use.simulationData();
+
+  const operatingPoint = useMemo(() => {
+    if (operatingPointId) {
+      const operatingPointDatum = simulationData.get(operatingPointId)?.[0];
+
+      if (operatingPointDatum) {
+        return getReal(data.name.toLowerCase())(operatingPointDatum);
+      }
+    }
+
+    return null;
+  }, [simulationData, operatingPointId]);
 
   const hasSimulationData = !isEmpty(useSimulationStore.use.simulationData());
 
@@ -66,6 +87,14 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id, data }) => {
           }
         )}
       >
+        {operatingPoint !== null && (
+          <div className="absolute whitespace-nowrap -top-[100%] -translate-y-[calc(50%_+_12px)] bg-primary rounded-sm items-center p-1.5">
+            <Typography className="font-semibold tracking-tight">
+              {`${formatNumberAroundMagnitude(operatingPoint)}V`}
+            </Typography>
+            <Triangle size={15} className="fill-primary !stroke-none absolute rotate-180 left-[50%] -translate-x-2/4" />
+          </div>
+        )}
         <Waypoints
           className={clsx(
             "h-full w-full transition-[stroke] duration-150 ease-in-out stroke-foreground",

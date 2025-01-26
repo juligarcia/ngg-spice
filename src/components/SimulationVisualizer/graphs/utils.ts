@@ -19,3 +19,13 @@ export const getX =
 
     return 0;
   };
+
+export const getReal =
+  (name: string) =>
+  (d: SimulationData): number | null => {
+    const data = d.computed_values_for_index.find((data) => data.name === name);
+
+    if (data) return data.c_real;
+
+    return null;
+  };

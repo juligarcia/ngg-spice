@@ -12,7 +12,7 @@ import {
   useReactFlow,
   XYPosition
 } from "@xyflow/react";
-import { FC, useEffect, useRef } from "react";
+import { FC } from "react";
 import { useTheme } from "../ThemeProvider";
 import { nodeTypes } from "@/components/Editor/components/canvas/nodes";
 import {
@@ -27,7 +27,6 @@ import { ConnectionNodeType } from "./components/canvas/nodes/ConnectionNode/typ
 import { SpiceNodeType } from "./components/canvas/nodes/SpiceNode/types";
 import {
   SpiceData,
-  SpiceInstanceName,
   SpiceNodeDefinition
 } from "../context/SpiceContext/SpiceContext";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -37,6 +36,7 @@ import { spiceNodes } from "../context/SpiceContext/nodes/nodes";
 import { getBySelector, getCenter } from "@/utils/dom";
 import { v4 as uuidv4 } from "uuid";
 import { useMouse } from "@uidotdev/usehooks";
+import { getNodeCount } from "@/utils/nodes";
 
 const Editor: FC = () => {
   const { theme } = useTheme();
@@ -53,27 +53,6 @@ const Editor: FC = () => {
     getState().edges as AppEdge[]
   );
 
-  const refCounter = useRef<Map<string, number>>(new Map());
-
-  useEffect(() => {
-    nodes.forEach((node) => {
-      if (node.type === NodeType.Spice) {
-        const instanceName = node.data.instance_name;
-
-        const counter = refCounter.current.get(instanceName);
-
-        if (counter === undefined) refCounter.current.set(instanceName, 1);
-        else refCounter.current.set(instanceName, counter + 1);
-      } else if (node.type === NodeType.ConnectionNode) {
-        const counter = refCounter.current.get(NodeType.ConnectionNode);
-
-        if (counter === undefined)
-          refCounter.current.set(NodeType.ConnectionNode, 1);
-        else refCounter.current.set(NodeType.ConnectionNode, counter + 1);
-      }
-    });
-  }, []);
-
   const { R, C, L, Gnd, V, I, G, E, F, H, Q } = spiceNodes;
 
   const { os } = useOs();
@@ -86,9 +65,11 @@ const Editor: FC = () => {
     position: screenToFlowPosition({ x: mousePosition.x, y: mousePosition.y }),
     data: {
       ...node,
-      name: `${node.instance_name}${refCounter.current.get(
-        node.instance_name
-      )}`,
+      name: `${node.instance_name}${getNodeCount({
+        nodes,
+        type: NodeType.Spice,
+        instanceName: node.instance_name
+      })}`,
       data: node.data || {}
     }
   });
@@ -98,18 +79,12 @@ const Editor: FC = () => {
     id: uuidv4(),
     position: screenToFlowPosition({ x: mousePosition.x, y: mousePosition.y }),
     data: {
-      name: `Node${refCounter.current.get(NodeType.ConnectionNode)}`
+      name: `Node${getNodeCount({ nodes, type: NodeType.ConnectionNode })}`
     }
   });
 
   useHotkeys(osHotkeys({ macos: "r", windows: "r", linux: "r" }, os), () => {
     if (!R) return;
-
-    const counter = refCounter.current.get(SpiceInstanceName.Resistor);
-
-    if (counter === undefined)
-      refCounter.current.set(SpiceInstanceName.Resistor, 1);
-    else refCounter.current.set(SpiceInstanceName.Resistor, counter + 1);
 
     const newComponentNode = createNewSpiceNode(R);
 
@@ -119,12 +94,6 @@ const Editor: FC = () => {
   useHotkeys(osHotkeys({ macos: "c", windows: "c", linux: "c" }, os), () => {
     if (!C) return;
 
-    const counter = refCounter.current.get(SpiceInstanceName.Capacitor);
-
-    if (counter === undefined)
-      refCounter.current.set(SpiceInstanceName.Capacitor, 1);
-    else refCounter.current.set(SpiceInstanceName.Capacitor, counter + 1);
-
     const newComponentNode = createNewSpiceNode(C);
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
@@ -132,12 +101,6 @@ const Editor: FC = () => {
 
   useHotkeys(osHotkeys({ macos: "l", windows: "l", linux: "l" }, os), () => {
     if (!L) return;
-
-    const counter = refCounter.current.get(SpiceInstanceName.Inductor);
-
-    if (counter === undefined)
-      refCounter.current.set(SpiceInstanceName.Inductor, 1);
-    else refCounter.current.set(SpiceInstanceName.Inductor, counter + 1);
 
     const newComponentNode = createNewSpiceNode(L);
 
@@ -158,12 +121,6 @@ const Editor: FC = () => {
   useHotkeys(osHotkeys({ macos: "v", windows: "v", linux: "v" }, os), () => {
     if (!V) return;
 
-    const counter = refCounter.current.get(SpiceInstanceName.VoltageSource);
-
-    if (counter === undefined)
-      refCounter.current.set(SpiceInstanceName.VoltageSource, 1);
-    else refCounter.current.set(SpiceInstanceName.VoltageSource, counter + 1);
-
     const newComponentNode = createNewSpiceNode(V);
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
@@ -171,12 +128,6 @@ const Editor: FC = () => {
 
   useHotkeys(osHotkeys({ macos: "i", windows: "i", linux: "i" }, os), () => {
     if (!I) return;
-
-    const counter = refCounter.current.get(SpiceInstanceName.CurrentSource);
-
-    if (counter === undefined)
-      refCounter.current.set(SpiceInstanceName.CurrentSource, 1);
-    else refCounter.current.set(SpiceInstanceName.CurrentSource, counter + 1);
 
     const newComponentNode = createNewSpiceNode(I);
 
@@ -186,12 +137,6 @@ const Editor: FC = () => {
   useHotkeys(osHotkeys({ macos: "g", windows: "g", linux: "g" }, os), () => {
     if (!G) return;
 
-    const counter = refCounter.current.get(SpiceInstanceName.VCIS);
-
-    if (counter === undefined)
-      refCounter.current.set(SpiceInstanceName.VCIS, 1);
-    else refCounter.current.set(SpiceInstanceName.VCIS, counter + 1);
-
     const newComponentNode = createNewSpiceNode(G);
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
@@ -199,12 +144,6 @@ const Editor: FC = () => {
 
   useHotkeys(osHotkeys({ macos: "e", windows: "e", linux: "e" }, os), () => {
     if (!E) return;
-
-    const counter = refCounter.current.get(SpiceInstanceName.VCVS);
-
-    if (counter === undefined)
-      refCounter.current.set(SpiceInstanceName.VCVS, 1);
-    else refCounter.current.set(SpiceInstanceName.VCVS, counter + 1);
 
     const newComponentNode = createNewSpiceNode(E);
 
@@ -214,12 +153,6 @@ const Editor: FC = () => {
   useHotkeys(osHotkeys({ macos: "f", windows: "f", linux: "f" }, os), () => {
     if (!F) return;
 
-    const counter = refCounter.current.get(SpiceInstanceName.ICIS);
-
-    if (counter === undefined)
-      refCounter.current.set(SpiceInstanceName.ICIS, 1);
-    else refCounter.current.set(SpiceInstanceName.ICIS, counter + 1);
-
     const newComponentNode = createNewSpiceNode(F);
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
@@ -227,12 +160,6 @@ const Editor: FC = () => {
 
   useHotkeys(osHotkeys({ macos: "h", windows: "h", linux: "h" }, os), () => {
     if (!H) return;
-
-    const counter = refCounter.current.get(SpiceInstanceName.ICVS);
-
-    if (counter === undefined)
-      refCounter.current.set(SpiceInstanceName.ICVS, 1);
-    else refCounter.current.set(SpiceInstanceName.ICVS, counter + 1);
 
     const newComponentNode = createNewSpiceNode(H);
 
@@ -242,23 +169,12 @@ const Editor: FC = () => {
   useHotkeys(osHotkeys({ macos: "q", windows: "q", linux: "q" }, os), () => {
     if (!Q) return;
 
-    const counter = refCounter.current.get(SpiceInstanceName.BJT);
-
-    if (counter === undefined) refCounter.current.set(SpiceInstanceName.BJT, 1);
-    else refCounter.current.set(SpiceInstanceName.BJT, counter + 1);
-
     const newComponentNode = createNewSpiceNode(Q);
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
   useHotkeys(osHotkeys({ macos: "t", windows: "t", linux: "t" }, os), () => {
-    const counter = refCounter.current.get(NodeType.ConnectionNode);
-
-    if (counter === undefined)
-      refCounter.current.set(NodeType.ConnectionNode, 1);
-    else refCounter.current.set(NodeType.ConnectionNode, counter + 1);
-
     const newComponentNode = createNewConnectionNode();
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
@@ -300,12 +216,6 @@ const Editor: FC = () => {
       isSourceElement &&
       isTargetElement
     ) {
-      const counter = refCounter.current.get(NodeType.ConnectionNode);
-
-      if (counter === undefined)
-        refCounter.current.set(NodeType.ConnectionNode, 1);
-      else refCounter.current.set(NodeType.ConnectionNode, counter + 1);
-
       const uuid = uuidv4();
       const centerSource = screenToFlowPosition({
         x: getCenter(sourceHandleNode).x,
@@ -324,10 +234,12 @@ const Editor: FC = () => {
 
       const newConnectionNodeId = tagNode(uuid);
 
+      const nodeNumber = getNodeCount({ nodes, type: NodeType.ConnectionNode });
+
       const newConnectionNode: ConnectionNodeType = {
         type: NodeType.ConnectionNode,
         data: {
-          name: `Node${refCounter.current.get(NodeType.ConnectionNode)}`
+          name: `Node${nodeNumber}`
         },
         id: newConnectionNodeId,
         position
