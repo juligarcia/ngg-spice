@@ -268,18 +268,9 @@ const Editor: FC = () => {
     source: XYPosition,
     target: XYPosition
   ): XYPosition => {
-    const diffX = Math.abs(target.x - source.x);
-    const diffY = Math.abs(target.y - source.y);
-
-    const xOffsetSign = Math.sign(target.x - source.x);
-    // const yOffsetSign = Math.sign(target.y - source.y);
-
     return {
-      x:
-        diffY > diffX
-          ? target.x - xOffsetSign * 20
-          : source.x + xOffsetSign * 20,
-      y: diffX > diffY ? target.y : source.y
+      x: Math.round((source.x + target.x) / 2),
+      y: Math.round((source.y + target.y) / 2)
     };
   };
 

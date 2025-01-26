@@ -107,6 +107,8 @@ impl Simulator {
                 }
 
                 SecondaryThreadStatus::Done => {
+                    // Need to free up resources
+                    self.clear_resources();
                     break;
                 }
             }
@@ -449,5 +451,17 @@ impl Simulator {
         self.spice.command("bg_run");
 
         Ok(())
+    }
+
+    pub fn clear_resources(&self) {
+        // dl_ngSpice_Command("destroy all");
+        // dl_ngSpice_Command("remcirc");
+        // dl_ngSpice_Command("rusage");
+        // dl_ngSpice_Command("resetco");
+
+        self.spice.command("destroy all");
+        self.spice.command("remcirc");
+        self.spice.command("rusage");
+        self.spice.command("resetco");
     }
 }

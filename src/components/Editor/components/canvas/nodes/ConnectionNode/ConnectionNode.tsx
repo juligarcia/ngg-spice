@@ -74,7 +74,7 @@ const ConnectionNode: FC<ConnectionNodeProps> = ({ selected, id, data }) => {
             }
           )}
         />
-        <div className="absolute whitespace-nowrap mt-4 top-0 translate-y-2/4 bg-accent/30 rounded-sm items-center p-1">
+        <div className="absolute whitespace-nowrap mt-4 top-0 translate-y-2/4 bg-accent rounded-sm items-center p-1">
           <Typography className="font-semibold tracking-tight" variant="xsmall">
             {name}
           </Typography>

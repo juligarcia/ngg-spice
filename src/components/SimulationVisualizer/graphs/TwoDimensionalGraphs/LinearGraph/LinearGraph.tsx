@@ -124,7 +124,7 @@ const LinearGraph: FC<LinearGraphProps> = ({ simulationId, order }) => {
         ) : (
           <div className="p-8 w-full h-full flex flex-col items-center justify-center">
             <Typography variant="h4" className="text-muted-foreground">
-              Select X and Y
+              Select a node or a power source to measure
             </Typography>
           </div>
         )}

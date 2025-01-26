@@ -44,14 +44,6 @@ export const Trigger: FC = () => {
 type SmallSignalACConfigForm = SmallSignalACAnalysisConfig["Ac"];
 
 export const Content: FC = () => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isDirty },
-    control
-  } = useForm<SmallSignalACConfigForm>({});
-
   const simulationMap = useSimulationStore.use.simulationsToRun();
 
   const enqueueSimulation = useSimulationStore.use.enqueueSimulation();
@@ -63,6 +55,20 @@ export const Content: FC = () => {
   const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
 
   const isRunning = isSimulationRunning(status);
+
+  const configuration = simulationMap.get(id || "") as
+    | SmallSignalACAnalysisConfig
+    | undefined;
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isDirty },
+    control
+  } = useForm<SmallSignalACConfigForm>({
+    defaultValues: configuration?.Ac || {}
+  });
 
   return (
     <div>
@@ -91,6 +97,7 @@ export const Content: FC = () => {
                 onValueChange={field.onChange}
                 onBlur={field.onBlur}
                 ref={field.ref}
+                defaultValue={configuration?.Ac?.variation}
               >
                 <div className="flex flex-col gap-2 items-center">
                   <RadioGroupItem
@@ -148,6 +155,7 @@ export const Content: FC = () => {
             Points per division *
           </Typography>
           <Input
+            defaultValue={configuration?.Ac?.nx}
             disabled={isRunning}
             {...register("nx", { valueAsNumber: true })}
             className="grow w-full"
@@ -170,6 +178,7 @@ export const Content: FC = () => {
             Start frequency *
           </Typography>
           <Input
+            defaultValue={configuration?.Ac?.fstart}
             disabled={isRunning}
             {...register("fstart")}
             className="grow w-full"
@@ -191,6 +200,7 @@ export const Content: FC = () => {
             Stop frequency *
           </Typography>
           <Input
+            defaultValue={configuration?.Ac?.fstop}
             disabled={isRunning}
             {...register("fstop")}
             className="grow w-full"
