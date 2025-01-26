@@ -8,7 +8,9 @@ import {
   DCAnalysisConfig,
   NoiseAnalysisConfig,
   PoleZeroAnalysisConfig,
-  SensitivityAnalysisConfig
+  SensitivityAnalysisConfig,
+  SimulatorError,
+  SimulationDisplay
 } from "@/types/simulation";
 
 import _ from "lodash";
@@ -120,4 +122,39 @@ export const getIdOfType = <T extends SimulationConfig>(
   }
 
   return null;
+};
+
+export const getToastMessageFromSimulatorError = (
+  e: SimulatorError
+): string => {
+  return match(e)
+    .with({ FloatingNode: P.string }, ({ FloatingNode }) => {
+      return `Element ${FloatingNode} has floating ports.`;
+    })
+    .with({ UnconfiguredElement: P.string }, ({ UnconfiguredElement }) => {
+      return `Element ${UnconfiguredElement} is missing key configurations.`;
+    })
+    .with({ ElementParserError: P.string }, ({ ElementParserError }) => {
+      return `Failed to get Netlist representation for element ${ElementParserError}, please check its configuration.`;
+    })
+    .with({ UnitError: P.string }, () => {
+      return `Incorrect unit of magnitude passed.`;
+    })
+    .with("FailedToSaveGraphicSpiceFile", () => {
+      return `Failed to save graphic spice file. Please try again.`;
+    })
+    .with(
+      { MalformedSimulationConfig: P.string },
+      ({ MalformedSimulationConfig }) => {
+        return `Malformed ${
+          SimulationDisplay[
+            MalformedSimulationConfig.toLowerCase() as keyof typeof SimulationDisplay
+          ]
+        } simulation config.`;
+      }
+    )
+    .with("NoSchematicFound", () => {
+      return `Failed to generate schematic for simulation.`;
+    })
+    .run();
 };

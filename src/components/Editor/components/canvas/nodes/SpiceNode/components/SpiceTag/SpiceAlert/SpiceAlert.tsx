@@ -20,12 +20,17 @@ import {
   getICVSHelperText,
   getBJTHelperText
 } from "./utils";
+import { useSimulationStore } from "@/store/simulation";
 
 type SpiceAlertProps = {
   nodeData: SpiceNodeValues;
 };
 
 const SpiceAlert: FC<SpiceAlertProps> = ({ nodeData }) => {
+  const validationError = useSimulationStore.use.validationError();
+  const hasValidationError =
+    validationError && validationError[0] === nodeData.name;
+
   const helperText = match(nodeData)
     .with(
       {
@@ -83,12 +88,17 @@ const SpiceAlert: FC<SpiceAlertProps> = ({ nodeData }) => {
     )
     .otherwise(() => false);
 
-  const hasErrors = !!helperText;
+  const hasErrors = !!helperText || hasValidationError;
+  const helperTextToShow =
+    helperText ||
+    (validationError
+      ? `${validationError[1]}. Fix, and try simulating again.`
+      : null);
 
   return hasErrors ? (
     <Tooltip>
       <TooltipContent>
-        <Typography variant="xsmall">{helperText}</Typography>
+        <Typography variant="xsmall">{helperTextToShow}</Typography>
       </TooltipContent>
       <TooltipTrigger className="min-h-full">
         <Emoji className="min-w-[12px] w-[12px]" name="warning" />

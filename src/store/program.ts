@@ -9,6 +9,9 @@ interface ProgramStore {
   bjtModels: BipolarJunctionTransistorModel[];
   setBjtModels(bjtModels: BipolarJunctionTransistorModel[]): void;
   updateBjtModel(bjtModel: BipolarJunctionTransistorModel): void;
+
+  showShortcutsDialog: boolean;
+  setShortcutsDialogOpen(open: boolean): void;
 }
 
 const useProgramStoreBase = create<ProgramStore>((set) => ({
@@ -27,7 +30,10 @@ const useProgramStoreBase = create<ProgramStore>((set) => ({
       bjtModels.push(bjtModel);
 
       return { bjtModels };
-    })
+    }),
+
+  showShortcutsDialog: false,
+  setShortcutsDialogOpen: (open) => set(() => ({ showShortcutsDialog: open }))
 }));
 
 export const useProgramStore = createSelectors(useProgramStoreBase);

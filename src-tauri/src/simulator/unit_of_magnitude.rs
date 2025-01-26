@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum UnitOfMagnitudeError {
     FailedToParseBase,
     IncorrectValuePassed,

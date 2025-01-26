@@ -243,3 +243,28 @@ export enum SimulationBasis {
   Time = "time",
   Frequency = "frequency"
 }
+
+export type UnitOfMagnitudeError =
+  | "FailedToParseBase"
+  | "IncorrectValuePassed"
+  | "InvalidUnitOfMagnitude"
+  | "IncorrectMagnitudePassed";
+
+export type SimulatorError =
+  | { FloatingNode: string }
+  | { UnconfiguredElement: string }
+  | { ElementParserError: string }
+  | { UnitError: UnitOfMagnitudeError }
+  | "NoSchematicFound"
+  | {
+      MalformedSimulationConfig:
+        | "Tran"
+        | "Op"
+        | "Ac"
+        | "Dc"
+        | "Disto"
+        | "Noise"
+        | "Pz"
+        | "Sens";
+    }
+  | "FailedToSaveGraphicSpiceFile";

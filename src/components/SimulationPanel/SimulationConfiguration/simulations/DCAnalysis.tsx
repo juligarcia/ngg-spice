@@ -3,10 +3,10 @@ import {
   Simulation,
   SimulationDisplay
 } from "@/types/simulation";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Typography } from "@/components/ui/Typography";
 import { Button } from "@/components/ui/Button";
-import { CircleHelp, SquareCheck } from "lucide-react";
+import { CircleHelp, LoaderCircle, SquareCheck } from "lucide-react";
 import SimulationStatus from "../SimulationsStatus";
 import { useSimulationStore } from "@/store/simulation";
 import {
@@ -29,7 +29,10 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { AppNode, NodeType } from "@/components/Editor/components/canvas/nodes/types";
+import {
+  AppNode,
+  NodeType
+} from "@/components/Editor/components/canvas/nodes/types";
 import { match, P } from "ts-pattern";
 import { SpiceInstanceName } from "@/components/context/SpiceContext/SpiceContext";
 import { SpiceNodeType } from "@/components/Editor/components/canvas/nodes/SpiceNode/types";
@@ -39,13 +42,21 @@ import { useStore } from "@xyflow/react";
 export const Trigger: FC = () => {
   const simulationMap = useSimulationStore.use.simulationsToRun();
   const isEnqueued = hasAnyOfType(simulationMap, isDCAnalysis);
+  const id = getIdOfType(simulationMap, isDCAnalysis);
+  const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
+  const isRunning = isSimulationRunning(status);
 
   return (
     <div className="bg-accent rounded-sm overflow-hidden flex items-center gap-2">
       <Typography className="capitalize" variant="h4">
         {SimulationDisplay[Simulation.DC]}
       </Typography>
-      {isEnqueued && <SquareCheck className="stroke-primary" size={25} />}
+      {isEnqueued &&
+        (isRunning ? (
+          <LoaderCircle size={25} className="stroke-primary animate-spin" />
+        ) : (
+          <SquareCheck className="stroke-primary" size={25} />
+        ))}
     </div>
   );
 };
@@ -59,8 +70,13 @@ export const Content: FC = () => {
     reset,
     formState: { isDirty },
     control,
-    unregister
+    unregister,
+    setFocus
   } = useForm<DCAnalysisForm>({});
+
+  useEffect(() => {
+    setFocus("srcnam");
+  }, []);
 
   const simulationMap = useSimulationStore.use.simulationsToRun();
 

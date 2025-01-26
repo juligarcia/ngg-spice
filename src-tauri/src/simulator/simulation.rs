@@ -483,7 +483,11 @@ impl SimulationConfig {
                             "dec" => Ok(FrequencyVariation::Dec),
                             "oct" => Ok(FrequencyVariation::Oct),
                             "lin" => Ok(FrequencyVariation::Lin),
-                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                            _ => {
+                                return Err(SimulatorError::MalformedSimulationConfig(
+                                    "Ac".to_owned(),
+                                ))
+                            }
                         })
                         .transpose()?,
                     nx: params.next().map(|nx| nx.parse().unwrap()),
@@ -516,14 +520,18 @@ impl SimulationConfig {
                             "dec" => Ok(FrequencyVariation::Dec),
                             "oct" => Ok(FrequencyVariation::Oct),
                             "lin" => Ok(FrequencyVariation::Lin),
-                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                            _ => {
+                                return Err(SimulatorError::MalformedSimulationConfig(
+                                    kind.to_owned(),
+                                ))
+                            }
                         })
                         .transpose()?,
                     nx: params
                         .next()
                         .map(|nx| nx.parse::<i32>())
                         .transpose()
-                        .map_err(|_| SimulatorError::MalformedSimulationConfig)?,
+                        .map_err(|_| SimulatorError::MalformedSimulationConfig(kind.to_owned()))?,
                     f2overf1: params.next().map(|f2overf1| f2overf1.parse().unwrap()),
                 });
             }
@@ -540,21 +548,25 @@ impl SimulationConfig {
                             "dec" => Ok(FrequencyVariation::Dec),
                             "oct" => Ok(FrequencyVariation::Oct),
                             "lin" => Ok(FrequencyVariation::Lin),
-                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                            _ => {
+                                return Err(SimulatorError::MalformedSimulationConfig(
+                                    kind.to_owned(),
+                                ))
+                            }
                         })
                         .transpose()?,
                     pts: params
                         .next()
                         .map(|pts| pts.parse::<i32>())
                         .transpose()
-                        .map_err(|_| SimulatorError::MalformedSimulationConfig)?,
+                        .map_err(|_| SimulatorError::MalformedSimulationConfig(kind.to_owned()))?,
                     fstart: params.next().map(|fstart| fstart.to_owned()),
                     fstop: params.next().map(|fstop| fstop.to_owned()),
                     pts_per_summary: params
                         .next()
                         .map(|pts_per_summary| pts_per_summary.parse::<i32>())
                         .transpose()
-                        .map_err(|_| SimulatorError::MalformedSimulationConfig)?,
+                        .map_err(|_| SimulatorError::MalformedSimulationConfig(kind.to_owned()))?,
                 });
             }
             "PZ" => {
@@ -570,7 +582,11 @@ impl SimulationConfig {
                         .map(|transfer_function| match transfer_function {
                             "vol" => Ok(TransferFunction::Vol),
                             "cur" => Ok(TransferFunction::Cur),
-                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                            _ => {
+                                return Err(SimulatorError::MalformedSimulationConfig(
+                                    kind.to_owned(),
+                                ))
+                            }
                         })
                         .transpose()?,
                     analysis_type: params
@@ -579,7 +595,11 @@ impl SimulationConfig {
                             "pol" => Ok(PoleZerAnalysis::Pol),
                             "zer" => Ok(PoleZerAnalysis::Zer),
                             "pz" => Ok(PoleZerAnalysis::Pz),
-                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                            _ => {
+                                return Err(SimulatorError::MalformedSimulationConfig(
+                                    kind.to_owned(),
+                                ))
+                            }
                         })
                         .transpose()?,
                 });
@@ -593,7 +613,11 @@ impl SimulationConfig {
                         .map(|output_type| match output_type {
                             "V" => Ok(CurrentOrVoltage::V),
                             "I" => Ok(CurrentOrVoltage::I),
-                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                            _ => {
+                                return Err(SimulatorError::MalformedSimulationConfig(
+                                    kind.to_owned(),
+                                ))
+                            }
                         })
                         .transpose()?,
                     output: params.next().map(|output| output.to_owned()),
@@ -602,7 +626,11 @@ impl SimulationConfig {
                         .map(|analysis_type| match analysis_type {
                             "ac" => Ok(SensitivityAnalysisType::Ac),
                             "dc" => Ok(SensitivityAnalysisType::Dc),
-                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                            _ => {
+                                return Err(SimulatorError::MalformedSimulationConfig(
+                                    kind.to_owned(),
+                                ))
+                            }
                         })
                         .transpose()?,
                     fstart: params.next().map(|fstart| fstart.to_owned()),
@@ -613,17 +641,21 @@ impl SimulationConfig {
                             "dec" => Ok(FrequencyVariation::Dec),
                             "oct" => Ok(FrequencyVariation::Oct),
                             "lin" => Ok(FrequencyVariation::Lin),
-                            _ => return Err(SimulatorError::MalformedSimulationConfig),
+                            _ => {
+                                return Err(SimulatorError::MalformedSimulationConfig(
+                                    "Snes".to_owned(),
+                                ))
+                            }
                         })
                         .transpose()?,
                     nx: params
                         .next()
                         .map(|nx| nx.parse::<i32>())
                         .transpose()
-                        .map_err(|_| SimulatorError::MalformedSimulationConfig)?,
+                        .map_err(|_| SimulatorError::MalformedSimulationConfig(kind.to_owned()))?,
                 });
             }
-            _ => return Err(SimulatorError::MalformedSimulationConfig),
+            _ => return Err(SimulatorError::MalformedSimulationConfig(kind.to_owned())),
         }
     }
 }
@@ -1000,13 +1032,16 @@ impl Simulation {
                 return Ok(Simulation::Ac {
                     fstart: fstart
                         .map(|fstart| {
-                            Unit::from(fstart)
-                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(fstart).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Ac".to_owned())
+                            })
                         })
                         .transpose()?,
                     fstop: fstop
                         .map(|fstop| {
-                            Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(fstop).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Ac".to_owned())
+                            })
                         })
                         .transpose()?,
                     variation,
@@ -1024,13 +1059,16 @@ impl Simulation {
                 return Ok(Simulation::Disto {
                     fstart: fstart
                         .map(|fstart| {
-                            Unit::from(fstart)
-                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(fstart).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Disto".to_owned())
+                            })
                         })
                         .transpose()?,
                     fstop: fstop
                         .map(|fstop| {
-                            Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(fstop).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Disto".to_owned())
+                            })
                         })
                         .transpose()?,
                     variation,
@@ -1057,13 +1095,16 @@ impl Simulation {
                     pts,
                     fstart: fstart
                         .map(|fstart| {
-                            Unit::from(fstart)
-                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(fstart).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Noise".to_owned())
+                            })
                         })
                         .transpose()?,
                     fstop: fstop
                         .map(|fstop| {
-                            Unit::from(fstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(fstop).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Noise".to_owned())
+                            })
                         })
                         .transpose()?,
                     pts_per_summary,
@@ -1080,23 +1121,30 @@ impl Simulation {
                 return Ok(Simulation::Tran {
                     tstep: tstep
                         .map(|tstep| {
-                            Unit::from(tstep).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(tstep).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Tran".to_owned())
+                            })
                         })
                         .transpose()?,
                     tstop: tstop
                         .map(|tstop| {
-                            Unit::from(tstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(tstop).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Tran".to_owned())
+                            })
                         })
                         .transpose()?,
                     tstart: tstart
                         .map(|tstart| {
-                            Unit::from(tstart)
-                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(tstart).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Tran".to_owned())
+                            })
                         })
                         .transpose()?,
                     tmax: tmax
                         .map(|tmax| {
-                            Unit::from(tmax).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(tmax).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Tran".to_owned())
+                            })
                         })
                         .transpose()?,
                     uic,
@@ -1117,36 +1165,46 @@ impl Simulation {
                     srcnam,
                     vstart: vstart
                         .map(|vstart| {
-                            Unit::from(vstart)
-                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(vstart).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Dc".to_owned())
+                            })
                         })
                         .transpose()?,
                     vstop: vstop
                         .map(|vstop| {
-                            Unit::from(vstop).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(vstop).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Dc".to_owned())
+                            })
                         })
                         .transpose()?,
                     vincr: vincr
                         .map(|vincr| {
-                            Unit::from(vincr).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(vincr).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Dc".to_owned())
+                            })
                         })
                         .transpose()?,
 
                     src2,
                     start2: start2
                         .map(|start2| {
-                            Unit::from(start2)
-                                .map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(start2).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Dc".to_owned())
+                            })
                         })
                         .transpose()?,
                     stop2: stop2
                         .map(|stop2| {
-                            Unit::from(stop2).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(stop2).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Dc".to_owned())
+                            })
                         })
                         .transpose()?,
                     incr2: incr2
                         .map(|incr2| {
-                            Unit::from(incr2).map_err(|_| SimulatorError::MalformedSimulationConfig)
+                            Unit::from(incr2).map_err(|_| {
+                                SimulatorError::MalformedSimulationConfig("Dc".to_owned())
+                            })
                         })
                         .transpose()?,
                 });
@@ -1191,10 +1249,12 @@ impl Simulation {
                     if let (Some(fstart), Some(fstop), Some(variation), Some(nx)) =
                         (fstart, fstop, variation, nx)
                     {
-                        let fstart = Unit::from(fstart)
-                            .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
-                        let fstop = Unit::from(fstop)
-                            .map_err(|_| SimulatorError::MalformedSimulationConfig)?;
+                        let fstart = Unit::from(fstart).map_err(|_| {
+                            SimulatorError::MalformedSimulationConfig("Sens".to_owned())
+                        })?;
+                        let fstop = Unit::from(fstop).map_err(|_| {
+                            SimulatorError::MalformedSimulationConfig("Sens".to_owned())
+                        })?;
 
                         Ok(Simulation::Sens {
                             output_type,
@@ -1206,11 +1266,11 @@ impl Simulation {
                             nx: Some(nx),
                         })
                     } else {
-                        Err(SimulatorError::MalformedSimulationConfig)
+                        Err(SimulatorError::MalformedSimulationConfig("Sens".to_owned()))
                     }
                 }
 
-                None => Err(SimulatorError::MalformedSimulationConfig),
+                None => Err(SimulatorError::MalformedSimulationConfig("Sens".to_owned())),
             },
         }
     }

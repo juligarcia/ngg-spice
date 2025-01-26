@@ -5,7 +5,6 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import ThemeToggle from "./components/ThemeToggle";
 import Layout from "./components/Layout";
 import IconSidebar from "./components/ui/IconSidebar/IconSidebar";
-import { Wrench } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "@xyflow/react/dist/style.css";
 import { ReactFlowProvider } from "@xyflow/react";
@@ -74,12 +73,6 @@ function App() {
                             }
                           ]}
                           bottom={[
-                            {
-                              ariaLabel: "Project Configuration",
-                              Icon: Wrench,
-                              onClick: () => {},
-                              title: "Project"
-                            },
                             {
                               ariaLabel: "Theme toggle",
                               node: <ThemeToggle />

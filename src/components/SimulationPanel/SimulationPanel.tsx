@@ -16,14 +16,18 @@ const SimulationPanel: FC = () => {
       <motion.div
         initial={false}
         className="overflow-hidden"
-        animate={{ width: simulationPanelOpen ? 400 : 0 }}
+        animate={{ width: simulationPanelOpen ? 450 : 0 }}
+        transition={{ duration: 0.3 }}
       >
         <div
           className={clsx(
-            "w-[400px] shrink-0 flex flex-col py-4 pl-4 pr-2 border-accent border-y-2 bg-gradient-to-r from-accent/40 via-card to-card gap-4 h-full z-10"
+            "w-[450px] shrink-0 flex flex-col py-4 pl-4 pr-2 border-accent border-y-2 bg-gradient-to-r from-accent/40 via-card to-card gap-4 h-full z-10"
           )}
         >
-          <Typography className="border-b-2 border-accent pb-4 text-muted-foreground" variant="h3">
+          <Typography
+            className="border-b-2 border-accent pb-4 text-muted-foreground"
+            variant="h3"
+          >
             Simulation Panel
           </Typography>
           <div

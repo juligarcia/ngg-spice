@@ -17,6 +17,7 @@ import clsx from "clsx";
 import { useHotkeys } from "react-hotkeys-hook";
 import { osHotkeys } from "@/utils/hotkeys";
 import { useOs } from "./context/OsContext";
+import { Shortcuts } from "@/constants/shortcuts";
 
 const AnimatedTypography = motion(Typography);
 
@@ -35,40 +36,25 @@ const ToggleLayout: FC<ToggleLayoutProps> = ({ minimized }) => {
 
   const { os } = useOs();
 
-  useHotkeys(
-    osHotkeys({ macos: "meta+1", windows: "alt+1", linux: "alt+1" }, os),
-    () => {
-      setLayout(LayoutOption.Focus);
-    }
-  );
+  useHotkeys(osHotkeys(Shortcuts.FocusLayout.osHotKeys, os), () => {
+    setLayout(LayoutOption.Focus);
+  });
 
-  useHotkeys(
-    osHotkeys({ macos: "meta+2", windows: "alt+2", linux: "alt+2" }, os),
-    () => {
-      setLayout(LayoutOption.Rows2);
-    }
-  );
+  useHotkeys(osHotkeys(Shortcuts.Rows2Layout.osHotKeys, os), () => {
+    setLayout(LayoutOption.Rows2);
+  });
 
-  useHotkeys(
-    osHotkeys({ macos: "meta+3", windows: "alt+3", linux: "alt+3" }, os),
-    () => {
-      setLayout(LayoutOption.Columns2);
-    }
-  );
+  useHotkeys(osHotkeys(Shortcuts.Columns2Layout.osHotKeys, os), () => {
+    setLayout(LayoutOption.Columns2);
+  });
 
-  useHotkeys(
-    osHotkeys({ macos: "meta+4", windows: "alt+4", linux: "alt+4" }, os),
-    () => {
-      setLayout(LayoutOption.Columns3);
-    }
-  );
+  useHotkeys(osHotkeys(Shortcuts.Columns3Layout.osHotKeys, os), () => {
+    setLayout(LayoutOption.Columns3);
+  });
 
-  useHotkeys(
-    osHotkeys({ macos: "meta+5", windows: "alt+5", linux: "alt+5" }, os),
-    () => {
-      setLayout(LayoutOption.Grid2x2);
-    }
-  );
+  useHotkeys(osHotkeys(Shortcuts.Grid2x2Layout.osHotKeys, os), () => {
+    setLayout(LayoutOption.Grid2x2);
+  });
 
   return (
     <DropdownMenu>

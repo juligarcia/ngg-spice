@@ -6,7 +6,7 @@ import {
   Simulation,
   SimulationDisplay
 } from "@/types/simulation";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +14,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import { CircleHelp, SquareCheck } from "lucide-react";
+import { CircleHelp, LoaderCircle, SquareCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useSimulationStore } from "@/store/simulation";
 import SimulationStatus from "../SimulationsStatus";
@@ -47,13 +47,21 @@ import { Label } from "@/components/ui/label";
 export const Trigger: FC = () => {
   const simulationMap = useSimulationStore.use.simulationsToRun();
   const isEnqueued = hasAnyOfType(simulationMap, isNoiseAnalysis);
+  const id = getIdOfType(simulationMap, isNoiseAnalysis);
+  const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
+  const isRunning = isSimulationRunning(status);
 
   return (
     <div className="bg-accent rounded-sm overflow-hidden flex items-center gap-2">
       <Typography className="capitalize" variant="h4">
         {SimulationDisplay[Simulation.Noise]}
       </Typography>
-      {isEnqueued && <SquareCheck className="stroke-primary" size={25} />}
+      {isEnqueued &&
+        (isRunning ? (
+          <LoaderCircle size={25} className="stroke-primary animate-spin" />
+        ) : (
+          <SquareCheck className="stroke-primary" size={25} />
+        ))}
     </div>
   );
 };
@@ -66,8 +74,13 @@ export const Content: FC = () => {
     handleSubmit,
     reset,
     formState: { isDirty },
-    control
+    control,
+    setFocus
   } = useForm<NoiseAnalysisConfigForm>({});
+
+  useEffect(() => {
+    setFocus("pts");
+  }, []);
 
   const simulationMap = useSimulationStore.use.simulationsToRun();
 

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { InductorData } from "@/components/context/SpiceContext/SpiceContext";
@@ -25,8 +25,13 @@ const InductorAttributes: FC<InductorAttributesProps> = ({
     formState: { isDirty, errors },
     register,
     handleSubmit,
-    reset
+    reset,
+    setFocus
   } = useForm<Form>({ defaultValues: data });
+
+  useEffect(() => {
+    setFocus("value");
+  }, []);
 
   const { setNodes } = useReactFlow();
 

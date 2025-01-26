@@ -6,7 +6,7 @@ import {
 import { FC } from "react";
 import { Typography } from "@/components/ui/Typography";
 import { Button } from "@/components/ui/Button";
-import { SquareCheck } from "lucide-react";
+import { LoaderCircle, SquareCheck } from "lucide-react";
 import SimulationStatus from "../SimulationsStatus";
 import { useSimulationStore } from "@/store/simulation";
 import {
@@ -20,6 +20,9 @@ import clsx from "clsx";
 export const Trigger: FC = () => {
   const simulationMap = useSimulationStore.use.simulationsToRun();
   const isEnqueued = hasAnyOfType(simulationMap, isOpeartingPoint);
+  const id = getIdOfType(simulationMap, isOpeartingPoint);
+  const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
+  const isRunning = isSimulationRunning(status);
 
   return (
     <div
@@ -31,7 +34,12 @@ export const Trigger: FC = () => {
         <Typography className="capitalize" variant="h4">
           {SimulationDisplay[Simulation.OperatingPoint]}
         </Typography>
-        {isEnqueued && <SquareCheck className="stroke-primary" size={25} />}
+        {isEnqueued &&
+          (isRunning ? (
+            <LoaderCircle size={25} className="stroke-primary animate-spin" />
+          ) : (
+            <SquareCheck className="stroke-primary" size={25} />
+          ))}
       </div>
     </div>
   );

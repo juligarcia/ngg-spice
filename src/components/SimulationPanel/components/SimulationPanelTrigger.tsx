@@ -8,6 +8,7 @@ import { FC } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useSimulationStore } from "@/store/simulation";
 import { Badge } from "@/components/ui/badge";
+import { Shortcuts } from "@/constants/shortcuts";
 
 const SimulationPanelTrigger: FC = () => {
   const simulationPanelOpen = useProgramStore.use.simulationPanelOpen();
@@ -20,7 +21,7 @@ const SimulationPanelTrigger: FC = () => {
   const { os } = useOs();
 
   useHotkeys(
-    osHotkeys({ macos: "meta+s", windows: "alt+s", linux: "alt+s" }, os),
+    osHotkeys(Shortcuts.ToggleSimulationPanel.osHotKeys, os),
     toggleSimulationPanelOpen
   );
 

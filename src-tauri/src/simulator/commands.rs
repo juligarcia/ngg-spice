@@ -21,6 +21,7 @@ use super::{
     simulation::SimulationConfig,
     simulation_data::SimulationData,
     simulator::Simulator,
+    simulator_error::SimulatorError,
 };
 
 #[derive(Debug, Clone)]
@@ -226,11 +227,7 @@ impl SimulationThreadOrchestrator {
     pub fn threads_needed(&self) -> usize {
         let threads_configured = self.thread_info.len();
 
-        if threads_configured > 0 {
-            return threads_configured - 1;
-        } else {
-            return 0;
-        }
+        return threads_configured;
     }
 }
 
@@ -240,7 +237,7 @@ pub async fn simulate(
     edges: Vec<CanvasEdge>,
     config: HashMap<String, SimulationConfig>,
     app_handle: tauri::AppHandle,
-) -> Result<(), ()> {
+) -> Result<(), SimulatorError> {
     let app_state: State<AppState, '_> = app_handle.state();
 
     let instance_state_guard = app_state.instance_state.lock().unwrap();
@@ -274,7 +271,7 @@ pub async fn simulate(
                 GraphicSpice::domain_to_file(nodes.clone(), edges.clone(), config.clone(), file)
                     .unwrap();
             } else {
-                return Err(());
+                return Err(SimulatorError::FailedToSaveGraphicSpiceFile);
             }
         }
 
@@ -321,13 +318,14 @@ pub async fn simulate(
     let orchestrator = Arc::new(Mutex::new(SimulationThreadOrchestrator::new(config)));
     let orchestrator_guard = orchestrator.lock().unwrap();
     let threads_needed = orchestrator_guard.threads_needed();
+    log::info!("Threads needed: {}", threads_needed);
     drop(orchestrator_guard);
 
-    let schematic = Simulator::create_schematic_from_canvas(nodes, edges).unwrap();
+    let schematic = Simulator::create_schematic_from_canvas(nodes, edges)?;
 
     log::info!("Begin thread creation...");
 
-    for thread_n in 0..(threads_needed + 1) {
+    for thread_n in 0..(threads_needed) {
         log::info!("Spawns {} thread...", thread_n);
 
         let t_orchestrator = Arc::clone(&orchestrator);

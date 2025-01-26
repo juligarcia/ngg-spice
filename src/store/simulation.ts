@@ -29,6 +29,12 @@ interface SimulationStore {
   resetSimulations(): void;
 
   pushSimulationData(newDataItem: SimulationDataPayload): void;
+
+  validationError: [string, string] | null;
+  setValidationError(elementName: string, error: string): void;
+  clearValidationError(): void;
+
+  clearStoredData(): void;
 }
 
 const useSimulationStoreBase = create<SimulationStore>()(
@@ -79,7 +85,20 @@ const useSimulationStoreBase = create<SimulationStore>()(
     resetSimulations: () =>
       set(() => {
         return { simulationStatus: new Map(), simulationData: new Map() };
-      })
+      }),
+
+    validationError: null,
+    setValidationError: (elementName, error) =>
+      set(() => ({ validationError: [elementName, error] })),
+    clearValidationError: () => set(() => ({ validationError: null })),
+
+    clearStoredData: () =>
+      set(() => ({
+        simulationData: new Map(),
+        simulationsToRun: new Map(),
+        simulationStatus: new Map(),
+        validationError: null
+      }))
   }))
 );
 

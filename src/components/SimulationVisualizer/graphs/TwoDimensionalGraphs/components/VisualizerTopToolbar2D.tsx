@@ -11,6 +11,7 @@ import { Typography } from "@/components/ui/Typography";
 import { ChevronDown } from "lucide-react";
 import { useLayoutStore } from "@/store/layout";
 import { simulationConfig2Name } from "../../../utils";
+import { isOpeartingPoint } from "@/utils/simulation";
 
 interface VisualizerTopToolbar2DProps {
   order: number;
@@ -42,8 +43,11 @@ const VisualizerTopToolbar2D: FC<VisualizerTopToolbar2DProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent sideOffset={10} side="bottom" align="end">
-            {Array.from(simulationsToRun.entries()).map(
-              ([simulationId, simulationConfig]) => (
+            {Array.from(simulationsToRun.entries())
+              .filter(
+                ([_, simulationConfig]) => !isOpeartingPoint(simulationConfig)
+              )
+              .map(([simulationId, simulationConfig]) => (
                 <DropdownMenuItem
                   key={simulationId}
                   onClick={() =>
@@ -57,8 +61,7 @@ const VisualizerTopToolbar2D: FC<VisualizerTopToolbar2DProps> = ({
                     {simulationConfig2Name(simulationConfig)}
                   </Typography>
                 </DropdownMenuItem>
-              )
-            )}
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

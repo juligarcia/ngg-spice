@@ -192,7 +192,7 @@ impl Simulator {
                                 position,
                             ))
                         } else {
-                            return Err(SimulatorError::FloatingNode);
+                            return Err(SimulatorError::FloatingNode(name.clone()));
                         }
                     } else {
                         return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
@@ -217,7 +217,7 @@ impl Simulator {
                                 position,
                             ))
                         } else {
-                            return Err(SimulatorError::FloatingNode);
+                            return Err(SimulatorError::FloatingNode(name.clone()));
                         }
                     } else {
                         return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
@@ -242,7 +242,7 @@ impl Simulator {
                                 position,
                             ))
                         } else {
-                            return Err(SimulatorError::FloatingNode);
+                            return Err(SimulatorError::FloatingNode(name.clone()));
                         }
                     } else {
                         return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
@@ -269,7 +269,7 @@ impl Simulator {
                             position,
                         ));
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::FloatingNode(name.clone()));
                     }
                 }
 
@@ -293,7 +293,7 @@ impl Simulator {
                             position,
                         ));
                     } else {
-                        return Err(SimulatorError::FloatingNode);
+                        return Err(SimulatorError::FloatingNode(name.clone()));
                     }
                 }
 
@@ -317,7 +317,7 @@ impl Simulator {
                                 position,
                             ))
                         } else {
-                            return Err(SimulatorError::FloatingNode);
+                            return Err(SimulatorError::FloatingNode(name.clone()));
                         }
                     } else {
                         return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
@@ -344,7 +344,7 @@ impl Simulator {
                                 position,
                             ));
                         } else {
-                            return Err(SimulatorError::FloatingNode);
+                            return Err(SimulatorError::FloatingNode(name.clone()));
                         }
                     } else {
                         return Err(SimulatorError::UnconfiguredElement(name));
@@ -371,7 +371,7 @@ impl Simulator {
                                 position,
                             ))
                         } else {
-                            return Err(SimulatorError::FloatingNode);
+                            return Err(SimulatorError::FloatingNode(name.clone()));
                         }
                     } else {
                         return Err(SimulatorError::UnconfiguredElement(name.to_owned()));
@@ -398,7 +398,7 @@ impl Simulator {
                                 position,
                             ));
                         } else {
-                            return Err(SimulatorError::FloatingNode);
+                            return Err(SimulatorError::FloatingNode(name.clone()));
                         }
                     } else {
                         return Err(SimulatorError::UnconfiguredElement(name));
@@ -421,7 +421,7 @@ impl Simulator {
                                 position,
                             ));
                         } else {
-                            return Err(SimulatorError::FloatingNode);
+                            return Err(SimulatorError::FloatingNode(name.clone()));
                         }
                     } else {
                         return Err(SimulatorError::UnconfiguredElement(name));

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import {
   DistortionAnalysisConfig,
   FrequencyVariation,
@@ -15,7 +15,7 @@ import {
 } from "@/utils/simulation";
 import { Typography } from "@/components/ui/Typography";
 import { Button } from "@/components/ui/Button";
-import { CircleHelp, SquareCheck } from "lucide-react";
+import { CircleHelp, LoaderCircle, SquareCheck } from "lucide-react";
 import SimulationStatus from "../SimulationsStatus";
 import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -30,13 +30,21 @@ import { Label } from "@/components/ui/label";
 export const Trigger: FC = () => {
   const simulationMap = useSimulationStore.use.simulationsToRun();
   const isEnqueued = hasAnyOfType(simulationMap, isDistortionAnalysis);
+  const id = getIdOfType(simulationMap, isDistortionAnalysis);
+  const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
+  const isRunning = isSimulationRunning(status);
 
   return (
     <div className="bg-accent rounded-sm overflow-hidden flex items-center gap-2">
       <Typography className="capitalize" variant="h4">
         {SimulationDisplay[Simulation.Distortion]}
       </Typography>
-      {isEnqueued && <SquareCheck className="stroke-primary" size={25} />}
+      {isEnqueued &&
+        (isRunning ? (
+          <LoaderCircle size={25} className="stroke-primary animate-spin" />
+        ) : (
+          <SquareCheck className="stroke-primary" size={25} />
+        ))}
     </div>
   );
 };
@@ -49,8 +57,13 @@ export const Content: FC = () => {
     handleSubmit,
     reset,
     formState: { isDirty },
-    control
+    control,
+    setFocus
   } = useForm<DistortionAnalysisForm>({});
+
+  useEffect(() => {
+    setFocus("nx");
+  }, []);
 
   const simulationMap = useSimulationStore.use.simulationsToRun();
 

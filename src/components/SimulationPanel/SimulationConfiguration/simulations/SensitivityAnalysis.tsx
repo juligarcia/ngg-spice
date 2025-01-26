@@ -12,7 +12,7 @@ import {
 import { FC, Fragment } from "react";
 import { Typography } from "@/components/ui/Typography";
 import { Button } from "@/components/ui/Button";
-import { CircleHelp, SquareCheck } from "lucide-react";
+import { CircleHelp, LoaderCircle, SquareCheck } from "lucide-react";
 import SimulationStatus from "../SimulationsStatus";
 import { useSimulationStore } from "@/store/simulation";
 import {
@@ -51,13 +51,21 @@ import { isEmpty } from "lodash";
 export const Trigger: FC = () => {
   const simulationMap = useSimulationStore.use.simulationsToRun();
   const isEnqueued = hasAnyOfType(simulationMap, isSensitivityAnalysis);
+  const id = getIdOfType(simulationMap, isSensitivityAnalysis);
+  const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
+  const isRunning = isSimulationRunning(status);
 
   return (
     <div className="bg-accent rounded-sm overflow-hidden flex items-center gap-2">
       <Typography className="capitalize" variant="h4">
         {SimulationDisplay[Simulation.Sensitivity]}
       </Typography>
-      {isEnqueued && <SquareCheck className="stroke-primary" size={25} />}
+      {isEnqueued &&
+        (isRunning ? (
+          <LoaderCircle size={25} className="stroke-primary animate-spin" />
+        ) : (
+          <SquareCheck className="stroke-primary" size={25} />
+        ))}
     </div>
   );
 };

@@ -4,10 +4,10 @@ import {
   SimulationDisplay,
   TransientAnalysisConfig
 } from "@/types/simulation";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { SquareCheck } from "lucide-react";
+import { LoaderCircle, SquareCheck } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/Button";
 import { useSimulationStore } from "@/store/simulation";
@@ -24,13 +24,21 @@ import FieldContainer from "@/components/ui/FieldContainer";
 export const Trigger: FC = () => {
   const simulationMap = useSimulationStore.use.simulationsToRun();
   const isEnqueued = hasAnyOfType(simulationMap, isTransientAnalysis);
+  const id = getIdOfType(simulationMap, isTransientAnalysis);
+  const status = useSimulationStore.use.simulationStatus().get(id || "no-id");
+  const isRunning = isSimulationRunning(status);
 
   return (
     <div className="px-1 bg-accent rounded-sm overflow-hidden flex items-center gap-2 w-full mr-2">
       <Typography className="capitalize" variant="h4">
         {SimulationDisplay[Simulation.Transient]}
       </Typography>
-      {isEnqueued && <SquareCheck className="stroke-primary" size={25} />}
+      {isEnqueued &&
+        (isRunning ? (
+          <LoaderCircle size={25} className="stroke-primary animate-spin" />
+        ) : (
+          <SquareCheck className="stroke-primary" size={25} />
+        ))}
     </div>
   );
 };
@@ -60,10 +68,15 @@ export const Content: FC = () => {
     handleSubmit,
     reset,
     formState: { isDirty, errors },
-    control
+    control,
+    setFocus
   } = useForm<TransientAnalysisConfigForm>({
     defaultValues: configuration?.Tran || {}
   });
+
+  useEffect(() => {
+    setFocus("tstep");
+  }, []);
 
   return (
     <div className="p-1">

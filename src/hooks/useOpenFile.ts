@@ -20,6 +20,7 @@ const useOpenFile = () => {
   const { setNodes, setEdges, fitView } = useReactFlow();
 
   const setSimulationsToRun = useSimulationStore.use.setSimulationsToRun();
+  const clearStoredData = useSimulationStore.use.clearStoredData();
 
   useEffect(() => {
     const will_be_unlisten = listen<OpenFile>("open_file", (event) => {
@@ -34,10 +35,23 @@ const useOpenFile = () => {
 
       setNodes(nodes);
       setEdges(ContractEdge.toDomain(event.payload.edges));
+      clearStoredData();
       setSimulationsToRun(event.payload.config);
 
       // Trigger re-center after updating nodes
       setTimeout(() => fitView({ nodes, duration: 300 }), 10);
+    });
+
+    return () => {
+      will_be_unlisten.then((unlisten) => unlisten());
+    };
+  }, [setNodes, setEdges, setSimulationsToRun]);
+
+  useEffect(() => {
+    const will_be_unlisten = listen("clear_for_new_file", () => {
+      setNodes([]);
+      setEdges([]);
+      clearStoredData();
     });
 
     return () => {

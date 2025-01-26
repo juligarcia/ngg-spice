@@ -1,7 +1,6 @@
 import {
   Background,
   BackgroundVariant,
-  Controls,
   ReactFlow,
   addEdge,
   useEdgesState,
@@ -37,6 +36,7 @@ import { getBySelector, getCenter } from "@/utils/dom";
 import { v4 as uuidv4 } from "uuid";
 import { useMouse } from "@uidotdev/usehooks";
 import { getNodeCount } from "@/utils/nodes";
+import { Shortcuts } from "@/constants/shortcuts";
 
 const Editor: FC = () => {
   const { theme } = useTheme();
@@ -44,11 +44,12 @@ const Editor: FC = () => {
   const [mousePosition] = useMouse();
 
   const { getState } = useStoreApi();
-  const { getNode, screenToFlowPosition } = useReactFlow();
+  const { getNode, screenToFlowPosition, fitView } = useReactFlow();
 
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(
     getState().nodes as AppNode[]
   );
+
   const [edges, setEdges, onEdgesChange] = useEdgesState<AppEdge>(
     getState().edges as AppEdge[]
   );
@@ -56,6 +57,10 @@ const Editor: FC = () => {
   const { R, C, L, Gnd, V, I, G, E, F, H, Q } = spiceNodes;
 
   const { os } = useOs();
+
+  useHotkeys(osHotkeys(Shortcuts.CenterSchematic.osHotKeys, os), () => {
+    fitView({ nodes, duration: 300 });
+  });
 
   const createNewSpiceNode = (
     node: SpiceNodeDefinition & Partial<SpiceData>
@@ -83,7 +88,7 @@ const Editor: FC = () => {
     }
   });
 
-  useHotkeys(osHotkeys({ macos: "r", windows: "r", linux: "r" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceResistor.osHotKeys, os), () => {
     if (!R) return;
 
     const newComponentNode = createNewSpiceNode(R);
@@ -91,7 +96,7 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "c", windows: "c", linux: "c" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceCapacitor.osHotKeys, os), () => {
     if (!C) return;
 
     const newComponentNode = createNewSpiceNode(C);
@@ -99,7 +104,7 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "l", windows: "l", linux: "l" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceInductor.osHotKeys, os), () => {
     if (!L) return;
 
     const newComponentNode = createNewSpiceNode(L);
@@ -107,18 +112,15 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(
-    osHotkeys({ macos: "meta+g", windows: "alt+g", linux: "alt+g" }, os),
-    () => {
-      if (!Gnd) return;
+  useHotkeys(osHotkeys(Shortcuts.PlaceGround.osHotKeys, os), () => {
+    if (!Gnd) return;
 
-      const newComponentNode = createNewSpiceNode(Gnd);
+    const newComponentNode = createNewSpiceNode(Gnd);
 
-      setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
-    }
-  );
+    setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
+  });
 
-  useHotkeys(osHotkeys({ macos: "v", windows: "v", linux: "v" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceVoltageSource.osHotKeys, os), () => {
     if (!V) return;
 
     const newComponentNode = createNewSpiceNode(V);
@@ -126,7 +128,7 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "i", windows: "i", linux: "i" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceCurrentSource.osHotKeys, os), () => {
     if (!I) return;
 
     const newComponentNode = createNewSpiceNode(I);
@@ -134,7 +136,7 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "g", windows: "g", linux: "g" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceVCIS.osHotKeys, os), () => {
     if (!G) return;
 
     const newComponentNode = createNewSpiceNode(G);
@@ -142,7 +144,7 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "e", windows: "e", linux: "e" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceVCVS.osHotKeys, os), () => {
     if (!E) return;
 
     const newComponentNode = createNewSpiceNode(E);
@@ -150,7 +152,7 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "f", windows: "f", linux: "f" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceICIS.osHotKeys, os), () => {
     if (!F) return;
 
     const newComponentNode = createNewSpiceNode(F);
@@ -158,7 +160,7 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "h", windows: "h", linux: "h" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceICVS.osHotKeys, os), () => {
     if (!H) return;
 
     const newComponentNode = createNewSpiceNode(H);
@@ -166,7 +168,7 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "q", windows: "q", linux: "q" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceBJT.osHotKeys, os), () => {
     if (!Q) return;
 
     const newComponentNode = createNewSpiceNode(Q);
@@ -174,7 +176,7 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys({ macos: "t", windows: "t", linux: "t" }, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceTag.osHotKeys, os), () => {
     const newComponentNode = createNewConnectionNode();
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
@@ -297,7 +299,6 @@ const Editor: FC = () => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
       >
-        <Controls showZoom={false} showInteractive={false}></Controls>
         <Background variant={BackgroundVariant.Dots} gap={20} size={2} />
       </ReactFlow>
     </div>

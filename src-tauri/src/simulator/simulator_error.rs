@@ -1,13 +1,14 @@
+use serde::{Deserialize, Serialize};
+
 use super::unit_of_magnitude::UnitOfMagnitudeError;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum SimulatorError {
-    FloatingNode,
+    FloatingNode(String),
     UnconfiguredElement(String),
     ElementParserError(String),
     NoSchematicFound,
-    FailedToCreateTempCircuitFile,
-    FailedToWriteToTempCircuitFile,
     UnitError(UnitOfMagnitudeError),
-    MalformedSimulationConfig,
+    MalformedSimulationConfig(String),
+    FailedToSaveGraphicSpiceFile,
 }
