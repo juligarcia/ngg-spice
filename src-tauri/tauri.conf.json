@@ -20,7 +20,7 @@
     }
   },
   "productName": "Graphic Spice",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "identifier": "com.graphic.spice",
   "plugins": {},
   "app": {
