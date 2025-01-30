@@ -155,11 +155,11 @@ impl SpiceManager for NGGSpiceManager {
         }
     }
     fn cb_bgt_state(&mut self, is_fin: bool, id: i32) {
-        // log::info!(
-        //     "BG thread for {} is {};",
-        //     id,
-        //     if is_fin { "done" } else { "starting" }
-        // );
+        log::info!(
+            "BG thread for {} is {};",
+            id,
+            if is_fin { "done" } else { "starting" }
+        );
 
         if is_fin {
             let mut orch_guard = self.thread_orchestrator.lock().unwrap();

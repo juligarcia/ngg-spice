@@ -22,7 +22,10 @@ const SimulationPanelTrigger: FC = () => {
 
   useHotkeys(
     osHotkeys(Shortcuts.ToggleSimulationPanel.osHotKeys, os),
-    toggleSimulationPanelOpen
+    (event) => {
+      if (event.repeat) return;
+      toggleSimulationPanelOpen();
+    }
   );
 
   return (

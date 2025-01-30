@@ -53,6 +53,7 @@ const useSimulationPanel = () => {
     const will_be_unlisten = listen<SimulationDataPayload>(
       SimulationListenerTag.DataPush,
       (event) => {
+        console.log(event.payload);
         pushSimulationData(event.payload);
       }
     );

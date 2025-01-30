@@ -706,11 +706,6 @@ impl NodeMapper {
                 Directives::SimConfig { id, config } => {
                     config_map.insert(id.to_string(), config);
                 }
-
-                _ => {
-                    // Skip directives that are not of value
-                    continue;
-                }
             }
         }
 

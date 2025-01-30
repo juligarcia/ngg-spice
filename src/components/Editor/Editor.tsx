@@ -58,7 +58,9 @@ const Editor: FC = () => {
 
   const { os } = useOs();
 
-  useHotkeys(osHotkeys(Shortcuts.CenterSchematic.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.CenterSchematic.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     fitView({ nodes, duration: 300 });
   });
 
@@ -88,7 +90,9 @@ const Editor: FC = () => {
     }
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceResistor.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceResistor.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!R) return;
 
     const newComponentNode = createNewSpiceNode(R);
@@ -96,7 +100,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceCapacitor.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceCapacitor.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!C) return;
 
     const newComponentNode = createNewSpiceNode(C);
@@ -104,7 +110,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceInductor.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceInductor.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!L) return;
 
     const newComponentNode = createNewSpiceNode(L);
@@ -112,7 +120,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceGround.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceGround.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!Gnd) return;
 
     const newComponentNode = createNewSpiceNode(Gnd);
@@ -120,7 +130,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceVoltageSource.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceVoltageSource.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!V) return;
 
     const newComponentNode = createNewSpiceNode(V);
@@ -128,7 +140,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceCurrentSource.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceCurrentSource.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!I) return;
 
     const newComponentNode = createNewSpiceNode(I);
@@ -136,7 +150,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceVCIS.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceVCIS.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!G) return;
 
     const newComponentNode = createNewSpiceNode(G);
@@ -144,7 +160,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceVCVS.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceVCVS.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!E) return;
 
     const newComponentNode = createNewSpiceNode(E);
@@ -152,7 +170,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceICIS.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceICIS.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!F) return;
 
     const newComponentNode = createNewSpiceNode(F);
@@ -160,7 +180,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceICVS.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceICVS.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!H) return;
 
     const newComponentNode = createNewSpiceNode(H);
@@ -168,7 +190,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceBJT.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceBJT.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (!Q) return;
 
     const newComponentNode = createNewSpiceNode(Q);
@@ -176,7 +200,9 @@ const Editor: FC = () => {
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);
   });
 
-  useHotkeys(osHotkeys(Shortcuts.PlaceTag.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.PlaceTag.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     const newComponentNode = createNewConnectionNode();
 
     setNodes((nodes: AppNode[]) => [...nodes, newComponentNode]);

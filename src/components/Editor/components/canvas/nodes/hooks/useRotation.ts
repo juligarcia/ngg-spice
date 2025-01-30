@@ -91,7 +91,9 @@ export const useRotation = ({
     });
   }, []);
 
-  useHotkeys(osHotkeys(Shortcuts.RotateElement.osHotKeys, os), () => {
+  useHotkeys(osHotkeys(Shortcuts.RotateElement.osHotKeys, os), (event) => {
+    if (event.repeat) return;
+
     if (selected) {
       const newPositions = arrayRotate(rotatedPositions) as RotatedPositions;
       const [top, right, bottom, left] = newPositions;
