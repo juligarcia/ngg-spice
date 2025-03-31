@@ -37,7 +37,7 @@ const useSimulationPanel = () => {
   const { getNodes, getEdges } = useReactFlow<AppNode, AppEdge>();
 
   useEffect(() => {
-    const will_be_unlisten = listen<SimulationStatusPayload>(
+    const willBeUnlisten = listen<SimulationStatusPayload>(
       SimulationListenerTag.StatusUpdate,
       (event) => {
         updateSimulationStatus(event.payload);
@@ -45,12 +45,12 @@ const useSimulationPanel = () => {
     );
 
     return () => {
-      will_be_unlisten.then((unlisten) => unlisten());
+      willBeUnlisten.then((unlisten) => unlisten());
     };
   }, []);
 
   useEffect(() => {
-    const will_be_unlisten = listen<SimulationDataPayload>(
+    const willBeUnlisten = listen<SimulationDataPayload>(
       SimulationListenerTag.DataPush,
       (event) => {
         console.log(event.payload);
@@ -59,7 +59,7 @@ const useSimulationPanel = () => {
     );
 
     return () => {
-      will_be_unlisten.then((unlisten) => unlisten());
+      willBeUnlisten.then((unlisten) => unlisten());
     };
   }, []);
 

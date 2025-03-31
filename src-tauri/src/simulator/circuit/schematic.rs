@@ -27,7 +27,12 @@ impl Schematic {
     }
 
     fn get_netlist_header() -> String {
-        format!("TITLE\n")
+        format!("Graphic Spice Netlist\n")
+    }
+
+    fn get_netlist_options() -> String {
+        format!("")
+        // format!(".options savecurrents\n")
     }
 
     fn get_netlist_footer() -> String {
@@ -43,6 +48,8 @@ impl Schematic {
             let line = element.get_netlist_representation(&self.ground_alias)?;
             netlist.push_str(&line);
         }
+
+        netlist.push_str(&Self::get_netlist_options());
 
         netlist.push_str(&sim_config.format());
 

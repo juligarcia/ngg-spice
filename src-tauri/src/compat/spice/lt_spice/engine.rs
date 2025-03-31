@@ -624,8 +624,8 @@ impl NodeMapper {
         }
 
         // Treat each wire as a node
-        for directive in &directives {
-            match directive {
+        for wire in &wires {
+            match wire {
                 Directives::Wire {
                     start,
                     end,

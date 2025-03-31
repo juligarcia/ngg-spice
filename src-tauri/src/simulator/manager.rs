@@ -125,7 +125,7 @@ impl SpiceManager for NGGSpiceManager {
         let simulation_data = SimulationData::new(pkvecvaluesall);
 
         if let Some(simulation_id) = maybe_id {
-            if orch_guard.has_threshold_elapsed(id as usize, 150) {
+            if orch_guard.has_threshold_elapsed(id as usize, 300) {
                 orch_guard.restart_timer(id as usize);
 
                 let buffer = orch_guard.flush_simulation_data_buffer(id as usize);
@@ -137,7 +137,7 @@ impl SpiceManager for NGGSpiceManager {
                 );
 
                 if let Err(_) = self.app_handle.emit(
-                    "simulation_data_push",
+                    "simulation_data_update",
                     SimulationDataPayload {
                         id: simulation_id,
                         data: buffer,
@@ -175,7 +175,7 @@ impl SpiceManager for NGGSpiceManager {
                 log::info!("BG thread: {} flushing due to termination", id,);
 
                 if let Err(_) = self.app_handle.emit(
-                    "simulation_data_push",
+                    "simulation_data_update",
                     SimulationDataPayload {
                         id: running_id.to_owned(),
                         data: buffer,

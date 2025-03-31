@@ -8,4 +8,4 @@ pub mod simulation_status;
 pub mod simulator;
 pub mod simulator_error;
 pub mod unit_of_magnitude;
-use super::{compat, paprika};
+use super::paprika;

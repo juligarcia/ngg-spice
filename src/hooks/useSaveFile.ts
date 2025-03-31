@@ -31,7 +31,7 @@ const useSaveFile = () => {
   const simulationsToRun = useSimulationStore.use.simulationsToRun();
 
   useEffect(() => {
-    const will_be_unlisten = listen<CanvasDataRequest>(
+    const willBeUnlisten = listen<CanvasDataRequest>(
       "canvas_data_request",
       (event) => {
         const nodes = getNodes();
@@ -56,7 +56,7 @@ const useSaveFile = () => {
     );
 
     return () => {
-      will_be_unlisten.then((unlisten) => unlisten());
+      willBeUnlisten.then((unlisten) => unlisten());
     };
   }, [getEdges, getNodes, simulationsToRun]);
 };

@@ -23,7 +23,7 @@ const useOpenFile = () => {
   const clearStoredData = useSimulationStore.use.clearStoredData();
 
   useEffect(() => {
-    const will_be_unlisten = listen<OpenFile>("open_file", (event) => {
+    const willBeUnlisten = listen<OpenFile>("open_file", (event) => {
       const nodes = ContractNode.toDomain(
         event.payload.nodes,
         // Spacing factor for the nodes
@@ -43,19 +43,19 @@ const useOpenFile = () => {
     });
 
     return () => {
-      will_be_unlisten.then((unlisten) => unlisten());
+      willBeUnlisten.then((unlisten) => unlisten());
     };
   }, [setNodes, setEdges, setSimulationsToRun]);
 
   useEffect(() => {
-    const will_be_unlisten = listen("clear_for_new_file", () => {
+    const willBeUnlisten = listen("clear_for_new_file", () => {
       setNodes([]);
       setEdges([]);
       clearStoredData();
     });
 
     return () => {
-      will_be_unlisten.then((unlisten) => unlisten());
+      willBeUnlisten.then((unlisten) => unlisten());
     };
   }, [setNodes, setEdges, setSimulationsToRun]);
 };

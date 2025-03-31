@@ -1,6 +1,6 @@
 export enum SimulationListenerTag {
   StatusUpdate = "simulation_status_update",
-  DataPush = "simulation_data_push"
+  DataPush = "simulation_data_update"
 }
 
 export enum Simulation {

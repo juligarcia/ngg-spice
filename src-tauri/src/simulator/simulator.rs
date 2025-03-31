@@ -60,7 +60,7 @@ impl Simulator {
     }
 
     pub fn run(&mut self) {
-        log::info!("Being run on thread {}...", self.id);
+        log::info!("Begin run on thread {}...", self.id);
 
         loop {
             let orch_guard = self.thread_orchestrator.lock().unwrap();
