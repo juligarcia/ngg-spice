@@ -8,7 +8,10 @@ use std::{
 };
 
 use super::paprika::spice::spice::Spice;
+use super::simulation_data::SimulationDataPayload;
+use super::simulation_status::SimulationStatusPayload;
 use colored::Colorize;
+use tauri::ipc::Channel;
 
 use super::commands::{SecondaryThreadStatus, SimulationThreadOrchestrator};
 use super::simulation::Simulation;
@@ -37,9 +40,15 @@ impl Simulator {
         id: usize,
         thread_orchestrator: Arc<Mutex<SimulationThreadOrchestrator>>,
         lib: PathBuf,
-        app_handle: tauri::AppHandle,
+        data_update_channel: Channel<SimulationDataPayload>,
+        status_update_channel: Channel<SimulationStatusPayload>,
     ) -> (Simulator, Library) {
-        let manager = NGGSpiceManager::new(id, Arc::clone(&thread_orchestrator), app_handle);
+        let manager = NGGSpiceManager::new(
+            id,
+            Arc::clone(&thread_orchestrator),
+            data_update_channel,
+            status_update_channel,
+        );
         log::info!("Manager created for thread {}", id);
 
         let (spice, library) = Spice::init(OsStr::new(lib.as_os_str()), manager, id as i32)

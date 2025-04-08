@@ -4,7 +4,7 @@ use std::{
     collections::VecDeque,
     sync::{Arc, Mutex, RwLock},
 };
-use tauri::Emitter;
+use tauri::ipc::Channel;
 
 use crate::simulator::{
     commands::SecondaryThreadStatus,
@@ -16,30 +16,32 @@ use super::{
     simulation_data::{SimulationData, SimulationDataPayload},
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct NGGSpiceManager {
     // -------- Callbacks
     sharedres: Arc<RwLock<VecDeque<String>>>,
     quit_flag: bool,
 
     // -------- Internal
-    app_handle: tauri::AppHandle,
-    // used to orchestrate simulation
     id: usize,
     thread_orchestrator: Arc<Mutex<SimulationThreadOrchestrator>>,
+    data_update_channel: Channel<SimulationDataPayload>,
+    status_update_channel: Channel<SimulationStatusPayload>,
 }
 
 impl NGGSpiceManager {
     pub fn new(
         id: usize,
         thread_orchestrator: Arc<Mutex<SimulationThreadOrchestrator>>,
-        app_handle: tauri::AppHandle,
+        data_update_channel: Channel<SimulationDataPayload>,
+        status_update_channel: Channel<SimulationStatusPayload>,
     ) -> Self {
         NGGSpiceManager {
             sharedres: Arc::new(RwLock::new(VecDeque::<String>::with_capacity(10))),
             quit_flag: false,
 
-            app_handle,
+            data_update_channel,
+            status_update_channel,
 
             thread_orchestrator,
             id,
@@ -77,13 +79,10 @@ impl SpiceManager for NGGSpiceManager {
             Some(id) => {
                 match SimulationStatus::new(&msg) {
                     Ok(status) => {
-                        if let Err(_) = self.app_handle.emit(
-                            "simulation_status_update",
-                            SimulationStatusPayload {
-                                status,
-                                id: id.to_owned(),
-                            },
-                        ) {
+                        if let Err(_) = self.status_update_channel.send(SimulationStatusPayload {
+                            status,
+                            id: id.to_owned(),
+                        }) {
                             self.cb_ctrldexit(1, true, true, 1);
                         };
                     }
@@ -125,7 +124,7 @@ impl SpiceManager for NGGSpiceManager {
         let simulation_data = SimulationData::new(pkvecvaluesall);
 
         if let Some(simulation_id) = maybe_id {
-            if orch_guard.has_threshold_elapsed(id as usize, 300) {
+            if orch_guard.has_threshold_elapsed(id as usize, 150) {
                 orch_guard.restart_timer(id as usize);
 
                 let buffer = orch_guard.flush_simulation_data_buffer(id as usize);
@@ -136,13 +135,10 @@ impl SpiceManager for NGGSpiceManager {
                     buffer.len()
                 );
 
-                if let Err(_) = self.app_handle.emit(
-                    "simulation_data_update",
-                    SimulationDataPayload {
-                        id: simulation_id,
-                        data: buffer,
-                    },
-                ) {
+                if let Err(_) = self.data_update_channel.send(SimulationDataPayload {
+                    id: simulation_id,
+                    data: buffer,
+                }) {
                     drop(orch_guard);
                     self.cb_ctrldexit(1, true, true, 1);
                 }
@@ -174,23 +170,17 @@ impl SpiceManager for NGGSpiceManager {
 
                 log::info!("BG thread: {} flushing due to termination", id,);
 
-                if let Err(_) = self.app_handle.emit(
-                    "simulation_data_update",
-                    SimulationDataPayload {
-                        id: running_id.to_owned(),
-                        data: buffer,
-                    },
-                ) {
+                if let Err(_) = self.data_update_channel.send(SimulationDataPayload {
+                    id: running_id.to_owned(),
+                    data: buffer,
+                }) {
                     self.cb_ctrldexit(1, true, true, 1);
                 }
 
-                if let Err(_) = self.app_handle.emit(
-                    "simulation_status_update",
-                    SimulationStatusPayload {
-                        status: SimulationStatus::Ready,
-                        id: running_id.to_owned(),
-                    },
-                ) {
+                if let Err(_) = self.status_update_channel.send(SimulationStatusPayload {
+                    status: SimulationStatus::Ready,
+                    id: running_id.to_owned(),
+                }) {
                     self.cb_ctrldexit(1, true, true, 1);
                 }
             };

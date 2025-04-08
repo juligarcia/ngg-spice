@@ -1,12 +1,10 @@
-import { invoke } from "@tauri-apps/api/core";
+import { Channel, invoke } from "@tauri-apps/api/core";
 import { useReactFlow } from "@xyflow/react";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { AppNode, NodeType } from "../Editor/components/canvas/nodes/types";
 import { AppEdge } from "../Editor/components/canvas/edges/types";
-import { listen } from "@tauri-apps/api/event";
 import {
   SimulationDataPayload,
-  SimulationListenerTag,
   SimulationStatusPayload,
   SimulatorError
 } from "@/types/simulation";
@@ -36,33 +34,6 @@ const useSimulationPanel = () => {
 
   const { getNodes, getEdges } = useReactFlow<AppNode, AppEdge>();
 
-  useEffect(() => {
-    const willBeUnlisten = listen<SimulationStatusPayload>(
-      SimulationListenerTag.StatusUpdate,
-      (event) => {
-        updateSimulationStatus(event.payload);
-      }
-    );
-
-    return () => {
-      willBeUnlisten.then((unlisten) => unlisten());
-    };
-  }, []);
-
-  useEffect(() => {
-    const willBeUnlisten = listen<SimulationDataPayload>(
-      SimulationListenerTag.DataPush,
-      (event) => {
-        console.log(event.payload);
-        pushSimulationData(event.payload);
-      }
-    );
-
-    return () => {
-      willBeUnlisten.then((unlisten) => unlisten());
-    };
-  }, []);
-
   const simulate = useCallback(() => {
     const nodes = getNodes();
     const edges = getEdges();
@@ -86,10 +57,21 @@ const useSimulationPanel = () => {
 
     resetSimulations();
 
+    const dataUpdateChannel = new Channel<SimulationDataPayload>();
+    dataUpdateChannel.onmessage = (data) => {
+      console.log(data);
+      pushSimulationData(data);
+    };
+
+    const statusUpdateChannel = new Channel<SimulationStatusPayload>();
+    statusUpdateChannel.onmessage = updateSimulationStatus;
+
     invoke<void>("simulate", {
       nodes: ContractNode.toContract(nodes),
       edges: ContractEdge.toContract(edges, connectionNodesMap),
-      config: Object.fromEntries(simulationsToRun) as ContractSimulationsToRun
+      config: Object.fromEntries(simulationsToRun) as ContractSimulationsToRun,
+      dataUpdateChannel,
+      statusUpdateChannel
     })
       .then(() => {
         toast.success("All simulations done!");

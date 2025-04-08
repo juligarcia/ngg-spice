@@ -31,8 +31,8 @@ impl Schematic {
     }
 
     fn get_netlist_options() -> String {
-        format!("")
-        // format!(".options savecurrents\n")
+        // format!("")
+        format!(".options savecurrents\n")
     }
 
     fn get_netlist_footer() -> String {

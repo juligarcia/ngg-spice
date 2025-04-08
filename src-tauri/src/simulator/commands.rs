@@ -6,7 +6,7 @@ use std::{
     thread::{self, sleep},
     time::{Duration, Instant, SystemTime},
 };
-use tauri::{Manager, State};
+use tauri::{ipc::Channel, Manager, State};
 
 use tauri_plugin_dialog::DialogExt;
 
@@ -19,7 +19,8 @@ use super::{
     circuit::canvas::{CanvasEdge, CanvasNode},
     sharedlib::get_shared_lib_path,
     simulation::SimulationConfig,
-    simulation_data::SimulationData,
+    simulation_data::{SimulationData, SimulationDataPayload},
+    simulation_status::SimulationStatusPayload,
     simulator::Simulator,
     simulator_error::SimulatorError,
 };
@@ -236,6 +237,8 @@ pub async fn simulate(
     nodes: Vec<CanvasNode>,
     edges: Vec<CanvasEdge>,
     config: HashMap<String, SimulationConfig>,
+    data_update_channel: Channel<SimulationDataPayload>,
+    status_update_channel: Channel<SimulationStatusPayload>,
     app_handle: tauri::AppHandle,
 ) -> Result<(), SimulatorError> {
     let app_state: State<AppState, '_> = app_handle.state();
@@ -331,6 +334,8 @@ pub async fn simulate(
         let t_orchestrator = Arc::clone(&orchestrator);
         let t_app_handle = app_handle.clone();
         let t_schematic = schematic.clone();
+        let t_data_update_channel = data_update_channel.clone();
+        let t_status_update_channel = status_update_channel.clone();
 
         let handle = thread::spawn(move || {
             let thread_id = thread_n;
@@ -342,8 +347,13 @@ pub async fn simulate(
             log::info!("Opening lib at: {:?}", path.as_os_str());
 
             // Library needs to live until its done being used
-            let (mut simulator, library) =
-                Simulator::init(thread_id, t_orchestrator, path, t_app_handle);
+            let (mut simulator, library) = Simulator::init(
+                thread_id,
+                t_orchestrator,
+                path,
+                t_data_update_channel,
+                t_status_update_channel,
+            );
 
             simulator.load_schematic(t_schematic);
 
